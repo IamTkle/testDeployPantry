@@ -1,14 +1,13 @@
 import React, { ReactElement } from "react";
 import Drawer from "@material-ui/core/Drawer";
 import {
-  Button,
   makeStyles,
   Theme,
-  Typography,
   useTheme,
-  Divider,
-  IconButton,
-  Box,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  List,
 } from "@material-ui/core";
 import InventoryIcon from "@material-ui/icons/AllInbox";
 import ShoppingListIcon from "@material-ui/icons/ShoppingCartOutlined";
@@ -17,7 +16,7 @@ import RecipeIcon from "@material-ui/icons/MenuBookOutlined";
 import QRIcon from "@material-ui/icons/CropFreeOutlined";
 import SettingsIcon from "@material-ui/icons/Settings";
 import AccountIcon from "@material-ui/icons/AccountCircle";
-import { ClassNameMap, createStyles } from "@material-ui/styles";
+import { createStyles } from "@material-ui/styles";
 
 // interface params {
 //   useStyles: () => ClassNameMap;
@@ -59,12 +58,21 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: "center",
       fontWeight: "bold",
     },
+    root: {
+      "&.Mui-selected": {
+        backgroundColor: theme.palette.primary.light,
+      },
+    },
+    selected: {
+      backgroundColor: theme.palette.primary.dark,
+    },
   })
 );
 
 interface NavbarProps {
   navbarOpen: boolean;
 }
+
 const NavBar: React.FC<NavbarProps> = ({ navbarOpen }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
@@ -113,6 +121,15 @@ const NavBar: React.FC<NavbarProps> = ({ navbarOpen }) => {
     },
   ];
 
+  const [selectedNavEle, setSelectedNavEle] = React.useState(0);
+
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    i: number
+  ) => {
+    setSelectedNavEle(i);
+  };
+
   return (
     <Drawer
       variant="persistent"
@@ -121,31 +138,22 @@ const NavBar: React.FC<NavbarProps> = ({ navbarOpen }) => {
       color={theme.palette.primary.dark}
       classes={{ paper: classes.paper }}
     >
-      {navItems.map((item) => {
-        return (
-          <Button
-            key={item.link}
-            size="large"
-            variant="contained"
-            className={classes.singleTab}
-            startIcon={item.icon}
-            href={item.link}
-            disableElevation
-            TouchRippleProps={{ color: theme.palette.primary.dark }}
-          >
-            <div className={classes.navText}>
-              <Typography
-                variant="body2"
-                component="span"
-                style={{ fontWeight: "normal" }}
-                color="textPrimary"
-              >
-                {item.descText}
-              </Typography>
-            </div>
-          </Button>
-        );
-      })}
+      <List component="nav">
+        {navItems.map((item, i) => {
+          return (
+            <ListItem
+              button
+              selected={selectedNavEle === i}
+              alignItems="center"
+              onClick={(e) => handleNavClick(e, i)}
+              classes={{ selected: classes.root }}
+            >
+              <ListItemIcon>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.descText} />
+            </ListItem>
+          );
+        })}
+      </List>
     </Drawer>
   );
 };

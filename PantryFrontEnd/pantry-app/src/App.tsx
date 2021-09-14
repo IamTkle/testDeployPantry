@@ -7,7 +7,7 @@ import {
   createStyles,
 } from "@material-ui/core/styles";
 import { BrowserRouter, Route } from "react-router-dom";
-import { Box, Grid } from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import Inventory from "./components/pages/Inventory";
 import React from "react";
 
@@ -64,7 +64,7 @@ function App() {
               {/* <div onClick}></div> */}
               <Route
                 path="/inventory"
-                render={() => (
+                render={(routeprops) => (
                   <Inventory
                     closeNavbar={closeNavbar}
                     openNavbar={openNavbar}

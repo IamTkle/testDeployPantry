@@ -1,18 +1,12 @@
 import {
   AppBar,
-  InputBase,
   makeStyles,
   TextField,
   Theme,
-  Toolbar,
   useTheme,
-  Box,
-  Button,
 } from "@material-ui/core";
 import { createStyles } from "@material-ui/core/styles";
-import SearchIcon from "@material-ui/icons/SearchOutlined";
 import React from "react";
-import { Route } from "react-router";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -37,6 +31,7 @@ interface InventoryProps {
   openNavbar: () => void;
   closeNavbar: () => void;
 }
+
 const Inventory: React.FC<InventoryProps> = ({ openNavbar, closeNavbar }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
