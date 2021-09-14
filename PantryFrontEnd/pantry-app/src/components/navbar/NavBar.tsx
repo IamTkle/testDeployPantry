@@ -8,6 +8,8 @@ import {
   ListItemText,
   ListItemIcon,
   List,
+  ListItemSecondaryAction,
+  Button,
 } from "@material-ui/core";
 import InventoryIcon from "@material-ui/icons/AllInbox";
 import ShoppingListIcon from "@material-ui/icons/ShoppingCartOutlined";
@@ -17,11 +19,9 @@ import QRIcon from "@material-ui/icons/CropFreeOutlined";
 import SettingsIcon from "@material-ui/icons/Settings";
 import AccountIcon from "@material-ui/icons/AccountCircle";
 import { createStyles } from "@material-ui/styles";
+import { Link } from "react-router-dom";
 
-// interface params {
-//   useStyles: () => ClassNameMap;
-// }
-
+// all my homies hate comments
 type navItem = {
   icon: ReactElement<any, any>;
   descText: string;
@@ -30,41 +30,24 @@ type navItem = {
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    singleTab: {
-      display: "flex",
-      flexDireciton: "column",
-      justifyContent: "space-around",
-      alignItems: "center",
-      padding: theme.spacing(4),
-      borderRadius: 8,
-      backgroundColor: "white",
-      "&:nth-child(5n)": {
-        marginTop: "auto",
-      },
-      "&:hover": {
-        backgroundColor: theme.palette.primary.light,
-      },
-      // backgroundColor: theme.palette.primary.dark,
-    },
     paper: {
       background: theme.palette.text.secondary,
       width: theme.spacing(30),
       padding: "1rem 1rem",
     },
-    navText: {
-      width: "100%",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      fontWeight: "bold",
-    },
     root: {
       "&.Mui-selected": {
         backgroundColor: theme.palette.primary.light,
+        color: theme.palette.primary.dark,
+        fontWeight: 700,
+        fontSize: "1.25rem",
+        transition: "color 250ms ease-out",
+        borderRadius: theme.spacing(1),
+        "&:hover": {
+          color: theme.palette.text.primary,
+        },
       },
-    },
-    selected: {
-      backgroundColor: theme.palette.primary.dark,
+      color: theme.palette.text.primary,
     },
   })
 );
@@ -81,58 +64,61 @@ const NavBar: React.FC<NavbarProps> = ({ navbarOpen }) => {
     {
       descText: "Inventory",
       link: "inventory",
-      icon: <InventoryIcon htmlColor={theme.palette.text.primary} />,
+      icon: <InventoryIcon />,
     },
 
     {
       descText: "Shopping List",
       link: "shoplist",
-      icon: <ShoppingListIcon htmlColor={theme.palette.text.primary} />,
+      icon: <ShoppingListIcon />,
     },
 
     {
       descText: "Expired Bin",
       link: "expiredbin",
-      icon: <ExpiredBinIcon htmlColor={theme.palette.text.primary} />,
+      icon: <ExpiredBinIcon />,
     },
 
     {
       descText: "Recipes",
       link: "recipes",
-      icon: <RecipeIcon htmlColor={theme.palette.text.primary} />,
+      icon: <RecipeIcon />,
     },
 
     {
       descText: "QR Scan",
       link: "qrscan",
-      icon: <QRIcon htmlColor={theme.palette.text.primary} />,
+      icon: <QRIcon />,
     },
 
     {
       descText: "Settings",
       link: "settings",
-      icon: <SettingsIcon htmlColor={theme.palette.text.primary} />,
+      icon: <SettingsIcon />,
     },
 
     {
       descText: "Account",
       link: "account",
-      icon: <AccountIcon htmlColor={theme.palette.text.primary} />,
+      icon: <AccountIcon />,
     },
   ];
 
   const [selectedNavEle, setSelectedNavEle] = React.useState(0);
 
   const handleNavClick = (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    e:
+      | React.MouseEvent<HTMLSpanElement, MouseEvent>
+      | React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     i: number
   ) => {
+    // e.preventDefault();
     setSelectedNavEle(i);
   };
 
   return (
     <Drawer
-      variant="persistent"
+      variant="permanent"
       open={navbarOpen}
       anchor="left"
       color={theme.palette.primary.dark}
@@ -141,16 +127,19 @@ const NavBar: React.FC<NavbarProps> = ({ navbarOpen }) => {
       <List component="nav">
         {navItems.map((item, i) => {
           return (
-            <ListItem
-              button
-              selected={selectedNavEle === i}
-              alignItems="center"
-              onClick={(e) => handleNavClick(e, i)}
-              classes={{ selected: classes.root }}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.descText} />
-            </ListItem>
+            <Link to={item.link} style={{ textDecoration: "none" }}>
+              <ListItem
+                button
+                selected={selectedNavEle === i}
+                onClick={(e) => handleNavClick(e, i)}
+                alignItems="center"
+                classes={{ selected: classes.root }}
+                className={classes.root}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.descText} disableTypography />
+              </ListItem>
+            </Link>
           );
         })}
       </List>

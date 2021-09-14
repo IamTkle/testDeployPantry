@@ -28,7 +28,7 @@ const theme = createTheme({
   },
   spacing: 8,
   typography: {
-    fontFamily: "Roboto ,sans-serif",
+    fontFamily: "Cambay,sans-serif",
   },
 });
 
@@ -56,12 +56,11 @@ function App() {
     <div className={`App ${classes.root}`}>
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <Grid container spacing={1}>
+          <Grid container spacing={0}>
             <Grid item xs={4}>
               <NavBar navbarOpen={navbarOpen} />
             </Grid>
             <Grid item xs={8}>
-              {/* <div onClick}></div> */}
               <Route
                 path="/inventory"
                 render={(routeprops) => (
