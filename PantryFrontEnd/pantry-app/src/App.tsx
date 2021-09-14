@@ -7,9 +7,10 @@ import {
   createStyles,
 } from "@material-ui/core/styles";
 import { BrowserRouter, Route } from "react-router-dom";
-import { Grid } from "@material-ui/core";
-import Inventory from "./components/pages/Inventory";
+import Inventory from "./components/pages/inventory/Inventory";
+import ShoppingList from "./components/pages/shoppinglist/ShoppingList";
 import React from "react";
+import { CssBaseline } from "@material-ui/core";
 
 const theme = createTheme({
   palette: {
@@ -23,7 +24,10 @@ const theme = createTheme({
     secondary: { main: "#E6AA38" },
     text: {
       primary: "#666666",
-      secondary: "#FFFFFF",
+      secondary: "#BDBDBD",
+    },
+    background: {
+      default: "#FFFFFF",
     },
   },
   spacing: 8,
@@ -46,32 +50,18 @@ const useStyles = makeStyles(
 );
 
 function App() {
-  const classes = useStyles();
+  // const classes = useStyles();
 
-  const [navbarOpen, setNavbarOpen] = React.useState(true);
+  // const [navbarOpen, setNavbarOpen] = React.useState(true);
 
-  const closeNavbar = () => setNavbarOpen(false);
-  const openNavbar = () => setNavbarOpen(true);
   return (
-    <div className={`App ${classes.root}`}>
+    <div className={`App`}>
       <BrowserRouter>
         <ThemeProvider theme={theme}>
-          <Grid container spacing={0}>
-            <Grid item xs={4}>
-              <NavBar navbarOpen={navbarOpen} />
-            </Grid>
-            <Grid item xs={8}>
-              <Route
-                path="/inventory"
-                render={(routeprops) => (
-                  <Inventory
-                    closeNavbar={closeNavbar}
-                    openNavbar={openNavbar}
-                  />
-                )}
-              />
-            </Grid>
-          </Grid>
+          <CssBaseline />
+          <NavBar />
+          <Route path="/inventory" render={(routeprops) => <Inventory />} />
+          <Route path="/shoplist" render={(routerprops) => <ShoppingList />} />
         </ThemeProvider>
       </BrowserRouter>
     </div>

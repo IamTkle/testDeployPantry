@@ -8,8 +8,6 @@ import {
   ListItemText,
   ListItemIcon,
   List,
-  ListItemSecondaryAction,
-  Button,
 } from "@material-ui/core";
 import InventoryIcon from "@material-ui/icons/AllInbox";
 import ShoppingListIcon from "@material-ui/icons/ShoppingCartOutlined";
@@ -31,9 +29,9 @@ type navItem = {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
-      background: theme.palette.text.secondary,
-      width: theme.spacing(30),
-      padding: "1rem 1rem",
+      background: theme.palette.background.default,
+      width: theme.spacing(35),
+      padding: `${theme.spacing(2)}px ${theme.spacing(2)}px`,
     },
     root: {
       "&.Mui-selected": {
@@ -41,22 +39,25 @@ const useStyles = makeStyles((theme: Theme) =>
         color: theme.palette.primary.dark,
         fontWeight: 700,
         fontSize: "1.25rem",
-        transition: "color 250ms ease-out",
+        transition: "color 250ms ease-out, font-size 125ms ease-in",
         borderRadius: theme.spacing(1),
+        marginTop: theme.spacing(4),
+        marginBottom: theme.spacing(4),
         "&:hover": {
           color: theme.palette.text.primary,
         },
       },
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2),
       color: theme.palette.text.primary,
+      fontSize: "1rem",
     },
   })
 );
 
-interface NavbarProps {
-  navbarOpen: boolean;
-}
+interface NavbarProps {}
 
-const NavBar: React.FC<NavbarProps> = ({ navbarOpen }) => {
+const NavBar: React.FC<NavbarProps> = () => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
@@ -107,19 +108,15 @@ const NavBar: React.FC<NavbarProps> = ({ navbarOpen }) => {
   const [selectedNavEle, setSelectedNavEle] = React.useState(0);
 
   const handleNavClick = (
-    e:
-      | React.MouseEvent<HTMLSpanElement, MouseEvent>
-      | React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
     i: number
   ) => {
-    // e.preventDefault();
     setSelectedNavEle(i);
   };
 
   return (
     <Drawer
       variant="permanent"
-      open={navbarOpen}
       anchor="left"
       color={theme.palette.primary.dark}
       classes={{ paper: classes.paper }}
