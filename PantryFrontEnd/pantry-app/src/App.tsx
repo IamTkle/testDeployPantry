@@ -9,6 +9,8 @@ import {
 import { BrowserRouter, Route } from "react-router-dom";
 import Inventory from "./components/pages/inventory/Inventory";
 import ShoppingList from "./components/pages/shoppinglist/ShoppingList";
+import ExpiredBin from "./components/pages/expiredbin/ExpiredBin";
+import Account from "./components/pages/account/Account"
 import React from "react";
 import { CssBaseline } from "@material-ui/core";
 
@@ -62,6 +64,8 @@ function App() {
           <NavBar />
           <Route path="/inventory" render={(routeprops) => <Inventory />} />
           <Route path="/shoplist" render={(routerprops) => <ShoppingList />} />
+          <Route path="/expiredbin" render={(routerprops) => <ExpiredBin />} />
+          <Route path="/account" render={(routerprops) => <Account />} />
         </ThemeProvider>
       </BrowserRouter>
     </div>
