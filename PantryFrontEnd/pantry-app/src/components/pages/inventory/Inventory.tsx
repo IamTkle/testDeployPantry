@@ -23,6 +23,7 @@ import {
   Collapse,
   Card,
 } from "@material-ui/core";
+import SwipeableViews from "react-swipeable-views";
 import { createStyles } from "@material-ui/core/styles";
 import { KeyboardArrowDownOutlined } from "@material-ui/icons";
 import SearchIcon from "@material-ui/icons/SearchOutlined";
@@ -30,7 +31,7 @@ import FilterIcon from "@material-ui/icons/TuneOutlined";
 import InfoIcon from "@material-ui/icons/Info";
 import React from "react";
 import tabs from "./tabs";
-import { RouteComponentProps, StaticContext } from "react-router";
+import InventoryEntry from "./InventoryEntry";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -67,6 +68,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginRight: "auto",
       marginLeft: theme.spacing(4),
       fontWeight: "bolder",
+      letterSpacing: 3,
     },
     tabBar: {
       color: theme.palette.text.primary,
@@ -96,6 +98,8 @@ const Inventory: React.FC<InventoryProps> = () => {
     <div className={classes.container}>
       <AppBar
         color="transparent"
+        variant="elevation"
+        position="fixed"
         className={classes.appBar}
         classes={{ root: classes.appBar }}
       >
@@ -149,99 +153,75 @@ const Inventory: React.FC<InventoryProps> = () => {
         </Tabs>
         <Toolbar />
 
-        <List>
-          <Card>
-            <ListItem divider>
-              <ListItemAvatar>
-                <Avatar variant="rounded">
-                  {tabs[0] ? tabs[0].icon : null}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={
-                  <Box
-                    display="flex"
-                    justifyContent="flex-start"
-                    alignItems="center"
-                    minHeight={0}
-                  >
-                    <CssBaseline />
-                    <Typography variant="h6">Human food item 1</Typography>
-                    <IconButton>
-                      <InfoIcon color="primary" />
-                    </IconButton>
-                    <Divider
-                      orientation="vertical"
-                      color={theme.palette.text.primary}
-                      variant="middle"
-                    />
-                    <Typography variant="h5">x 10</Typography>
-                  </Box>
-                }
-                secondary="Earliest expiry: 30/02/2022"
-                secondaryTypographyProps={{
-                  variant: "body2",
-                  color: "primary",
-                }}
-              />
-              <ListItemIcon>
-                <IconButton>
-                  <KeyboardArrowDownOutlined />
-                </IconButton>
-              </ListItemIcon>
-            </ListItem>
-            <LinearProgress variant="determinate" value={10} />
-            <Collapse in={false}>Tabs</Collapse>
-          </Card>
+        <SwipeableViews
+          index={activeTab}
+          onChangeIndex={(index) => setActiveTab(index)}
+        >
+          {activeTab === 0 && (
+            <Container>
+              <List>
+                <InventoryEntry />
 
-          <Card>
-            <ListItem divider>
-              <ListItemAvatar>
-                <Avatar variant="rounded">
-                  {tabs[0] ? tabs[0].icon : null}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={
-                  <Box
-                    display="flex"
-                    justifyContent="flex-start"
-                    alignItems="center"
-                    minHeight={0}
-                  >
-                    <CssBaseline />
-                    <Typography variant="h6">Human food item 2</Typography>
-                    <IconButton>
-                      <InfoIcon color="primary" />
-                    </IconButton>
-                    <Divider
-                      orientation="vertical"
-                      color={theme.palette.text.primary}
-                      variant="middle"
+                <Card>
+                  <ListItem divider>
+                    <ListItemAvatar>
+                      <Avatar variant="rounded">
+                        {tabs[0] ? tabs[0].icon : null}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={
+                        <Box
+                          display="flex"
+                          justifyContent="flex-start"
+                          alignItems="center"
+                          minHeight={0}
+                        >
+                          <CssBaseline />
+                          <Typography variant="h6">
+                            Human food item 2
+                          </Typography>
+                          <IconButton>
+                            <InfoIcon color="primary" />
+                          </IconButton>
+                          <Divider
+                            orientation="vertical"
+                            color={theme.palette.text.primary}
+                            variant="middle"
+                          />
+                          <Typography variant="h5">x 2</Typography>
+                        </Box>
+                      }
+                      secondary="Earliest expiry: 30/02/2022"
+                      secondaryTypographyProps={{
+                        variant: "body2",
+                        color: "secondary",
+                      }}
                     />
-                    <Typography variant="h5">x 2</Typography>
-                  </Box>
-                }
-                secondary="Earliest expiry: 30/02/2022"
-                secondaryTypographyProps={{
-                  variant: "body2",
-                  color: "secondary",
-                }}
-              />
-              <ListItemIcon>
-                <IconButton>
-                  <KeyboardArrowDownOutlined />
-                </IconButton>
-              </ListItemIcon>
-            </ListItem>
-            <Collapse>Tabs</Collapse>
-            <LinearProgress
-              variant="determinate"
-              value={90}
-              color="secondary"
-            />
-          </Card>
-        </List>
+                    <ListItemIcon>
+                      <IconButton>
+                        <KeyboardArrowDownOutlined />
+                      </IconButton>
+                    </ListItemIcon>
+                  </ListItem>
+                  <Collapse>Tabs</Collapse>
+                  <LinearProgress
+                    variant="determinate"
+                    value={90}
+                    color="secondary"
+                  />
+                </Card>
+              </List>
+            </Container>
+          )}
+          {activeTab === 1 && (
+            <Container>
+              <List>
+                <InventoryEntry />
+              </List>
+            </Container>
+          )}
+        </SwipeableViews>
       </Container>
     </div>
   );

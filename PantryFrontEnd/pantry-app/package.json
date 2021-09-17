@@ -44,6 +44,8 @@
     ]
   },
   "devDependencies": {
-    "@types/react-router-dom": "^5.1.8"
+    "@types/react-router-dom": "^5.1.8",
+    "@types/react-swipeable-views": "^0.13.1",
+    "react-swipeable-views": "^0.14.0"
   }
 }

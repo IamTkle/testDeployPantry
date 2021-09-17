@@ -51,6 +51,7 @@ const useStyles = makeStyles((theme: Theme) =>
         borderColor: theme.palette.primary.main,
         outline: `${theme.spacing(1)} solid ${theme.palette.primary.main}`,
         outlineColor: theme.palette.primary.main,
+        letterSpacing: 1.5,
         "&:hover": {
           color: theme.palette.text.primary,
         },
