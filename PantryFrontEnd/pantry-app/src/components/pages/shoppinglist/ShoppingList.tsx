@@ -20,18 +20,14 @@ import {
   ListItemText,
   Box,
   CssBaseline,
-  Divider,
 } from "@material-ui/core";
 import {
   AddCircle,
-  AddOutlined,
   AllInclusiveOutlined,
   CheckOutlined,
   DeleteOutlined,
-  KeyboardArrowDownOutlined,
   LibraryBooksOutlined,
   RemoveCircle,
-  RemoveOutlined,
 } from "@material-ui/icons";
 import SearchIcon from "@material-ui/icons/SearchOutlined";
 import FilterIcon from "@material-ui/icons/TuneOutlined";

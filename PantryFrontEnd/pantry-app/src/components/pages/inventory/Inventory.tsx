@@ -30,6 +30,7 @@ import FilterIcon from "@material-ui/icons/TuneOutlined";
 import InfoIcon from "@material-ui/icons/Info";
 import React from "react";
 import tabs from "./tabs";
+import { RouteComponentProps, StaticContext } from "react-router";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -59,8 +60,6 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: "flex-end",
       alignItems: "center",
       width: `calc(100vw - ${theme.spacing(35)}px)`,
-      // width: "100%",
-      // marginLeft: theme.spacing(37),
     },
     title: {
       fontSize: "2rem",

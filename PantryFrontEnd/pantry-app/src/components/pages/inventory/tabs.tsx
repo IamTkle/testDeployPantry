@@ -1,4 +1,3 @@
-import { ReactElement } from "react";
 import AllIcon from "@material-ui/icons/AllInclusiveOutlined";
 
 export interface TabInterface {

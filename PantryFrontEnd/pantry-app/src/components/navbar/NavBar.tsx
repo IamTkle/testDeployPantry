@@ -18,10 +18,15 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import AccountIcon from "@material-ui/icons/AccountCircle";
 import { createStyles } from "@material-ui/styles";
 import { Link } from "react-router-dom";
+import { pageToIndex } from "../routingTable";
+import Inventory from "../pages/inventory/Inventory";
+import ShoppingList from "../pages/shoppinglist/ShoppingList";
+import ExpiredBin from "../pages/expiredbin/ExpiredBin";
+import Account from "../pages/account/Account";
 
-// all my homies hate comments
-type navItem = {
+export type navItem = {
   icon: ReactElement<any, any>;
+  component: React.FC<any>;
   descText: string;
   link: string;
 };
@@ -43,6 +48,9 @@ const useStyles = makeStyles((theme: Theme) =>
         borderRadius: theme.spacing(1),
         marginTop: theme.spacing(4),
         marginBottom: theme.spacing(4),
+        borderColor: theme.palette.primary.main,
+        outline: `${theme.spacing(1)} solid ${theme.palette.primary.main}`,
+        outlineColor: theme.palette.primary.main,
         "&:hover": {
           color: theme.palette.text.primary,
         },
@@ -55,63 +63,22 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface NavbarProps {}
+interface NavbarProps {
+  currNavTab: number;
+  setNavTab: React.Dispatch<React.SetStateAction<number>>;
+}
 
-const NavBar: React.FC<NavbarProps> = () => {
+const NavBar: React.FC<NavbarProps> = ({ currNavTab, setNavTab }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const navItems: navItem[] = [
-    {
-      descText: "Inventory",
-      link: "inventory",
-      icon: <InventoryIcon />,
-    },
-
-    {
-      descText: "Shopping List",
-      link: "shoplist",
-      icon: <ShoppingListIcon />,
-    },
-
-    {
-      descText: "Expired Bin",
-      link: "expiredbin",
-      icon: <ExpiredBinIcon />,
-    },
-
-    {
-      descText: "Recipes",
-      link: "recipes",
-      icon: <RecipeIcon />,
-    },
-
-    {
-      descText: "QR Scan",
-      link: "qrscan",
-      icon: <QRIcon />,
-    },
-
-    {
-      descText: "Settings",
-      link: "settings",
-      icon: <SettingsIcon />,
-    },
-
-    {
-      descText: "Account",
-      link: "account",
-      icon: <AccountIcon />,
-    },
-  ];
-
-  const [selectedNavEle, setSelectedNavEle] = React.useState(0);
-
   const handleNavClick = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    i: number
+    i: number | undefined
   ) => {
-    setSelectedNavEle(i);
+    if (i !== undefined) {
+      setNavTab(i);
+    }
   };
 
   return (
@@ -122,13 +89,17 @@ const NavBar: React.FC<NavbarProps> = () => {
       classes={{ paper: classes.paper }}
     >
       <List component="nav">
-        {navItems.map((item, i) => {
+        {navItems.map((item) => {
           return (
-            <Link to={item.link} style={{ textDecoration: "none" }}>
+            <Link
+              key={item.link}
+              to={item.link}
+              style={{ textDecoration: "none" }}
+            >
               <ListItem
                 button
-                selected={selectedNavEle === i}
-                onClick={(e) => handleNavClick(e, i)}
+                selected={currNavTab === pageToIndex(item.link)}
+                onClick={(e) => handleNavClick(e, pageToIndex(item.link))}
                 alignItems="center"
                 classes={{ selected: classes.root }}
                 className={classes.root}
@@ -145,3 +116,54 @@ const NavBar: React.FC<NavbarProps> = () => {
 };
 
 export default NavBar;
+
+export const navItems: navItem[] = [
+  {
+    descText: "Inventory",
+    link: "/inventory",
+    component: Inventory,
+    icon: <InventoryIcon />,
+  },
+
+  {
+    descText: "Shopping List",
+    link: "/shoplist",
+    component: ShoppingList,
+    icon: <ShoppingListIcon />,
+  },
+
+  {
+    descText: "Expired Bin",
+    link: "/expiredbin",
+    component: ExpiredBin,
+    icon: <ExpiredBinIcon />,
+  },
+
+  {
+    descText: "Recipes",
+    link: "/recipes",
+    component: React.Fragment,
+    icon: <RecipeIcon />,
+  },
+
+  {
+    descText: "QR Scan",
+    link: "/qrscan",
+    component: React.Fragment,
+    icon: <QRIcon />,
+  },
+
+  {
+    descText: "Settings",
+    link: "/settings",
+    component: React.Fragment,
+    icon: <SettingsIcon />,
+  },
+
+  {
+    descText: "Account",
+    link: "/account",
+    component: Account,
+    icon: <AccountIcon />,
+  },
+];

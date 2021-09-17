@@ -1,29 +1,23 @@
 import "./App.css";
 import NavBar from "./components/navbar/NavBar";
-import {
-  createTheme,
-  ThemeProvider,
-  makeStyles,
-  createStyles,
-} from "@material-ui/core/styles";
-import { BrowserRouter, Route } from "react-router-dom";
-import Inventory from "./components/pages/inventory/Inventory";
-import ShoppingList from "./components/pages/shoppinglist/ShoppingList";
-import ExpiredBin from "./components/pages/expiredbin/ExpiredBin";
-import Account from "./components/pages/account/Account"
+import { createTheme, ThemeProvider } from "@material-ui/core/styles";
+import { BrowserRouter, Route, Redirect } from "react-router-dom";
 import React from "react";
 import { CssBaseline } from "@material-ui/core";
+import AddRouting from "./components/AddRouting";
+import { navItems, navItem } from "./components/navbar/NavBar";
+import { pageToIndex } from "./components/routingTable";
 
 const theme = createTheme({
   palette: {
     primary: {
       dark: "#31C15B",
-      // main: "#52D378",
+      main: "#52D378",
       // dark: "#52D378",
-      main: "#31C15B",
+      // main: "#31C15B",
       light: "#BDF2C9",
     },
-    secondary: { main: "#E6AA38" },
+    secondary: { main: "#E6AA38", light: "#F9DFAF" },
     text: {
       primary: "#666666",
       secondary: "#BDBDBD",
@@ -38,34 +32,36 @@ const theme = createTheme({
   },
 });
 
-const useStyles = makeStyles(
-  createStyles({
-    root: { display: "grid" },
-    navbar: {
-      backgroundColor: theme.palette.primary.dark,
-      wordSpacing: theme.spacing(3),
-    },
-    navbarIcons: {
-      color: "#FFFFFF",
-    },
-  })
-);
-
 function App() {
-  // const classes = useStyles();
-
-  // const [navbarOpen, setNavbarOpen] = React.useState(true);
+  const location = window.location.pathname;
+  const [navTab, setNavTab] = React.useState(pageToIndex(location));
 
   return (
-    <div className={`App`}>
+    <div className="App">
       <BrowserRouter>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <NavBar />
-          <Route path="/inventory" render={(routeprops) => <Inventory />} />
-          <Route path="/shoplist" render={(routerprops) => <ShoppingList />} />
-          <Route path="/expiredbin" render={(routerprops) => <ExpiredBin />} />
-          <Route path="/account" render={(routerprops) => <Account />} />
+          <NavBar currNavTab={navTab} setNavTab={setNavTab} />
+
+          {navItems.map((item: navItem) => {
+            return (
+              <Route
+                key={pageToIndex(item.link)}
+                path={item.link}
+                render={(routeprops) => {
+                  const HigherOrder = AddRouting(item.component);
+
+                  return (
+                    <HigherOrder
+                      routeprops={routeprops}
+                      setNavTab={setNavTab}
+                    />
+                  );
+                }}
+              />
+            );
+          })}
+          <Redirect from="/" to="/inventory" />
         </ThemeProvider>
       </BrowserRouter>
     </div>
