@@ -61,15 +61,27 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.text.primary,
       fontSize: "1rem",
     },
+    icon: {
+      color: theme.palette.primary.dark,
+    },
   })
 );
 
 interface NavbarProps {
   currNavTab: number;
   setNavTab: React.Dispatch<React.SetStateAction<number>>;
+  drawerVariant: "permanent" | "persistent" | "temporary" | undefined;
+  setNavOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  open?: boolean;
 }
 
-const NavBar: React.FC<NavbarProps> = ({ currNavTab, setNavTab }) => {
+const NavBar: React.FC<NavbarProps> = ({
+  currNavTab,
+  setNavTab,
+  drawerVariant,
+  setNavOpen,
+  open = false,
+}) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
@@ -84,10 +96,12 @@ const NavBar: React.FC<NavbarProps> = ({ currNavTab, setNavTab }) => {
 
   return (
     <Drawer
-      variant="permanent"
+      variant={drawerVariant}
+      open={open}
       anchor="left"
       color={theme.palette.primary.dark}
       classes={{ paper: classes.paper }}
+      onClose={() => setNavOpen(false)}
     >
       <List component="nav">
         {navItems.map((item) => {

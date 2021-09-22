@@ -5,6 +5,7 @@ import { pageToIndex } from "./routingTable";
 interface HigherOrderProps {
   routeprops: RouteComponentProps<{}, StaticContext, unknown>;
   setNavTab: React.Dispatch<React.SetStateAction<number>>;
+  setNavOpen?: () => void;
   otherProps?: any[];
 }
 
@@ -16,6 +17,7 @@ const AddRouting: (component: React.FC<any>) => React.FC<HigherOrderProps> = (
   const HigherOrder: React.FC<HigherOrderProps> = ({
     routeprops,
     setNavTab,
+    setNavOpen,
     otherProps,
   }) => {
     React.useEffect(() => {
@@ -24,9 +26,9 @@ const AddRouting: (component: React.FC<any>) => React.FC<HigherOrderProps> = (
       } = routeprops;
 
       setNavTab(() => pageToIndex(page));
-    }, [routeprops, setNavTab]);
+    }, []);
 
-    return <Component {...otherProps}></Component>;
+    return <Component setNavOpen={setNavOpen} {...otherProps}></Component>;
   };
 
   return HigherOrder;

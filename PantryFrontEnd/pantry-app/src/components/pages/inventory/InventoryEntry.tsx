@@ -3,6 +3,7 @@ import {
   Box,
   Card,
   Collapse,
+  Container,
   CssBaseline,
   Divider,
   IconButton,
@@ -10,11 +11,15 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemIcon,
+  ListItemSecondaryAction,
   ListItemText,
   SvgIconTypeMap,
   Theme,
   Typography,
   useTheme,
+  Button,
+  Hidden,
+  ButtonGroup,
 } from "@material-ui/core";
 import { OverridableComponent } from "@material-ui/core/OverridableComponent";
 import {
@@ -23,22 +28,71 @@ import {
 } from "@material-ui/icons";
 import { createStyles, makeStyles } from "@material-ui/styles";
 import React from "react";
-import { classicNameResolver } from "typescript";
-
-type Item = any;
+import { Item } from "./mockEntries";
 
 interface EntryProps {
   FoodIcon?: OverridableComponent<SvgIconTypeMap<{}, "svg">>;
   items?: Item[];
   name?: string;
-  type?: string;
-  quantity?: number;
+  category?: string;
+  quantity?: string;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     expandEntryButton: {
       transition: "transform 250ms ease-in-out",
+    },
+    mainTextContainer: {
+      display: "flex",
+      justifyContent: "flex-start",
+      alignItems: "center",
+      padding: 0,
+      paddingLeft: theme.spacing(1),
+    },
+    secondaryTextContainer: {
+      paddingRight: 0,
+      paddingLeft: theme.spacing(1),
+    },
+    entryAvatarRoot: {
+      height: "100%",
+      aspectRatio: "1 / 1",
+      minWidth: "120px",
+      [theme.breakpoints.down("xs")]: {
+        minWidth: "80px",
+      },
+    },
+    h5Down: {
+      [theme.breakpoints.down("sm")]: {
+        fontSize: theme.typography.h6.fontSize,
+      },
+    },
+    h6Down: {
+      [theme.breakpoints.down("sm")]: {
+        fontSize: theme.typography.body1.fontSize,
+      },
+    },
+    h2Down: {
+      [theme.breakpoints.down("sm")]: {
+        fontSize: theme.typography.h5.fontSize,
+      },
+    },
+    body1Down: {
+      [theme.breakpoints.down("sm")]: {
+        fontSize: theme.typography.body2.fontSize,
+      },
+    },
+    infoButton: {
+      marginBottom: "1rem",
+      [theme.breakpoints.down("sm")]: {
+        marginBottom: 0,
+      },
+    },
+    infoExpandButtonGroup: {
+      maginLeft: "2rem",
+      [theme.breakpoints.down("xs")]: {
+        marginLeft: "auto",
+      },
     },
   })
 );
@@ -47,57 +101,128 @@ const InventoryEntry: React.FC<EntryProps> = ({
   FoodIcon = InfoIcon,
   items = [],
   name = "Human food item 1",
-  type = "Human food",
-  quantity = 12,
+  category = "Human food",
+  quantity = "1kg",
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
   const [isOpen, setOpen] = React.useState(false);
+  // const [deadlineProgress] = React.useState(() => Math.random() * 100);
+  const [deadlineProgress] = React.useState(50);
 
   return (
     <>
-      <Card>
-        <ListItem divider>
-          <ListItemAvatar>
-            <Avatar variant="rounded">
+      <Card
+        elevation={4}
+        style={{ marginTop: theme.spacing(2), marginBottom: theme.spacing(2) }}
+      >
+        <ListItem component="li">
+          <ListItemAvatar
+            classes={{
+              root: classes.entryAvatarRoot,
+            }}
+          >
+            <Avatar variant="rounded" style={{ width: "100%", height: "100%" }}>
               <FoodIcon />
             </Avatar>
           </ListItemAvatar>
           <ListItemText
             primary={
-              <Box
-                display="flex"
-                justifyContent="flex-start"
-                alignItems="center"
-                minHeight={0}
-              >
+              <Container classes={{ root: classes.mainTextContainer }}>
                 <CssBaseline />
-                <Typography variant="h6">{name}</Typography>
-                <IconButton>
-                  <InfoIcon color="primary" />
-                </IconButton>
-                <Divider orientation="vertical" variant="middle" />
-                <Typography variant="h5">x {quantity}</Typography>
-              </Box>
+                <Typography
+                  variant="h6"
+                  // noWrap
+                  classes={{ root: classes.h6Down }}
+                >
+                  {name}
+                </Typography>
+                <ButtonGroup
+                  orientation="vertical"
+                  variant="outlined"
+                  className={classes.infoExpandButtonGroup}
+                >
+                  <IconButton className={classes.infoButton}>
+                    <InfoIcon color="primary" fontSize="medium" />
+                  </IconButton>
+                  <Hidden smUp>
+                    <IconButton
+                      onClick={() => setOpen((prevOpen) => !prevOpen)}
+                    >
+                      <KeyboardArrowDownOutlined
+                        fontSize="medium"
+                        classes={{ root: classes.expandEntryButton }}
+                        style={isOpen ? { transform: "rotate(180deg)" } : {}}
+                      />
+                    </IconButton>
+                  </Hidden>
+                </ButtonGroup>
+              </Container>
             }
-            secondary={`Earliest expiry: 30/02/2022\n${type}`}
-            secondaryTypographyProps={{
-              variant: "body2",
-              color: "primary",
-            }}
+            secondary={
+              <Container classes={{ root: classes.secondaryTextContainer }}>
+                <Typography
+                  paragraph={false}
+                  display="inline"
+                  classes={{ root: classes.body1Down }}
+                >
+                  {category}
+                </Typography>
+                <Typography
+                  // noWrap
+                  variant="h5"
+                  display="block"
+                  color="textSecondary"
+                  // style={{ marginLeft: theme.spacing(1) }}
+                  classes={{ root: classes.h5Down }}
+                >
+                  {quantity}
+                </Typography>
+                <Typography
+                  variant="body1"
+                  paragraph={false}
+                  display="inline"
+                  classes={{ root: classes.body1Down }}
+                >
+                  Earliest expiry:
+                </Typography>
+                <Typography
+                  color={deadlineProgress >= 50 ? "secondary" : "primary"}
+                  display="inline"
+                  style={{ marginLeft: theme.spacing(1) }}
+                >
+                  30/02/2022
+                </Typography>
+              </Container>
+            }
           />
-          <ListItemIcon>
-            <IconButton onClick={() => setOpen((prevOpen) => !prevOpen)}>
-              <KeyboardArrowDownOutlined
-                classes={{ root: classes.expandEntryButton }}
-                style={isOpen ? { transform: "rotate(180deg)" } : {}}
-              />
-            </IconButton>
-          </ListItemIcon>
+          <Hidden xsDown>
+            <ListItemIcon>
+              <IconButton onClick={() => setOpen((prevOpen) => !prevOpen)}>
+                <KeyboardArrowDownOutlined
+                  fontSize="medium"
+                  classes={{ root: classes.expandEntryButton }}
+                  style={isOpen ? { transform: "rotate(180deg)" } : {}}
+                />
+              </IconButton>
+            </ListItemIcon>
+          </Hidden>
         </ListItem>
-        <LinearProgress variant="determinate" value={10} />
+        <Container disableGutters={true}>
+          <LinearProgress
+            variant="determinate"
+            value={deadlineProgress}
+            color={deadlineProgress >= 50 ? "secondary" : "primary"}
+          />
+        </Container>
         <Collapse in={isOpen}>
-          Items will go here, need to determine what items will contain
+          <Typography
+            paragraph={true}
+            style={{ marginTop: 12 }}
+            variant="body2"
+          >
+            Items will go here, need to determine what items will contain
+          </Typography>
         </Collapse>
       </Card>
     </>

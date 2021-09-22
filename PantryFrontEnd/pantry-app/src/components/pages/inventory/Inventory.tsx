@@ -1,15 +1,8 @@
 import {
   AppBar,
-  Avatar,
-  Box,
   Container,
+  Hidden,
   IconButton,
-  LinearProgress,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemIcon,
-  ListItemText,
   makeStyles,
   Tab,
   Tabs,
@@ -18,20 +11,17 @@ import {
   Toolbar,
   Typography,
   useTheme,
-  Divider,
-  CssBaseline,
-  Collapse,
-  Card,
 } from "@material-ui/core";
 import SwipeableViews from "react-swipeable-views";
 import { createStyles } from "@material-ui/core/styles";
-import { KeyboardArrowDownOutlined } from "@material-ui/icons";
 import SearchIcon from "@material-ui/icons/SearchOutlined";
 import FilterIcon from "@material-ui/icons/TuneOutlined";
 import InfoIcon from "@material-ui/icons/Info";
-import React from "react";
-import tabs from "./tabs";
-import InventoryEntry from "./InventoryEntry";
+import HamburgerMenuIcon from "@material-ui/icons/Menu";
+import React, { ReactNode } from "react";
+import { entries } from "./mockEntries";
+import InventoryTab from "./InventoryTab";
+import { GiFruitBowl as FruitsIcon } from "react-icons/gi";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -39,20 +29,20 @@ const useStyles = makeStyles((theme: Theme) =>
       height: "100vh",
       marginLeft: theme.spacing(35),
       backgroundColor: theme.palette.background.default,
-      padding: theme.spacing(4),
+      paddingTop: theme.spacing(2),
+      [theme.breakpoints.down("sm")]: {
+        marginLeft: 0,
+      },
     },
     root: {
       right: 0,
       top: 0,
-      width: theme.spacing(6),
+      width: "auto",
       borderWidth: 10,
       transition: "width 250ms ease-in-out",
       float: "right",
-      "&.Mui-focused": {
-        // width: theme.spacing(50),
-        width: theme.spacing(100),
-        float: "right",
-      },
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
     },
     appBar: {
       padding: 10,
@@ -61,6 +51,12 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: "flex-end",
       alignItems: "center",
       width: `calc(100vw - ${theme.spacing(35)}px)`,
+      backgroundColor: theme.palette.background.default,
+      backdropFilter: "blur(10px)",
+      WebkitBackdropFilter: "blur(10px)",
+      [theme.breakpoints.down("sm")]: {
+        width: "100vw",
+      },
     },
     title: {
       fontSize: "2rem",
@@ -71,65 +67,130 @@ const useStyles = makeStyles((theme: Theme) =>
       letterSpacing: 3,
     },
     tabBar: {
-      color: theme.palette.text.primary,
-      "&.Mui-selected": {
-        fontWeight: 400,
-        fontSize: 24,
+      color: theme.palette.primary.dark,
+      backgroundColor: theme.palette.primary.light,
+      width: "100%",
+    },
+    titleTypography: {
+      [theme.breakpoints.down("md")]: {
+        fontSize: 25,
+        marginLeft: theme.spacing(1),
       },
     },
   })
 );
 
-interface InventoryProps {}
+interface InventoryProps {
+  setNavOpen: () => void;
+}
 
-const Inventory: React.FC<InventoryProps> = () => {
+const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const [expanded, setExpanded] = React.useState(false);
+  const getTabCategories: () => string[] = () => {
+    //need to fetch first in reality
+
+    console.log("categories checked");
+    let allCategories: string[] = [];
+
+    entries.forEach((item) => {
+      if (!allCategories.includes(item.category)) {
+        allCategories.push(item.category);
+      }
+    });
+
+    return allCategories;
+  };
+
+  const filterEntries = (category: string | undefined) => {
+    if (category) {
+      return entries.filter((item) => {
+        return item.category === category ? true : false;
+      });
+    }
+    return entries;
+  };
 
   const [activeTab, setActiveTab] = React.useState(0);
+
+  const tabCategories = React.useMemo(getTabCategories, []);
 
   const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
     setActiveTab(newTab);
   };
 
+  const getTabs = () => {
+    console.log("tab categories checked");
+    return tabCategories.map((tab, i) => {
+      return (
+        <Tab
+          wrapped
+          key={tab}
+          label={tab}
+          value={i + 1}
+          icon={<FruitsIcon size={29} />}
+        />
+      );
+    });
+  };
+
+  const [tabs] = React.useState(() => getTabs());
+
+  const memoizedTabs = React.useMemo(() => {
+    console.log("tab contents reloaded");
+    return tabCategories.map((category, index) => {
+      const filteredEntries = filterEntries(category);
+      return (
+        <InventoryTab
+          key={index + 1}
+          activeTab={activeTab}
+          index={index + 1}
+          propEntries={filteredEntries}
+          category={category}
+        />
+      );
+    });
+  }, [activeTab]);
+
   return (
     <div className={classes.container}>
       <AppBar
-        color="transparent"
+        color="default"
         variant="elevation"
         position="fixed"
         className={classes.appBar}
         classes={{ root: classes.appBar }}
       >
-        <Typography variant="h2" color="textPrimary" className={classes.title}>
+        <Hidden mdUp>
+          <IconButton onClick={() => (setNavOpen ? setNavOpen() : null)}>
+            <HamburgerMenuIcon />
+          </IconButton>
+        </Hidden>
+        <Typography
+          variant={"h2"}
+          classes={{ root: classes.titleTypography }}
+          color="textPrimary"
+          className={classes.title}
+        >
           Inventory
         </Typography>
         <TextField
-          placeholder="Search for an item in the inventory"
-          onFocus={() => setExpanded(true)}
-          onBlur={() => setExpanded(false)}
+          placeholder="Search for an item"
+          label="Search"
           size="medium"
           color="primary"
           variant="outlined"
+          classes={{ root: classes.root }}
           InputProps={{
             classes: {
-              focused: classes.root,
+              // focused: classes.root,
               root: classes.root,
             },
-            endAdornment: expanded ? (
+            endAdornment: (
               <IconButton>
                 <SearchIcon />
               </IconButton>
-            ) : (
-              <SearchIcon
-                onClick={(e) => {
-                  e.currentTarget.parentElement
-                    ? e.currentTarget.parentElement.click()
-                    : console.log("parent null");
-                }}
-              />
             ),
           }}
         />
@@ -139,7 +200,7 @@ const Inventory: React.FC<InventoryProps> = () => {
       </AppBar>
 
       <Toolbar />
-      <Container>
+      <Container disableGutters>
         <Tabs
           value={activeTab}
           variant="scrollable"
@@ -147,84 +208,29 @@ const Inventory: React.FC<InventoryProps> = () => {
           onChange={handleTabChange}
           classes={{ root: classes.tabBar }}
         >
-          {tabs.map((tab, i) => {
-            return <Tab wrapped label={tab.label} value={i} icon={tab.icon} />;
-          })}
+          <Tab wrapped label={"All"} value={0} icon={<InfoIcon />} />
+          {tabs}
         </Tabs>
-        <Toolbar />
 
         <SwipeableViews
           index={activeTab}
           onChangeIndex={(index) => setActiveTab(index)}
         >
-          {activeTab === 0 && (
-            <Container>
-              <List>
-                <InventoryEntry />
-
-                <Card>
-                  <ListItem divider>
-                    <ListItemAvatar>
-                      <Avatar variant="rounded">
-                        {tabs[0] ? tabs[0].icon : null}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Box
-                          display="flex"
-                          justifyContent="flex-start"
-                          alignItems="center"
-                          minHeight={0}
-                        >
-                          <CssBaseline />
-                          <Typography variant="h6">
-                            Human food item 2
-                          </Typography>
-                          <IconButton>
-                            <InfoIcon color="primary" />
-                          </IconButton>
-                          <Divider
-                            orientation="vertical"
-                            color={theme.palette.text.primary}
-                            variant="middle"
-                          />
-                          <Typography variant="h5">x 2</Typography>
-                        </Box>
-                      }
-                      secondary="Earliest expiry: 30/02/2022"
-                      secondaryTypographyProps={{
-                        variant: "body2",
-                        color: "secondary",
-                      }}
-                    />
-                    <ListItemIcon>
-                      <IconButton>
-                        <KeyboardArrowDownOutlined />
-                      </IconButton>
-                    </ListItemIcon>
-                  </ListItem>
-                  <Collapse>Tabs</Collapse>
-                  <LinearProgress
-                    variant="determinate"
-                    value={90}
-                    color="secondary"
-                  />
-                </Card>
-              </List>
-            </Container>
-          )}
-          {activeTab === 1 && (
-            <Container>
-              <List>
-                <InventoryEntry />
-              </List>
-            </Container>
-          )}
+          <InventoryTab activeTab={activeTab} index={0} propEntries={entries} />
+          {memoizedTabs}
         </SwipeableViews>
       </Container>
     </div>
   );
 };
 
-export default Inventory;
+const areEqual: (
+  prevProps: Readonly<InventoryProps & { children?: ReactNode }>,
+  nextProps: Readonly<InventoryProps & { children?: ReactNode }>
+) => boolean = (prevProps, nextProps) => {
+  console.log("compared functions");
+  return true;
+};
+
+const MemoizedInventory = React.memo(Inventory, areEqual);
+export default MemoizedInventory;
