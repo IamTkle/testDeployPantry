@@ -1,5 +1,5 @@
 import { Container } from "@material-ui/core";
-import { entries, Item } from "./mockEntries";
+import { Item } from "./mockEntries";
 import React, { ReactNode } from "react";
 import InventoryEntry from "./InventoryEntry";
 

@@ -2,6 +2,7 @@ import "./App.css";
 import NavBar from "./components/navbar/NavBar";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import { BrowserRouter, Route, Redirect } from "react-router-dom";
+import { StaticContext, RouteComponentProps } from "react-router";
 import React from "react";
 import { Container, CssBaseline, Grid, Hidden } from "@material-ui/core";
 import AddRouting from "./components/AddRouting";
@@ -29,6 +30,7 @@ const theme = createTheme({
     },
     background: {
       default: "#FFFFFF",
+      // default: "#f4f2f8",
     },
     info: {
       main: "#a2e9f3",
@@ -55,7 +57,49 @@ function App() {
     Notification.requestPermission((status) => {
       console.log("Permission", status);
     });
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/sw.js", { scope: "/" })
+        .then((value) => {
+          const pushSubscriptionOptions: PushSubscriptionOptionsInit = {
+            applicationServerKey:
+              "BCzbXwCuFZeGL6sFNy-1wHGpq8xu1qCVXYel0gy9GjVNWUIoGckopULc9wfWJTtqwnoXjo_dS8H-cDhJ4XY8NcI",
+            userVisibleOnly: true,
+          };
+          value.pushManager
+            .subscribe(pushSubscriptionOptions)
+            .then((subscription) => {
+              console.log("Subscription info: ", JSON.stringify(subscription));
+            });
+
+          console.log("success", value);
+        })
+        .catch((value) => console.error("fail", value));
+    }
   }, []);
+
+  const renderRoute = React.useCallback(
+    (item: navItem) => {
+      const PageComponent = item.component;
+
+      return <PageComponent setNavOpen={callBackNavOpen} />;
+    },
+    [callBackNavOpen]
+  );
+
+  const getNavPageRoutes = () =>
+    navItems.map((item: navItem) => {
+      return (
+        <Route
+          key={pageToIndex(item.link)}
+          path={item.link}
+          render={() => renderRoute(item)}
+        />
+      );
+    });
+
+  const navPageRoutes = React.useMemo(getNavPageRoutes, [renderRoute]);
 
   return (
     <div className="App">
@@ -79,27 +123,8 @@ function App() {
               setNavOpen={setNavOpen}
             />
           </Hidden>
-          {navItems.map((item: navItem) => {
-            return (
-              <Route
-                key={pageToIndex(item.link)}
-                path={item.link}
-                render={(routeprops) => {
-                  const HigherOrder = AddRouting(item.component);
-
-                  return (
-                    <HigherOrder
-                      routeprops={routeprops}
-                      setNavTab={setNavTab}
-                      setNavOpen={callBackNavOpen}
-                    />
-                  );
-                }}
-              />
-            );
-          })}
-
-          <Redirect from="/" to="/inventory" />
+          {navPageRoutes}
+          <Redirect exact from="/" to="/inventory" />
         </ThemeProvider>
       </BrowserRouter>
     </div>

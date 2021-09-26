@@ -1,6 +1,7 @@
 import {
   AppBar,
   Container,
+  Divider,
   Hidden,
   IconButton,
   makeStyles,
@@ -19,17 +20,21 @@ import FilterIcon from "@material-ui/icons/TuneOutlined";
 import InfoIcon from "@material-ui/icons/Info";
 import HamburgerMenuIcon from "@material-ui/icons/Menu";
 import React, { ReactNode } from "react";
-import { entries } from "./mockEntries";
+import { entries, Item } from "./mockEntries";
 import InventoryTab from "./InventoryTab";
 import { GiFruitBowl as FruitsIcon } from "react-icons/gi";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
-      height: "100vh",
       marginLeft: theme.spacing(35),
-      backgroundColor: theme.palette.background.default,
+      // backgroundColor: theme.palette.background.default,
       paddingTop: theme.spacing(2),
+      height: "auto",
+      minHeight: "100vh",
+      backgroundColor: "#f1f9f3",
+      // backgroundColor: "#f4f2f8",
+      // backgroundColor: "#dfedf5",
       [theme.breakpoints.down("sm")]: {
         marginLeft: 0,
       },
@@ -52,6 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: "center",
       width: `calc(100vw - ${theme.spacing(35)}px)`,
       backgroundColor: theme.palette.background.default,
+      // backgroundColor: "#f4f2f8",
       backdropFilter: "blur(10px)",
       WebkitBackdropFilter: "blur(10px)",
       [theme.breakpoints.down("sm")]: {
@@ -72,7 +78,7 @@ const useStyles = makeStyles((theme: Theme) =>
       width: "100%",
     },
     titleTypography: {
-      [theme.breakpoints.down("md")]: {
+      [theme.breakpoints.down("sm")]: {
         fontSize: 25,
         marginLeft: theme.spacing(1),
       },
@@ -112,12 +118,44 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
     return entries;
   };
 
+  const [searchIsOpen, setSearchOpen] = React.useState(false);
+
   const [activeTab, setActiveTab] = React.useState(0);
+
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const [searchEntries, setSearchEntries] = React.useState<Item[]>([]);
 
   const tabCategories = React.useMemo(getTabCategories, []);
 
   const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
     setActiveTab(newTab);
+  };
+
+  const filterSearchEntries = (searchTerm: string) => {
+    return entries.filter((entry) => {
+      searchTerm = searchTerm.toLowerCase();
+      return entry.name.toLowerCase().includes(searchTerm) ||
+        entry.category.toLowerCase().includes(searchTerm)
+        ? true
+        : false;
+    });
+  };
+
+  const handleOpenMenu = () => {
+    setNavOpen();
+  };
+
+  const handleSearchClick = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    if (searchIsOpen) {
+      setSearchEntries(filterSearchEntries(searchTerm));
+      setActiveTab(tabCategories.length + 1);
+    } else {
+      setSearchOpen(true);
+    }
+    console.log(searchTerm, filterSearchEntries(searchTerm));
   };
 
   const getTabs = () => {
@@ -135,7 +173,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
     });
   };
 
-  const [tabs] = React.useState(() => getTabs());
+  const tabs = React.useMemo(getTabs, [tabCategories]);
 
   const memoizedTabs = React.useMemo(() => {
     console.log("tab contents reloaded");
@@ -151,7 +189,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         />
       );
     });
-  }, [activeTab]);
+  }, [activeTab, tabCategories]);
 
   return (
     <div className={classes.container}>
@@ -163,7 +201,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         classes={{ root: classes.appBar }}
       >
         <Hidden mdUp>
-          <IconButton onClick={() => (setNavOpen ? setNavOpen() : null)}>
+          <IconButton onClick={handleOpenMenu}>
             <HamburgerMenuIcon />
           </IconButton>
         </Hidden>
@@ -182,13 +220,14 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
           color="primary"
           variant="outlined"
           classes={{ root: classes.root }}
+          onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
             classes: {
               // focused: classes.root,
               root: classes.root,
             },
             endAdornment: (
-              <IconButton>
+              <IconButton onClick={handleSearchClick}>
                 <SearchIcon />
               </IconButton>
             ),
@@ -210,14 +249,26 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         >
           <Tab wrapped label={"All"} value={0} icon={<InfoIcon />} />
           {tabs}
+          <Tab
+            wrapped
+            label={"Search"}
+            value={tabCategories.length + 1}
+            icon={<InfoIcon />}
+          />
         </Tabs>
 
+        <Divider variant="fullWidth" color="primary" />
         <SwipeableViews
           index={activeTab}
           onChangeIndex={(index) => setActiveTab(index)}
         >
           <InventoryTab activeTab={activeTab} index={0} propEntries={entries} />
           {memoizedTabs}
+          <InventoryTab
+            activeTab={activeTab}
+            index={tabCategories.length + 1}
+            propEntries={searchEntries}
+          />
         </SwipeableViews>
       </Container>
     </div>

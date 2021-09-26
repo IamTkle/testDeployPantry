@@ -50,6 +50,12 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: 0,
       paddingLeft: theme.spacing(1),
     },
+    embeddedMainTextContainer: {
+      padding: 0,
+      margin: 0,
+      minWidth: 0,
+      width: "fit-content",
+    },
     secondaryTextContainer: {
       paddingRight: 0,
       paddingLeft: theme.spacing(1),
@@ -57,9 +63,9 @@ const useStyles = makeStyles((theme: Theme) =>
     entryAvatarRoot: {
       height: "100%",
       aspectRatio: "1 / 1",
-      minWidth: "120px",
+      minWidth: theme.spacing(16),
       [theme.breakpoints.down("xs")]: {
-        minWidth: "80px",
+        minWidth: theme.spacing(10),
       },
     },
     h5Down: {
@@ -83,15 +89,18 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
     infoButton: {
-      marginBottom: "1rem",
+      // color: "#97A7E5",
+      color: "#AD9FCE",
       [theme.breakpoints.down("sm")]: {
         marginBottom: 0,
       },
     },
     infoExpandButtonGroup: {
-      maginLeft: "2rem",
+      maginLeft: theme.spacing(2),
+      marginBottom: theme.spacing(9),
       [theme.breakpoints.down("xs")]: {
         marginLeft: "auto",
+        marginBottom: 0,
       },
     },
   })
@@ -107,14 +116,17 @@ const InventoryEntry: React.FC<EntryProps> = ({
   const theme = useTheme();
   const classes = useStyles(theme);
   const [isOpen, setOpen] = React.useState(false);
-  // const [deadlineProgress] = React.useState(() => Math.random() * 100);
-  const [deadlineProgress] = React.useState(50);
+  const [deadlineProgress] = React.useState(() => Math.random() * 100);
+  // const [deadlineProgress] = React.useState(50);
 
   return (
     <>
       <Card
-        elevation={4}
-        style={{ marginTop: theme.spacing(2), marginBottom: theme.spacing(2) }}
+        elevation={3}
+        style={{
+          marginTop: theme.spacing(2),
+          marginBottom: theme.spacing(2),
+        }}
       >
         <ListItem component="li">
           <ListItemAvatar
@@ -130,24 +142,54 @@ const InventoryEntry: React.FC<EntryProps> = ({
             primary={
               <Container classes={{ root: classes.mainTextContainer }}>
                 <CssBaseline />
-                <Typography
-                  variant="h6"
-                  // noWrap
-                  classes={{ root: classes.h6Down }}
+                <Container
+                  classes={{ root: classes.embeddedMainTextContainer }}
                 >
-                  {name}
-                </Typography>
+                  <Typography
+                    variant="h6"
+                    // noWrap
+                    classes={{ root: classes.h6Down }}
+                    display="block"
+                  >
+                    {name}
+                  </Typography>
+                  <Typography
+                    paragraph={false}
+                    color="textSecondary"
+                    display="inline"
+                    classes={{ root: classes.body1Down }}
+                  >
+                    {category}
+                  </Typography>
+                  <Typography
+                    // noWrap
+                    variant="h5"
+                    display="block"
+                    color="textSecondary"
+                    // style={{ marginLeft: theme.spacing(1) }}
+                    classes={{ root: classes.h5Down }}
+                  >
+                    {quantity}
+                  </Typography>
+                </Container>
                 <ButtonGroup
                   orientation="vertical"
                   variant="outlined"
                   className={classes.infoExpandButtonGroup}
                 >
-                  <IconButton className={classes.infoButton}>
-                    <InfoIcon color="primary" fontSize="medium" />
-                  </IconButton>
+                  <Hidden>
+                    <IconButton className={classes.infoButton}>
+                      <InfoIcon
+                        color="primary"
+                        fontSize="medium"
+                        className={classes.infoButton}
+                      />
+                    </IconButton>
+                  </Hidden>
                   <Hidden smUp>
                     <IconButton
                       onClick={() => setOpen((prevOpen) => !prevOpen)}
+                      color="primary"
                     >
                       <KeyboardArrowDownOutlined
                         fontSize="medium"
@@ -162,27 +204,11 @@ const InventoryEntry: React.FC<EntryProps> = ({
             secondary={
               <Container classes={{ root: classes.secondaryTextContainer }}>
                 <Typography
-                  paragraph={false}
-                  display="inline"
-                  classes={{ root: classes.body1Down }}
-                >
-                  {category}
-                </Typography>
-                <Typography
-                  // noWrap
-                  variant="h5"
-                  display="block"
-                  color="textSecondary"
-                  // style={{ marginLeft: theme.spacing(1) }}
-                  classes={{ root: classes.h5Down }}
-                >
-                  {quantity}
-                </Typography>
-                <Typography
                   variant="body1"
                   paragraph={false}
                   display="inline"
                   classes={{ root: classes.body1Down }}
+                  color="textPrimary"
                 >
                   Earliest expiry:
                 </Typography>
@@ -196,9 +222,21 @@ const InventoryEntry: React.FC<EntryProps> = ({
               </Container>
             }
           />
+          <Hidden mdDown>
+            <Container maxWidth="sm" disableGutters={true}>
+              <LinearProgress
+                variant="determinate"
+                value={deadlineProgress}
+                color={deadlineProgress >= 50 ? "secondary" : "primary"}
+              />
+            </Container>
+          </Hidden>
           <Hidden xsDown>
             <ListItemIcon>
-              <IconButton onClick={() => setOpen((prevOpen) => !prevOpen)}>
+              <IconButton
+                onClick={() => setOpen((prevOpen) => !prevOpen)}
+                color="primary"
+              >
                 <KeyboardArrowDownOutlined
                   fontSize="medium"
                   classes={{ root: classes.expandEntryButton }}
@@ -208,13 +246,15 @@ const InventoryEntry: React.FC<EntryProps> = ({
             </ListItemIcon>
           </Hidden>
         </ListItem>
-        <Container disableGutters={true}>
-          <LinearProgress
-            variant="determinate"
-            value={deadlineProgress}
-            color={deadlineProgress >= 50 ? "secondary" : "primary"}
-          />
-        </Container>
+        <Hidden lgUp>
+          <Container disableGutters={true}>
+            <LinearProgress
+              variant="determinate"
+              value={deadlineProgress}
+              color={deadlineProgress >= 50 ? "secondary" : "primary"}
+            />
+          </Container>
+        </Hidden>
         <Collapse in={isOpen}>
           <Typography
             paragraph={true}
