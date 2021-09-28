@@ -8,6 +8,57 @@ itemID
 category
 expiryGroup: [(expDate, count)*]
 
+{
+  "Kids & Lunch Box": [],
+  "Entertaining At Home": [],
+  "Bakery": [
+    {
+      "expiry_Count": [
+        {
+          "expDate": "2022-10-28T00:00:00",
+          "count": 1
+        }
+      ],
+      "itemID": "6955662P",
+      "name": "Mission Original Wraps 8 pack",
+      "quantity": "567g",
+      "price": 4
+    }
+  ],
+  "Fruit & Vegetables": [],
+  "Meat & Seafood": [],
+  "From The Deli": [],
+  "Dairy, Eggs & Meals": [],
+  "Conveniece Meals": [],
+  "Pantry": [
+    {
+      "expiry_Count": [
+        {
+          "expDate": "2022-10-29T00:00:00",
+          "count": 3
+        }
+        {
+          "expDate": "2022-10-28T00:00:00",
+          "count": 2
+        }
+      ],
+      "itemID": "120137P",
+      "name": "CSR Brown Sugar",
+      "quantity": "500g",
+      "price": 2.15
+    }
+  ],
+  "Frozen": [],
+  "Drinks": [],
+  "International Foods": [],
+  "Household": [],
+  "Health & Beauty": [],
+  "Baby": [],
+  "Pet": [],
+  "Liquor": [],
+  "Tobacco": [],
+  "Sugar & Sweeteners": []
+}
 */
 export type Item = {
   iid: string;
@@ -16,6 +67,7 @@ export type Item = {
   name: string;
   price: string;
   icon: React.ReactElement<any, string | React.JSXElementConstructor<any>>;
+  expiryGroups: ExpiryGroup[];
 };
 
 type IconMap = {
@@ -64,6 +116,8 @@ const mapIcon: IconMap = {
   //     Liquor 24 Products
   //     Tobacco 424
 };
+export type ExpiryGroup = { expDate: Date; count: number };
+
 class Entry {
   iid: string;
   quantity: string;
@@ -71,6 +125,7 @@ class Entry {
   name: string;
   price: string;
   icon: React.ReactElement<any, string | React.JSXElementConstructor<any>>;
+  expiryGroups: ExpiryGroup[];
 
   constructor(
     iid: string,
@@ -85,6 +140,18 @@ class Entry {
     this.name = name;
     this.price = price;
     this.icon = Entry.getIcon(category);
+    this.expiryGroups = [];
+
+    for (let i = 0; i < Math.floor(Math.random() * 4) + 1; i++) {
+      this.expiryGroups[i] = {
+        expDate: new Date(
+          2022,
+          Math.floor(Math.random() * 11),
+          Math.floor(Math.random() * 11)
+        ),
+        count: 3,
+      };
+    }
   }
 
   getObj(): Item {
@@ -95,6 +162,7 @@ class Entry {
       name: this.name,
       price: this.price,
       icon: this.icon,
+      expiryGroups: this.expiryGroups,
     };
   }
 

@@ -3,11 +3,15 @@ import {
   ClickAwayListener,
   Container,
   Divider,
+  FormControl,
+  FormControlLabel,
   Hidden,
   IconButton,
+  ListItem,
   makeStyles,
   Menu,
   MenuItem,
+  Switch,
   Tab,
   Tabs,
   TextField,
@@ -96,14 +100,8 @@ const useStyles = makeStyles((theme: Theme) =>
         marginRight: "auto",
       },
     },
-    popUpMenuList: {
-      right: 0,
-      top: 0,
-    },
-    popUpMenuRoot: {
-      position: "absolute",
-      right: 0,
-      top: 0,
+    ascendingTrack: {
+      backgroundColor: theme.palette.secondary.main,
     },
   })
 );
@@ -150,6 +148,10 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
 
   const [filterMenuOpen, setFilterMenuOpen] = React.useState(false);
 
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const [sortDescending, setSortDescending] = React.useState(true);
+
   const tabCategories = React.useMemo(getTabCategories, []);
 
   const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
@@ -177,6 +179,12 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
       setSearchEntries(filterSearchEntries(searchTerm));
       setActiveTab(tabCategories.length + 1);
     }
+  };
+
+  const handleSortDirectionChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setSortDescending((prev) => !prev);
   };
 
   const getTabs = () => {
@@ -249,7 +257,6 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
             classes: {
-              // focused: classes.root,
               root: classes.searchInput,
             },
             endAdornment: (
@@ -259,20 +266,41 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
             ),
           }}
         />
-        <IconButton onClick={() => setFilterMenuOpen(true)}>
+        <IconButton
+          onClick={(e) => {
+            setFilterMenuOpen(true);
+            setAnchorEl(e.currentTarget);
+          }}
+        >
           <FilterIcon />
         </IconButton>
+        <Menu
+          variant="menu"
+          open={filterMenuOpen}
+          anchorEl={anchorEl}
+          keepMounted
+          onClose={(e) => setFilterMenuOpen(false)}
+        >
+          <FormControl>
+            <MenuItem style={{ cursor: "default" }}>
+              Ascending
+              <Switch
+                color="primary"
+                checked={sortDescending}
+                onChange={handleSortDirectionChange}
+                classes={{
+                  track: classes.ascendingTrack,
+                }}
+              />
+              Descending
+            </MenuItem>
+          </FormControl>
+          <MenuItem key={1}>By expiry date</MenuItem>
+          <MenuItem key={2}>By item name</MenuItem>
+          <MenuItem key={3}>By category</MenuItem>
+        </Menu>
       </AppBar>
 
-      <Menu
-        open={filterMenuOpen}
-        classes={{ list: classes.popUpMenuList }}
-        className={classes.popUpMenuRoot}
-      >
-        <ClickAwayListener onClickAway={() => setFilterMenuOpen(false)}>
-          <MenuItem key={1}>hello</MenuItem>
-        </ClickAwayListener>
-      </Menu>
       <Toolbar />
       <Container disableGutters style={{ maxWidth: "none" }}>
         <Tabs

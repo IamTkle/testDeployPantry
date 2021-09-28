@@ -17,19 +17,24 @@ import {
   Button,
   Hidden,
   ButtonGroup,
+  Grid,
+  Divider,
 } from "@material-ui/core";
 import { OverridableComponent } from "@material-ui/core/OverridableComponent";
 import {
   KeyboardArrowDownOutlined,
   Info as InfoIcon,
+  ExpandLessTwoTone,
+  CheckOutlined,
+  DeleteOutlined,
 } from "@material-ui/icons";
 import { createStyles, makeStyles } from "@material-ui/styles";
 import React from "react";
-import { Item } from "./mockEntries";
+import { ExpiryGroup } from "./mockEntries";
 
 interface EntryProps {
   FoodIcon?: OverridableComponent<SvgIconTypeMap<{}, "svg">>;
-  items?: Item[];
+  expiryGroups?: ExpiryGroup[];
   name?: string;
   category?: string;
   quantity?: string;
@@ -100,12 +105,46 @@ const useStyles = makeStyles((theme: Theme) =>
         marginBottom: 0,
       },
     },
+    collapseRoot: {
+      backgroundColor: theme.palette.primary.light,
+      paddingTop: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+    },
+    collapseRootHidden: {
+      paddingTop: 0,
+      paddingBottom: 0,
+    },
+    expiryGroupContainer: {
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingTop: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+      [theme.breakpoints.down("xs")]: {
+        flexDirection: "column",
+        // paddingLeft: theme.spacing(2),
+        // paddingRight: theme.spacing(2),
+      },
+    },
+    expiryRemainTyp: {
+      display: "inline",
+      marginLeft: theme.spacing(2),
+      [theme.breakpoints.down("xs")]: {
+        marginLeft: 0,
+        display: "block",
+      },
+    },
   })
 );
 
+const today = new Date();
+const msToDaysRatio = 1000 * 60 * 60 * 24;
+const msToMonthsRatio = msToDaysRatio * 30;
+
 const InventoryEntry: React.FC<EntryProps> = ({
   FoodIcon = InfoIcon,
-  items = [],
+  expiryGroups = [],
   name = "Human food item 1",
   category = "Human food",
   quantity = "1kg",
@@ -113,8 +152,20 @@ const InventoryEntry: React.FC<EntryProps> = ({
   const theme = useTheme();
   const classes = useStyles(theme);
   const [isOpen, setOpen] = React.useState(false);
-  const [deadlineProgress] = React.useState(() => Math.random() * 100);
   // const [deadlineProgress] = React.useState(50);
+  const [earliestExpPc, setEarliestExpPc] = React.useState<number>(100);
+  const [earliestExpDate, setEarliestExpDate] = React.useState("01/01/1970");
+  const [expRemainStr, setRemainStr] = React.useState("12+ months");
+
+  const handleNewEarliestExpiry = (
+    expDate: string,
+    percentageDiff: number,
+    diffStr: string
+  ) => {
+    setEarliestExpDate(expDate);
+    setEarliestExpPc(percentageDiff);
+    setRemainStr(diffStr);
+  };
 
   return (
     <>
@@ -215,11 +266,19 @@ const InventoryEntry: React.FC<EntryProps> = ({
                   Earliest expiry:
                 </Typography>
                 <Typography
-                  color={deadlineProgress >= 50 ? "secondary" : "primary"}
+                  color={earliestExpPc < 50 ? "secondary" : "primary"}
                   display="inline"
                   style={{ marginLeft: theme.spacing(1) }}
                 >
-                  30/02/2022
+                  {earliestExpDate}
+                </Typography>
+                <Typography
+                  color="textSecondary"
+                  variant="body1"
+                  // style={{ marginLeft: theme.spacing(2) }}
+                  className={classes.expiryRemainTyp}
+                >
+                  {expRemainStr}
                 </Typography>
               </Container>
             }
@@ -228,8 +287,8 @@ const InventoryEntry: React.FC<EntryProps> = ({
             <Container maxWidth="sm" disableGutters={true}>
               <LinearProgress
                 variant="determinate"
-                value={deadlineProgress}
-                color={deadlineProgress >= 50 ? "secondary" : "primary"}
+                value={100 - earliestExpPc}
+                color={earliestExpPc < 50 ? "secondary" : "primary"}
               />
             </Container>
           </Hidden>
@@ -252,23 +311,86 @@ const InventoryEntry: React.FC<EntryProps> = ({
           <Container disableGutters={true}>
             <LinearProgress
               variant="determinate"
-              value={deadlineProgress}
-              color={deadlineProgress >= 50 ? "secondary" : "primary"}
+              value={100 - earliestExpPc}
+              color={earliestExpPc < 50 ? "secondary" : "primary"}
             />
           </Container>
         </Hidden>
-        <Collapse in={isOpen}>
-          <Typography
-            paragraph={true}
-            style={{ marginTop: 12 }}
-            variant="body2"
+        <Collapse
+          in={isOpen}
+          className={classes.collapseRoot}
+          classes={{ hidden: classes.collapseRootHidden }}
+        >
+          <Grid
+            container
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={1}
           >
-            Items will go here, need to determine what items will contain
-          </Typography>
+            {expiryGroups.map((eg, i) => {
+              const diff = getMonthDifference(eg.expDate);
+              const localDateStr = eg.expDate.toLocaleDateString();
+
+              var percentageDiff;
+              var diffStr =
+                diff < 6
+                  ? "" + Math.floor(diff * 31) + " days"
+                  : "" + Math.floor(diff) + " months";
+
+              if (diff > 12) {
+                percentageDiff = 100;
+                diffStr = "12+ months";
+              } else {
+                percentageDiff = (diff / 12) * 100;
+              }
+
+              if (percentageDiff < earliestExpPc) {
+                handleNewEarliestExpiry(localDateStr, percentageDiff, diffStr);
+              }
+              return (
+                <Grid item xs={6} key={i}>
+                  <Container>
+                    <Card elevation={2}>
+                      <Container className={classes.expiryGroupContainer}>
+                        {localDateStr} x {eg.count} ({diffStr})
+                        <ButtonGroup
+                          variant="contained"
+                          size="large"
+                          disableElevation
+                        >
+                          <Button color="primary">
+                            <CheckOutlined style={{ color: "white" }} />
+                          </Button>
+                          <Button
+                            style={{
+                              backgroundColor: theme.palette.error.main,
+                            }}
+                          >
+                            <DeleteOutlined style={{ color: "white" }} />
+                          </Button>
+                        </ButtonGroup>
+                      </Container>
+                      <LinearProgress
+                        variant="determinate"
+                        value={100 - percentageDiff}
+                        color={diff < 6 ? "secondary" : "primary"}
+                      />
+                    </Card>
+                  </Container>
+                </Grid>
+              );
+            })}
+          </Grid>
         </Collapse>
       </Card>
     </>
   );
+};
+
+const getMonthDifference = (expDate: Date) => {
+  const msDiff = Math.floor(expDate.getTime() - today.getTime());
+
+  return msDiff / msToMonthsRatio;
 };
 
 export default InventoryEntry;

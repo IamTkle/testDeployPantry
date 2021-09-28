@@ -24,7 +24,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({
               <InventoryEntry
                 key={item.iid}
                 name={item.name}
-                items={[item]}
+                expiryGroups={item.expiryGroups}
                 quantity={item.quantity}
                 category={item.category}
               />
