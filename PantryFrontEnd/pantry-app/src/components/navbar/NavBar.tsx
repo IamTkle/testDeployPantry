@@ -23,6 +23,8 @@ import Inventory from "../pages/inventory/Inventory";
 import ShoppingList from "../pages/shoppinglist/ShoppingList";
 import ExpiredBin from "../pages/expiredbin/ExpiredBin";
 import Account from "../pages/account/Account";
+import Signup from "../pages/signup/Signup";
+import Login from "../pages/login/Login";
 
 export type navItem = {
   icon: ReactElement<any, any>;
@@ -193,6 +195,19 @@ export const navItems: navItem[] = [
     descText: "Account",
     link: "/account",
     component: Account,
+    icon: <AccountIcon />,
+  },
+
+  {
+    descText: "Login",
+    link: "/login",
+    component: Login,
+    icon: <AccountIcon />,
+  },
+  {
+    descText: "Signup",
+    link: "/signup",
+    component: Signup,
     icon: <AccountIcon />,
   },
 ];

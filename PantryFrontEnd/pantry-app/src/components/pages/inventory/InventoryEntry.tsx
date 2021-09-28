@@ -121,11 +121,6 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: "center",
       paddingTop: theme.spacing(2),
       paddingBottom: theme.spacing(2),
-      [theme.breakpoints.down("xs")]: {
-        flexDirection: "column",
-        // paddingLeft: theme.spacing(2),
-        // paddingRight: theme.spacing(2),
-      },
     },
     expiryRemainTyp: {
       display: "inline",
@@ -348,7 +343,7 @@ const InventoryEntry: React.FC<EntryProps> = ({
                 handleNewEarliestExpiry(localDateStr, percentageDiff, diffStr);
               }
               return (
-                <Grid item xs={6} key={i}>
+                <Grid item xs={12} lg={6} key={i}>
                   <Container>
                     <Card elevation={2}>
                       <Container className={classes.expiryGroupContainer}>
