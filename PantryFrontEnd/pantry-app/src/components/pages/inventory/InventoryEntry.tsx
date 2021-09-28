@@ -1,17 +1,14 @@
 import {
   Avatar,
-  Box,
   Card,
   Collapse,
   Container,
   CssBaseline,
-  Divider,
   IconButton,
   LinearProgress,
   ListItem,
   ListItemAvatar,
   ListItemIcon,
-  ListItemSecondaryAction,
   ListItemText,
   SvgIconTypeMap,
   Theme,
@@ -136,6 +133,11 @@ const InventoryEntry: React.FC<EntryProps> = ({
           >
             <Avatar variant="rounded" style={{ width: "100%", height: "100%" }}>
               <FoodIcon />
+              {/* <img
+                src="https://spoonacular.com/recipeImages/716429-556x370.jpg"
+                alt="recipe"
+                width={`${theme.spacing(16)}`}
+              ></img> */}
             </Avatar>
           </ListItemAvatar>
           <ListItemText

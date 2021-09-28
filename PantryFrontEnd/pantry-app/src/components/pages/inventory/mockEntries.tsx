@@ -1,5 +1,14 @@
 import { GiMeat as MeatIcon } from "react-icons/gi";
 
+/* 
+name
+quantity
+price
+itemID
+category
+expiryGroup: [(expDate, count)*]
+
+*/
 export type Item = {
   iid: string;
   quantity: string;

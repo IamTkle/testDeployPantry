@@ -34,17 +34,21 @@ export type navItem = {
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
-      background: theme.palette.background.default,
-      width: theme.spacing(35),
+      // background: theme.palette.background.default,
+      background: theme.palette.primary.dark,
+      width: theme.spacing(30),
       padding: `${theme.spacing(2)}px ${theme.spacing(2)}px`,
+      color: "white",
     },
     root: {
       "&.Mui-selected": {
-        backgroundColor: theme.palette.primary.light,
-        color: theme.palette.primary.dark,
+        // backgroundColor: theme.palette.primary.light,
+        backgroundColor: theme.palette.primary.main,
+        // color: theme.palette.primary.dark,
+        color: "white",
         fontWeight: 700,
-        fontSize: "1.25rem",
-        transition: "color 250ms ease-out, font-size 125ms ease-in",
+        fontSize: "1.15rem",
+        transition: "color 250ms ease-out",
         borderRadius: theme.spacing(1),
         marginTop: theme.spacing(4),
         marginBottom: theme.spacing(4),
@@ -53,12 +57,20 @@ const useStyles = makeStyles((theme: Theme) =>
         outlineColor: theme.palette.primary.main,
         letterSpacing: 1.5,
         "&:hover": {
-          color: theme.palette.text.primary,
+          color: theme.palette.primary.light,
+          "& svg": {
+            color: theme.palette.primary.light,
+          },
+        },
+        "& svg": {
+          fontWeight: 700,
+          color: "white",
         },
       },
       marginTop: theme.spacing(2),
       marginBottom: theme.spacing(2),
-      color: theme.palette.text.primary,
+      // color: theme.palette.text.primary,
+      color: theme.palette.primary.light,
       fontSize: "1rem",
     },
     icon: {
@@ -119,7 +131,9 @@ const NavBar: React.FC<NavbarProps> = ({
                 classes={{ selected: classes.root }}
                 className={classes.root}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemIcon style={{ color: theme.palette.primary.light }}>
+                  {item.icon}
+                </ListItemIcon>
                 <ListItemText primary={item.descText} disableTypography />
               </ListItem>
             </Link>

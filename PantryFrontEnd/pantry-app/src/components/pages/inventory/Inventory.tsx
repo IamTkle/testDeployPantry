@@ -1,10 +1,13 @@
 import {
   AppBar,
+  ClickAwayListener,
   Container,
   Divider,
   Hidden,
   IconButton,
   makeStyles,
+  Menu,
+  MenuItem,
   Tab,
   Tabs,
   TextField,
@@ -27,7 +30,7 @@ import { GiFruitBowl as FruitsIcon } from "react-icons/gi";
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
-      marginLeft: theme.spacing(35),
+      marginLeft: theme.spacing(30),
       // backgroundColor: theme.palette.background.default,
       paddingTop: theme.spacing(2),
       height: "auto",
@@ -39,7 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
         marginLeft: 0,
       },
     },
-    root: {
+    textRoot: {
       right: 0,
       top: 0,
       width: "auto",
@@ -55,13 +58,14 @@ const useStyles = makeStyles((theme: Theme) =>
       flexDirection: "row",
       justifyContent: "flex-end",
       alignItems: "center",
-      width: `calc(100vw - ${theme.spacing(35)}px)`,
+      // width: `calc(100vw - ${theme.spacing(30)}px)`,
+      width: "auto",
+      left: theme.spacing(30),
       backgroundColor: theme.palette.background.default,
-      // backgroundColor: "#f4f2f8",
-      backdropFilter: "blur(10px)",
-      WebkitBackdropFilter: "blur(10px)",
+      borderBottom: "3px solid " + theme.palette.primary.dark,
       [theme.breakpoints.down("sm")]: {
-        width: "100vw",
+        // width: "100vw",
+        left: 0,
       },
     },
     title: {
@@ -78,10 +82,28 @@ const useStyles = makeStyles((theme: Theme) =>
       width: "100%",
     },
     titleTypography: {
+      color: theme.palette.primary.dark,
       [theme.breakpoints.down("sm")]: {
         fontSize: 25,
         marginLeft: theme.spacing(1),
       },
+    },
+    searchInput: {
+      marginLeft: "auto",
+    },
+    openMenuButtonContainer: {
+      [theme.breakpoints.down("xs")]: {
+        marginRight: "auto",
+      },
+    },
+    popUpMenuList: {
+      right: 0,
+      top: 0,
+    },
+    popUpMenuRoot: {
+      position: "absolute",
+      right: 0,
+      top: 0,
     },
   })
 );
@@ -109,7 +131,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
     return allCategories;
   };
 
-  const filterEntries = (category: string | undefined) => {
+  const getEntriesForCategory = (category: string | undefined) => {
     if (category) {
       return entries.filter((item) => {
         return item.category === category ? true : false;
@@ -118,13 +140,15 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
     return entries;
   };
 
-  const [searchIsOpen, setSearchOpen] = React.useState(false);
-
   const [activeTab, setActiveTab] = React.useState(0);
 
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const [searchEntries, setSearchEntries] = React.useState<Item[]>([]);
+
+  const [filteredEntries, setFilteredEntries] = React.useState<Item[]>([]);
+
+  const [filterMenuOpen, setFilterMenuOpen] = React.useState(false);
 
   const tabCategories = React.useMemo(getTabCategories, []);
 
@@ -149,13 +173,10 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const handleSearchClick = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
-    if (searchIsOpen) {
+    if (searchTerm.length > 0) {
       setSearchEntries(filterSearchEntries(searchTerm));
       setActiveTab(tabCategories.length + 1);
-    } else {
-      setSearchOpen(true);
     }
-    console.log(searchTerm, filterSearchEntries(searchTerm));
   };
 
   const getTabs = () => {
@@ -178,7 +199,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const memoizedTabs = React.useMemo(() => {
     console.log("tab contents reloaded");
     return tabCategories.map((category, index) => {
-      const filteredEntries = filterEntries(category);
+      const filteredEntries = getEntriesForCategory(category);
       return (
         <InventoryTab
           key={index + 1}
@@ -201,30 +222,35 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         classes={{ root: classes.appBar }}
       >
         <Hidden mdUp>
-          <IconButton onClick={handleOpenMenu}>
-            <HamburgerMenuIcon />
+          <IconButton
+            onClick={handleOpenMenu}
+            color="primary"
+            className={classes.openMenuButtonContainer}
+          >
+            <HamburgerMenuIcon style={{ color: theme.palette.primary.dark }} />
           </IconButton>
         </Hidden>
-        <Typography
-          variant={"h2"}
-          classes={{ root: classes.titleTypography }}
-          color="textPrimary"
-          className={classes.title}
-        >
-          Inventory
-        </Typography>
+        <Hidden xsDown>
+          <Typography
+            variant={"h2"}
+            classes={{ root: classes.titleTypography }}
+            color="textPrimary"
+            className={classes.title}
+          >
+            Inventory
+          </Typography>
+        </Hidden>
         <TextField
           placeholder="Search for an item"
-          label="Search"
           size="medium"
           color="primary"
           variant="outlined"
-          classes={{ root: classes.root }}
+          classes={{ root: classes.textRoot }}
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
             classes: {
               // focused: classes.root,
-              root: classes.root,
+              root: classes.searchInput,
             },
             endAdornment: (
               <IconButton onClick={handleSearchClick}>
@@ -233,13 +259,22 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
             ),
           }}
         />
-        <IconButton>
+        <IconButton onClick={() => setFilterMenuOpen(true)}>
           <FilterIcon />
         </IconButton>
       </AppBar>
 
+      <Menu
+        open={filterMenuOpen}
+        classes={{ list: classes.popUpMenuList }}
+        className={classes.popUpMenuRoot}
+      >
+        <ClickAwayListener onClickAway={() => setFilterMenuOpen(false)}>
+          <MenuItem key={1}>hello</MenuItem>
+        </ClickAwayListener>
+      </Menu>
       <Toolbar />
-      <Container disableGutters>
+      <Container disableGutters style={{ maxWidth: "none" }}>
         <Tabs
           value={activeTab}
           variant="scrollable"
@@ -255,9 +290,15 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
             value={tabCategories.length + 1}
             icon={<InfoIcon />}
           />
+          <Tab
+            wrapped
+            label={"Filter"}
+            value={tabCategories.length + 2}
+            icon={<InfoIcon />}
+          />
         </Tabs>
 
-        <Divider variant="fullWidth" color="primary" />
+        <Divider color="primary" />
         <SwipeableViews
           index={activeTab}
           onChangeIndex={(index) => setActiveTab(index)}
@@ -267,6 +308,11 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
           <InventoryTab
             activeTab={activeTab}
             index={tabCategories.length + 1}
+            propEntries={searchEntries}
+          />
+          <InventoryTab
+            activeTab={activeTab}
+            index={tabCategories.length + 2}
             propEntries={searchEntries}
           />
         </SwipeableViews>
