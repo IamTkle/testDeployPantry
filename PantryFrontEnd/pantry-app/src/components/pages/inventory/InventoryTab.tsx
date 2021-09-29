@@ -36,18 +36,26 @@ const InventoryTab: React.FC<InventoryTabProps> = ({
   );
 };
 
-const areEqual: (
-  prevProps: Readonly<InventoryTabProps & { children?: ReactNode }>,
-  nextProps: Readonly<InventoryTabProps & { children?: ReactNode }>
-) => boolean = (prevProps, nextProps) => {
-  if (
-    prevProps.activeTab === nextProps.activeTab &&
-    prevProps.propEntries.length === nextProps.propEntries.length
-  ) {
-    return true;
+const entriesAreSame = (A: Item[], B: Item[]) => {
+  if (A.length !== B.length) return false;
+  for (let i = 0; i < A.length; i++) {
+    if (A[i]?.iid !== B[i]?.iid) return false;
   }
-  return false;
+  return true;
 };
 
-const MemoizedInventoryTab = React.memo(InventoryTab, areEqual);
-export default MemoizedInventoryTab;
+// const areEqual: (
+//   prevProps: Readonly<InventoryTabProps & { children?: ReactNode }>,
+//   nextProps: Readonly<InventoryTabProps & { children?: ReactNode }>
+// ) => boolean = (prevProps, nextProps) => {
+//   if (
+//     prevProps.activeTab === nextProps.activeTab &&
+//     entriesAreSame(prevProps.propEntries, nextProps.propEntries)
+//   ) {
+//     return true;
+//   }
+//   return false;
+// };
+
+// const MemoizedInventoryTab = React.memo(InventoryTab, areEqual);
+export default InventoryTab;

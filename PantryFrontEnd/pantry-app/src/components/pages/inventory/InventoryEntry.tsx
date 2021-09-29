@@ -19,6 +19,7 @@ import {
   ButtonGroup,
   Grid,
   Divider,
+  Box,
 } from "@material-ui/core";
 import { OverridableComponent } from "@material-ui/core/OverridableComponent";
 import {
@@ -147,7 +148,6 @@ const InventoryEntry: React.FC<EntryProps> = ({
   const theme = useTheme();
   const classes = useStyles(theme);
   const [isOpen, setOpen] = React.useState(false);
-  // const [deadlineProgress] = React.useState(50);
   const [earliestExpPc, setEarliestExpPc] = React.useState<number>(100);
   const [earliestExpDate, setEarliestExpDate] = React.useState("01/01/1970");
   const [expRemainStr, setRemainStr] = React.useState("12+ months");
@@ -217,7 +217,7 @@ const InventoryEntry: React.FC<EntryProps> = ({
                     // style={{ marginLeft: theme.spacing(1) }}
                     classes={{ root: classes.h5Down }}
                   >
-                    {quantity}
+                    {quantity} x {expiryGroups.length * 3}
                   </Typography>
                 </Container>
                 <ButtonGroup
@@ -347,7 +347,23 @@ const InventoryEntry: React.FC<EntryProps> = ({
                   <Container>
                     <Card elevation={2}>
                       <Container className={classes.expiryGroupContainer}>
-                        {localDateStr} x {eg.count} ({diffStr})
+                        {/* {localDateStr} x {eg.count} ({diffStr}) */}
+                        <Box flex>
+                          <Typography
+                            variant="h6"
+                            color={
+                              percentageDiff < 50 ? "secondary" : "primary"
+                            }
+                          >
+                            {localDateStr}
+                          </Typography>
+                          <Typography variant="h6" color="textSecondary">
+                            ({diffStr})
+                          </Typography>
+                        </Box>
+                        <Typography variant="h6" color="textPrimary">
+                          x {eg.count}
+                        </Typography>
                         <ButtonGroup
                           variant="contained"
                           size="large"
@@ -382,7 +398,7 @@ const InventoryEntry: React.FC<EntryProps> = ({
   );
 };
 
-const getMonthDifference = (expDate: Date) => {
+export const getMonthDifference = (expDate: Date) => {
   const msDiff = Math.floor(expDate.getTime() - today.getTime());
 
   return msDiff / msToMonthsRatio;

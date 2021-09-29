@@ -1,5 +1,6 @@
 import {
   AppBar,
+  CardActionArea,
   ClickAwayListener,
   Container,
   Divider,
@@ -27,9 +28,10 @@ import FilterIcon from "@material-ui/icons/TuneOutlined";
 import InfoIcon from "@material-ui/icons/Info";
 import HamburgerMenuIcon from "@material-ui/icons/Menu";
 import React, { ReactNode } from "react";
-import { entries, Item } from "./mockEntries";
+import { entries as mockEntries, Item } from "./mockEntries";
 import InventoryTab from "./InventoryTab";
 import { GiFruitBowl as FruitsIcon } from "react-icons/gi";
+import { getMonthDifference } from "./InventoryEntry";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -110,6 +112,64 @@ interface InventoryProps {
   setNavOpen: () => void;
 }
 
+const sortByExpiry = (entries: Item[], desc: boolean) => {
+  const sorted = entries.sort((entryA, entryB) => {
+    const expGrpsA = entryA.expiryGroups;
+    const expGrpsB = entryB.expiryGroups;
+
+    const earliestExpA = expGrpsA.reduce((prev, curr) =>
+      prev.expDate < curr.expDate ? prev : curr
+    );
+
+    const earliestExpB = expGrpsB.reduce((prev, curr) =>
+      prev.expDate < curr.expDate ? prev : curr
+    );
+
+    if (desc) return earliestExpA.expDate < earliestExpB.expDate ? -1 : 1;
+    return earliestExpA.expDate < earliestExpB.expDate ? 1 : -1;
+  });
+
+  console.log(sorted);
+  return sorted;
+};
+
+const sortByName = (entries: Item[], desc: boolean) => {
+  const sorted = entries.sort((A, B) =>
+    desc ? A.name.localeCompare(B.name) : A.name.localeCompare(B.name) * -1
+  );
+
+  return sorted;
+};
+
+const sortByCategory = (entries: Item[], desc: boolean) => {
+  const sorted = entries.sort((A, B) =>
+    desc
+      ? A.category.localeCompare(B.category)
+      : A.category.localeCompare(B.category) * -1
+  );
+
+  return sorted;
+};
+
+const sortByQuantity = (entries: Item[], desc: boolean) => {
+  const sorted = entries.sort((A, B) => {
+    const expGrpsA = A.expiryGroups;
+    const expGrpsB = B.expiryGroups;
+
+    var totalCountA = 0;
+    expGrpsA.forEach((eg) => (totalCountA += eg.count));
+
+    var totalCountB = 0;
+    expGrpsB.forEach((eg) => (totalCountB += eg.count));
+
+    const diff = totalCountA - totalCountB;
+
+    return desc ? diff : diff * -1;
+  });
+
+  return sorted;
+};
+
 const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
@@ -129,34 +189,41 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
     return allCategories;
   };
 
-  const getEntriesForCategory = (category: string | undefined) => {
-    if (category) {
-      return entries.filter((item) => {
-        return item.category === category ? true : false;
-      });
-    }
-    return entries;
-  };
-
   const [activeTab, setActiveTab] = React.useState(0);
+
+  const [sortDescending, setSortDescending] = React.useState(() => true);
+
+  const [entries, setEntries] = React.useState(() =>
+    sortByExpiry(mockEntries, true)
+  );
 
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const [searchEntries, setSearchEntries] = React.useState<Item[]>([]);
 
-  const [filteredEntries, setFilteredEntries] = React.useState<Item[]>([]);
-
   const [filterMenuOpen, setFilterMenuOpen] = React.useState(false);
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-  const [sortDescending, setSortDescending] = React.useState(true);
+  const [sortType, setSortType] = React.useState<number>(0);
 
   const tabCategories = React.useMemo(getTabCategories, []);
 
   const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
     setActiveTab(newTab);
   };
+
+  const getEntriesForCategory = React.useCallback(
+    (category: string | undefined) => {
+      if (category) {
+        return entries.filter((item) => {
+          return item.category === category ? true : false;
+        });
+      }
+      return entries;
+    },
+    [entries]
+  );
 
   const filterSearchEntries = (searchTerm: string) => {
     return entries.filter((entry) => {
@@ -181,10 +248,32 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
     }
   };
 
-  const handleSortDirectionChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setSortDescending((prev) => !prev);
+  const handleSortDirectionChange = (desc: boolean) => {
+    console.log(desc);
+    setSortDescending(desc);
+    handleSortTypeChosen(sortType, desc);
+  };
+
+  const handleSortTypeChosen = (sortBy: number, desc: boolean) => {
+    switch (sortBy) {
+      case 0:
+        setSortType(0);
+        setEntries((prevEntries) => [...sortByExpiry(prevEntries, desc)]);
+        break;
+      default:
+      case 1:
+        setSortType(1);
+        setEntries((prevEntries) => [...sortByName(prevEntries, desc)]);
+        break;
+      case 2:
+        setSortType(2);
+        setEntries((prevEntries) => [...sortByCategory(prevEntries, desc)]);
+        break;
+      case 3:
+        setSortType(3);
+        setEntries((prevEntries) => [...sortByQuantity(prevEntries, desc)]);
+        break;
+    }
   };
 
   const getTabs = () => {
@@ -205,7 +294,6 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const tabs = React.useMemo(getTabs, [tabCategories]);
 
   const memoizedTabs = React.useMemo(() => {
-    console.log("tab contents reloaded");
     return tabCategories.map((category, index) => {
       const filteredEntries = getEntriesForCategory(category);
       return (
@@ -218,7 +306,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         />
       );
     });
-  }, [activeTab, tabCategories]);
+  }, [activeTab, tabCategories, getEntriesForCategory]);
 
   return (
     <div className={classes.container}>
@@ -279,15 +367,19 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
           open={filterMenuOpen}
           anchorEl={anchorEl}
           keepMounted
-          onClose={(e) => setFilterMenuOpen(false)}
+          onClose={() => setFilterMenuOpen(false)}
         >
           <FormControl>
-            <MenuItem style={{ cursor: "default" }}>
+            <MenuItem
+              style={{ cursor: "default" }}
+              onClick={() => {
+                handleSortDirectionChange(!sortDescending);
+              }}
+            >
               Ascending
               <Switch
                 color="primary"
                 checked={sortDescending}
-                onChange={handleSortDirectionChange}
                 classes={{
                   track: classes.ascendingTrack,
                 }}
@@ -295,9 +387,42 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
               Descending
             </MenuItem>
           </FormControl>
-          <MenuItem key={1}>By expiry date</MenuItem>
-          <MenuItem key={2}>By item name</MenuItem>
-          <MenuItem key={3}>By category</MenuItem>
+          <MenuItem
+            value="expiry"
+            key={0}
+            onClick={() => handleSortTypeChosen(0, sortDescending)}
+            tabIndex={0}
+            selected={sortType === 0}
+          >
+            By expiry date
+          </MenuItem>
+          <MenuItem
+            value="name"
+            key={1}
+            tabIndex={1}
+            selected={sortType === 1}
+            onClick={() => handleSortTypeChosen(1, sortDescending)}
+          >
+            By item name
+          </MenuItem>
+          <MenuItem
+            value="category"
+            key={2}
+            tabIndex={2}
+            selected={sortType === 2}
+            onClick={() => handleSortTypeChosen(2, sortDescending)}
+          >
+            By category
+          </MenuItem>
+          <MenuItem
+            value="quantity"
+            key={3}
+            tabIndex={3}
+            selected={sortType === 3}
+            onClick={() => handleSortTypeChosen(3, sortDescending)}
+          >
+            By quantity
+          </MenuItem>
         </Menu>
       </AppBar>
 
@@ -318,12 +443,6 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
             value={tabCategories.length + 1}
             icon={<InfoIcon />}
           />
-          <Tab
-            wrapped
-            label={"Filter"}
-            value={tabCategories.length + 2}
-            icon={<InfoIcon />}
-          />
         </Tabs>
 
         <Divider color="primary" />
@@ -336,11 +455,6 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
           <InventoryTab
             activeTab={activeTab}
             index={tabCategories.length + 1}
-            propEntries={searchEntries}
-          />
-          <InventoryTab
-            activeTab={activeTab}
-            index={tabCategories.length + 2}
             propEntries={searchEntries}
           />
         </SwipeableViews>
