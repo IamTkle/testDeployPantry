@@ -53,7 +53,6 @@ jobs:
         run: |
           unzip -q release.zip
           ls
-          rm release.zip
           
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -62,4 +61,4 @@ jobs:
           app-name: 'handeepantri'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_72B5892959DA4F54853425D53AD2CE08 }}
-          package: ./build
+          package: build
