@@ -62,4 +62,4 @@ jobs:
           app-name: 'handeepantri'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_72B5892959DA4F54853425D53AD2CE08 }}
-          package: build
+          package: .
