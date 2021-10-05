@@ -59,7 +59,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'handipantree'
+          app-name: 'handeepantri'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_72B5892959DA4F54853425D53AD2CE08 }}
           package: ./PantryFrontEnd/pantry-app/build/
