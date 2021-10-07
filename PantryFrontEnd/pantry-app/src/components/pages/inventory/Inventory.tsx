@@ -1,33 +1,21 @@
 import {
-  AppBar,
   Container,
   Divider,
-  FormControl,
-  Hidden,
-  IconButton,
   makeStyles,
-  Menu,
-  MenuItem,
-  Switch,
   Tab,
   Tabs,
-  TextField,
   Theme,
   Toolbar,
-  Typography,
   useTheme,
 } from "@material-ui/core";
-import SwipeableViews from "react-swipeable-views";
 import { createStyles } from "@material-ui/core/styles";
-import SearchIcon from "@material-ui/icons/SearchOutlined";
-import FilterIcon from "@material-ui/icons/TuneOutlined";
 import InfoIcon from "@material-ui/icons/Info";
-import HamburgerMenuIcon from "@material-ui/icons/Menu";
 import React, { ReactNode } from "react";
-import { entries as mockEntries, Item } from "./mockEntries";
-import InventoryTab from "./InventoryTab";
 import { GiFruitBowl as FruitsIcon } from "react-icons/gi";
+import SwipeableViews from "react-swipeable-views";
 import PantryAppBar from "../../PantryAppBar";
+import InventoryTab from "./InventoryTab";
+import { entries as mockEntries, Item } from "./mockEntries";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -152,49 +140,58 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
     [entries]
   );
 
-  const filterSearchEntries = (searchTerm: string) => {
-    return entries.filter((entry) => {
-      searchTerm = searchTerm.toLowerCase();
-      return entry.name.toLowerCase().includes(searchTerm) ||
-        entry.category.toLowerCase().includes(searchTerm)
-        ? true
-        : false;
-    });
-  };
+  const filterSearchEntries = React.useCallback(
+    (searchTerm: string) => {
+      return entries.filter((entry) => {
+        searchTerm = searchTerm.toLowerCase();
+        return entry.name.toLowerCase().includes(searchTerm) ||
+          entry.category.toLowerCase().includes(searchTerm)
+          ? true
+          : false;
+      });
+    },
+    [entries]
+  );
 
   const handleOpenMenu = () => {
     setNavOpen();
   };
 
-  const handleSearchClick = (searchTerm: string) => {
-    if (searchTerm.length > 0) {
-      setSearchEntries(filterSearchEntries(searchTerm));
-      setActiveTab(tabCategories.length + 1);
-    }
-  };
+  const handleSearchClick = React.useCallback(
+    (searchTerm: string) => {
+      if (searchTerm.length > 0) {
+        setSearchEntries(filterSearchEntries(searchTerm));
+        setActiveTab(tabCategories.length + 1);
+      }
+    },
+    [filterSearchEntries, tabCategories.length]
+  );
 
   const handleSortDirectionChange = (sortType: number, desc: boolean) => {
     console.log(desc);
     handleSortTypeChosen(sortType, desc);
   };
 
-  const handleSortTypeChosen = (sortBy: number, desc: boolean) => {
-    switch (sortBy) {
-      case 0:
-        setEntries((prevEntries) => [...sortByExpiry(prevEntries, desc)]);
-        break;
-      default:
-      case 1:
-        setEntries((prevEntries) => [...sortByName(prevEntries, desc)]);
-        break;
-      case 2:
-        setEntries((prevEntries) => [...sortByCategory(prevEntries, desc)]);
-        break;
-      case 3:
-        setEntries((prevEntries) => [...sortByQuantity(prevEntries, desc)]);
-        break;
-    }
-  };
+  const handleSortTypeChosen = React.useCallback(
+    (sortBy: number, desc: boolean) => {
+      switch (sortBy) {
+        case 0:
+          setEntries((prevEntries) => [...sortByExpiry(prevEntries, desc)]);
+          break;
+        default:
+        case 1:
+          setEntries((prevEntries) => [...sortByName(prevEntries, desc)]);
+          break;
+        case 2:
+          setEntries((prevEntries) => [...sortByCategory(prevEntries, desc)]);
+          break;
+        case 3:
+          setEntries((prevEntries) => [...sortByQuantity(prevEntries, desc)]);
+          break;
+      }
+    },
+    []
+  );
 
   const getTabs = () => {
     console.log("tab categories checked");
