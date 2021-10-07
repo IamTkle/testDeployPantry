@@ -25,6 +25,7 @@ import ExpiredBin from "../pages/expiredbin/ExpiredBin";
 import Account from "../pages/account/Account";
 import Signup from "../pages/signup/Signup";
 import Login from "../pages/login/Login";
+import Recipe from "../pages/recipe/Recipe";
 
 export type navItem = {
   icon: ReactElement<any, any>;
@@ -173,7 +174,7 @@ export const navItems: navItem[] = [
   {
     descText: "Recipes",
     link: "/recipes",
-    component: React.Fragment,
+    component: Recipe,
     icon: <RecipeIcon />,
   },
 
