@@ -231,6 +231,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   return (
     <div className={classes.container}>
       <PantryAppBar
+        title={"Inventory"}
         handleOpenMenu={handleOpenMenu}
         handleSearchClick={handleSearchClick}
         handleSortDirectionChange={handleSortDirectionChange}

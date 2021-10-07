@@ -80,6 +80,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface PantryAppBarProps {
+  title: string;
   handleOpenMenu: () => void;
   handleSearchClick: (searchTerm: string) => void;
   handleSortTypeChosen: (sortType: number, desc: boolean) => void;
@@ -87,6 +88,7 @@ interface PantryAppBarProps {
 }
 
 const PantryAppBar: React.FC<PantryAppBarProps> = ({
+  title,
   handleOpenMenu,
   handleSearchClick,
   handleSortDirectionChange,
@@ -129,7 +131,7 @@ const PantryAppBar: React.FC<PantryAppBarProps> = ({
           color="textPrimary"
           className={classes.title}
         >
-          Inventory
+          {title}
         </Typography>
       </Hidden>
 

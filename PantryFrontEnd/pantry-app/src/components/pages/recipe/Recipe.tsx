@@ -1,8 +1,11 @@
 import { Theme } from "@material-ui/core";
 import { makeStyles, createStyles, useTheme } from "@material-ui/styles";
 import React from "react";
+import PantryAppBar from "../../PantryAppBar";
 
-interface RecipeProps {}
+interface RecipeProps {
+  setNavOpen: () => void;
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -19,11 +22,25 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Recipe: React.FC<RecipeProps> = () => {
+const Recipe: React.FC<RecipeProps> = ({ setNavOpen }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  return <div className={classes.pageContainer}></div>;
+  const handleSortDirectionChange = (sortType: number, desc: boolean) => {};
+
+  const handleSortTypeChosen = (sortType: number, desc: boolean) => {};
+
+  return (
+    <div className={classes.pageContainer}>
+      <PantryAppBar
+        title={"Recipes"}
+        handleOpenMenu={setNavOpen}
+        handleSearchClick={(searchTerm) => console.log(searchTerm)}
+        handleSortDirectionChange={handleSortDirectionChange}
+        handleSortTypeChosen={handleSortTypeChosen}
+      />
+    </div>
+  );
 };
 
 export default Recipe;
