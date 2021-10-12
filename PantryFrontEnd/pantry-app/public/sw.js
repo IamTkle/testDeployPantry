@@ -34,6 +34,8 @@ self.addEventListener("fetch", (e) => {
         "https://fonts.googleapis.com/css2?family=Cambay:wght@400;700&display=swap"
       )
     );
+  } else {
+    return fetch(e.request);
   }
 });
 
