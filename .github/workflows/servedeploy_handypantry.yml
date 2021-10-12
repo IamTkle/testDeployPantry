@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -26,7 +26,7 @@ jobs:
           cd PantryFrontEnd/pantry-app/
           npm install
           npm install serve
-          $env:CI='false'; npm run build
+          CI=false npm run build
       
       - name: Zip artifact for deployment
         run: |
