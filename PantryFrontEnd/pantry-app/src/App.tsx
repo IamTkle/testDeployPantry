@@ -40,6 +40,70 @@ const theme = createTheme({
   },
 });
 
+const checkLoggedInCookie = () => {
+  const cookies = document.cookie.split(";");
+
+  return cookies.includes("loggedIn");
+};
+
+const isLoggedIn =
+  process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true;
+
+// function urlBase64ToUint8Array(base64String: string | undefined) {
+//   if (base64String) {
+//     var padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+//     var base64 = (base64String + padding)
+//       .replace(/\-/g, "+")
+//       .replace(/_/g, "/");
+
+//     var rawData = window.atob(base64);
+//     var outputArray = new Uint8Array(rawData.length);
+
+//     for (var i = 0; i < rawData.length; ++i) {
+//       outputArray[i] = rawData.charCodeAt(i);
+//     }
+//     return outputArray;
+//   }
+//   return;
+// }
+
+// const checkVapidKey = async (newKeyStr: string) => {
+//   const reg = await navigator.serviceWorker.ready;
+//   const pshMngr = reg.pushManager;
+//   const sub = await pshMngr.getSubscription();
+
+//   if (sub) {
+//     sub.unsubscribe();
+//     // const jsonForm = sub.toJSON();
+
+//     // if (jsonForm && jsonForm.keys) {
+//     //   const key = jsonForm.keys["p256dh"];
+
+//     //   console.log("str form:", key);
+//     //   console.log(sub);
+//     //   if (key !== newKeyStr) {
+//     //     sub.unsubscribe();
+//     //     console.log("unsubscribed");
+//     //   }
+//     // const currKey = new Uint8Array(sub.getKey("p256dh") as ArrayBufferLike);
+
+//     // console.log("curr key", currKey);
+
+//     // const newKey = urlBase64ToUint8Array(newKeyStr);
+//     // console.log("new key", newKey);
+
+//     // if (currKey && newKey) {
+//     //   if (currKey.byteLength !== newKey.byteLength) return;
+
+//     //   for (let i = 0; i < currKey.byteLength; i++) {
+//     //     if (currKey[i] !== newKey[i]) {
+//     //       sub.unsubscribe();
+//     //       return;
+//     //     }
+//     //   }
+//   }
+// };
+
 function App() {
   const location = window.location.pathname;
   const [navTab, setNavTab] = React.useState(() => pageToIndex(location));
@@ -55,13 +119,20 @@ function App() {
       console.log("Permission", status);
     });
 
+    const strForm = process.env["REACT_APP_PUBLIC_VAPID_KEY"];
+    // const vapidKey = urlBase64ToUint8Array(
+    //   process.env["REACT_APP_PUBLIC_VAPID_KEY"]
+    // );
+
+    console.log("current key:", strForm);
+
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js", { scope: "/" })
         .then((value) => {
+          // checkVapidKey(strForm as string);
           const pushSubscriptionOptions: PushSubscriptionOptionsInit = {
-            applicationServerKey:
-              "BCzbXwCuFZeGL6sFNy-1wHGpq8xu1qCVXYel0gy9GjVNWUIoGckopULc9wfWJTtqwnoXjo_dS8H-cDhJ4XY8NcI",
+            applicationServerKey: strForm,
             userVisibleOnly: true,
           };
           value.pushManager
@@ -103,27 +174,35 @@ function App() {
       <BrowserRouter>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Hidden smDown={true}>
-            <NavBar
-              currNavTab={navTab}
-              drawerVariant="permanent"
-              setNavTab={setNavTab}
-              setNavOpen={setNavOpen}
-            />
-          </Hidden>
-          <Hidden mdUp={true}>
-            <NavBar
-              currNavTab={navTab}
-              drawerVariant="temporary"
-              open={navIsOpen}
-              setNavTab={setNavTab}
-              setNavOpen={setNavOpen}
-            />
-          </Hidden>
-          {navPageRoutes}
+          {isLoggedIn && (
+            <>
+              <Hidden smDown={true}>
+                <NavBar
+                  currNavTab={navTab}
+                  drawerVariant="permanent"
+                  setNavTab={setNavTab}
+                  setNavOpen={setNavOpen}
+                />
+              </Hidden>
+              <Hidden mdUp={true}>
+                <NavBar
+                  currNavTab={navTab}
+                  drawerVariant="temporary"
+                  open={navIsOpen}
+                  setNavTab={setNavTab}
+                  setNavOpen={setNavOpen}
+                />
+              </Hidden>
+            </>
+          )}
           <Switch>
-            <Redirect exact from="/" to="/inventory" />
+            {isLoggedIn ? (
+              <Redirect exact from="/" to="/inventory" />
+            ) : (
+              <Redirect from="/" to="/login" />
+            )}
           </Switch>
+          {navPageRoutes}
         </ThemeProvider>
       </BrowserRouter>
     </div>

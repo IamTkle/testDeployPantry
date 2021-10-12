@@ -1,16 +1,16 @@
-import React, { useState } from "react";
 import {
-  Grid,
-  Paper,
   Avatar,
-  TextField,
-  FormControlLabel,
-  Checkbox,
-  Button,
-  Typography,
-  Link,
   Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  Link,
+  Paper,
+  TextField,
+  Typography,
 } from "@material-ui/core";
+import React from "react";
 
 const SignUp = () => {
   const paperStyle = {

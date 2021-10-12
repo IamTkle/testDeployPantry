@@ -164,9 +164,6 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
                   onClick={() => setIsFavorite((prev) => !prev)}
                   size="small"
                 >
-                  {/* <Favorite
-                    className={isFavorite ? classes.favoritedButton : ""}
-                  /> */}
                   {isFavorite ? (
                     <Favorite className={classes.favoritedButton} />
                   ) : (
