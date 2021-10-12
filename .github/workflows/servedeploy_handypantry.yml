@@ -26,7 +26,7 @@ jobs:
           cd PantryFrontEnd/pantry-app/
           npm install
           npm install serve
-          CI=false npm run build
+          $env:CI='false'; npm run build
       
       - name: Zip artifact for deployment
         run: |
