@@ -20,24 +20,24 @@ self.addEventListener("activate", (e) => {
   e.waitUntil(console.log("Activated!", e));
 });
 
-self.addEventListener("fetch", (e) => {
-  console.log("Intercepted request", e);
-  const url = new URL(e.request.url);
+// self.addEventListener("fetch", (e) => {
+//   console.log("Intercepted request", e);
+//   const url = new URL(e.request.url);
 
-  if (
-    url.origin === location.origin &&
-    url.pathname ===
-      "https://fonts.googleapis.com/css2?family=Cambay:wght@400;700&display=swap"
-  ) {
-    e.respondWith(
-      caches.match(
-        "https://fonts.googleapis.com/css2?family=Cambay:wght@400;700&display=swap"
-      )
-    );
-  } else {
-    return fetch(e.request);
-  }
-});
+//   if (
+//     url.origin === location.origin &&
+//     url.pathname ===
+//       "https://fonts.googleapis.com/css2?family=Cambay:wght@400;700&display=swap"
+//   ) {
+//     e.respondWith(
+//       caches.match(
+//         "https://fonts.googleapis.com/css2?family=Cambay:wght@400;700&display=swap"
+//       )
+//     );
+//   } else {
+//     e.respondWith(fetch(e.request));
+//   }
+// });
 
 self.addEventListener("push", (e) => {
   e.waitUntil(

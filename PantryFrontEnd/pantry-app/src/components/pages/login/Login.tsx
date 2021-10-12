@@ -9,10 +9,14 @@ import {
   Paper,
   TextField,
   Typography,
+  Snackbar
 } from "@material-ui/core";
 import React from "react";
+import { useHistory, Route } from 'react-router-dom'
 
-const SignUp = () => {
+interface loginProps { message?: string}
+
+const Login:React.FC<loginProps> = ({ message }) => {
   const paperStyle = {
     padding: 20,
     height: "80vh",
@@ -20,10 +24,17 @@ const SignUp = () => {
     margin: "20px auto",
   };
 
+  const history = useHistory();
+
+  const handleRoute = () => {
+    history.push("/signup");
+  }
+
   return (
     <Grid>
       <Paper elevation={30} variant="outlined" style={paperStyle}>
-        <Grid>
+      {message && <Snackbar open={true} autoHideDuration={6000} color="primary"><>message</></Snackbar> }
+        <Grid>s
           <Avatar alt="Remy Sharp" src="/static/images/avatars/unnamed.png" />
           <h2> Login </h2>
         </Grid>
@@ -64,11 +75,17 @@ const SignUp = () => {
         <Typography>
           {" "}
           Don't have an account?
-          <Link href="#">Sign Up</Link>
+          <Link
+          component="button"
+          variant="body1"
+          onClick={handleRoute}
+          >
+            Sign Up
+          </Link>
         </Typography>
       </Paper>
     </Grid>
   );
 };
 
-export default SignUp;
+export default Login;

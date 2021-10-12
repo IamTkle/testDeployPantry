@@ -11,6 +11,8 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import React, { useEffect, useReducer } from "react";
+import { useHistory, Route, Switch } from 'react-router-dom'
+import Login from "../login/Login";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -50,6 +52,9 @@ const useStyles = makeStyles((theme: Theme) =>
 type State = {
   username: string;
   password: string;
+  email: string;
+  firstName: string;
+  lastName: string;
   isButtonDisabled: boolean;
   helperText: string;
   isError: boolean;
@@ -58,6 +63,9 @@ type State = {
 const initialState: State = {
   username: "",
   password: "",
+  email: "",
+  firstName: "",
+  lastName: "",
   isButtonDisabled: true,
   helperText: "",
   isError: false,
@@ -111,7 +119,8 @@ const reducer = (state: State, action: Action): State => {
 const SignUp = () => {
   const classes = useStyles();
   const [state, dispatch] = useReducer(reducer, initialState);
-
+  const history = useHistory();
+  
   useEffect(() => {
     if (state.username.trim() && state.password.trim()) {
       dispatch({
@@ -126,18 +135,26 @@ const SignUp = () => {
     }
   }, [state.username, state.password]);
 
-  const handleLogin = () => {
-    if (state.username === "abc@email.com" && state.password === "password") {
-      dispatch({
-        type: "loginSuccess",
-        payload: "Login Successfully",
-      });
+  
+  const [message, setMessage] = React.useState("");
+
+  const handleLogin = async () => {
+    
+    const response = await fetch('https://pantties.azurewebsites.net/api/Users/Register?'
+                                  + 'email=' + state.email + '&'
+                                  + 'password=' + state.password + '&'
+                                  + 'FirstName=' + state.firstName + '&'
+                                  + 'LastName=' + state.lastName );
+
+    const data = await response.json();
+    
+    if( response.ok ) {
+        setMessage(data.message);
     } else {
-      dispatch({
-        type: "loginFailed",
-        payload: "Incorrect username or password",
-      });
+        setMessage("Error occured");
     }
+    console.log(data.message);
+     history.push("/login");
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -154,7 +171,7 @@ const SignUp = () => {
       payload: event.target.value,
     });
   };
-
+ 
   const handlePasswordChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
@@ -164,11 +181,19 @@ const SignUp = () => {
     });
   };
 
+  const handleEmailChange: React.ChangeEventHandler<HTMLInputElement> = (
+    event
+  )
+
   const [checked, setChecked] = React.useState(true);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
   };
+
+  const handleRoute = () => {
+    history.push("/login");
+  }
 
   return (
     <React.Fragment>
@@ -182,7 +207,6 @@ const SignUp = () => {
                 <TextField
                   error={state.isError}
                   id="firstname"
-                  type="email"
                   label="First Name"
                   placeholder="First Name"
                   margin="normal"
@@ -194,7 +218,6 @@ const SignUp = () => {
                 <TextField
                   error={state.isError}
                   id="lastname"
-                  type="email"
                   label="Last Name"
                   placeholder="Last Name"
                   margin="normal"
@@ -206,7 +229,7 @@ const SignUp = () => {
               <TextField
                 error={state.isError}
                 fullWidth
-                id="userEmail"
+                id="email"
                 type="email"
                 label="Email"
                 placeholder="Email"
@@ -255,12 +278,18 @@ const SignUp = () => {
         </Card>
         <Grid container justifyContent="flex-end">
           <Grid item>
-            <Link href="#" variant="body2">
+            <Link
+            component="button" 
+            variant="body2"
+            onClick={handleRoute}>
               Already have an account? Sign in
             </Link>
           </Grid>
         </Grid>
       </form>
+
+    <Switch>
+      <Route path="/login" component={() => <Login message={message} />} /> </Switch>
     </React.Fragment>
   );
 };
