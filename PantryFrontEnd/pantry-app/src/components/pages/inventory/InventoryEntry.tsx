@@ -18,14 +18,12 @@ import {
   Hidden,
   ButtonGroup,
   Grid,
-  Divider,
   Box,
 } from "@material-ui/core";
 import { OverridableComponent } from "@material-ui/core/OverridableComponent";
 import {
   KeyboardArrowDownOutlined,
   Info as InfoIcon,
-  ExpandLessTwoTone,
   CheckOutlined,
   DeleteOutlined,
 } from "@material-ui/icons";

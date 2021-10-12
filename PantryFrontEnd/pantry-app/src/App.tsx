@@ -1,12 +1,9 @@
-import "./App.css";
-import NavBar from "./components/navbar/NavBar";
+import { CssBaseline, Hidden } from "@material-ui/core";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
-import { BrowserRouter, Route, Redirect } from "react-router-dom";
-import { StaticContext, RouteComponentProps } from "react-router";
 import React from "react";
-import { Container, CssBaseline, Grid, Hidden } from "@material-ui/core";
-import AddRouting from "./components/AddRouting";
-import { navItems, navItem } from "./components/navbar/NavBar";
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
+import "./App.css";
+import NavBar, { navItem, navItems } from "./components/navbar/NavBar";
 import { pageToIndex } from "./components/routingTable";
 
 const theme = createTheme({
@@ -124,7 +121,9 @@ function App() {
             />
           </Hidden>
           {navPageRoutes}
-          <Redirect exact from="/" to="/inventory" />
+          <Switch>
+            <Redirect exact from="/" to="/inventory" />
+          </Switch>
         </ThemeProvider>
       </BrowserRouter>
     </div>
