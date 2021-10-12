@@ -1,6 +1,6 @@
 import { Container } from "@material-ui/core";
 import { Item } from "./mockEntries";
-import React, { ReactNode } from "react";
+import React from "react";
 import InventoryEntry from "./InventoryEntry";
 
 interface InventoryTabProps {
@@ -18,7 +18,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({
   return (
     <>
       {activeTab === index && (
-        <Container>
+        <Container style={{ maxWidth: "none" }}>
           {propEntries.map((item) => {
             return (
               <InventoryEntry
@@ -36,13 +36,13 @@ const InventoryTab: React.FC<InventoryTabProps> = ({
   );
 };
 
-const entriesAreSame = (A: Item[], B: Item[]) => {
-  if (A.length !== B.length) return false;
-  for (let i = 0; i < A.length; i++) {
-    if (A[i]?.iid !== B[i]?.iid) return false;
-  }
-  return true;
-};
+// const entriesAreSame = (A: Item[], B: Item[]) => {
+//   if (A.length !== B.length) return false;
+//   for (let i = 0; i < A.length; i++) {
+//     if (A[i]?.iid !== B[i]?.iid) return false;
+//   }
+//   return true;
+// };
 
 // const areEqual: (
 //   prevProps: Readonly<InventoryTabProps & { children?: ReactNode }>,

@@ -121,19 +121,23 @@ interface RecipeEntryProps {
   recipeID: string;
   name: string;
   ingredients: string[];
+  img?: string;
+  fav: boolean;
 }
 
 const RecipeEntry: React.FC<RecipeEntryProps> = ({
   ingredients,
   name,
   recipeID,
+  img,
+  fav = false,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
   const ingredientsString = getIngredientsString(ingredients);
 
-  const [isFavorite, setIsFavorite] = React.useState(false);
+  const [isFavorite, setIsFavorite] = React.useState(fav);
 
   return (
     <Card elevation={3} classes={{ root: classes.cardContainer }}>
@@ -142,7 +146,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           <ListItemAvatar>
             <Avatar
               variant="rounded"
-              src="https://spoonacular.com/recipeImages/73420-312x231.jpg"
+              src={img}
               classes={{ root: classes.entryAvatar }}
             />
           </ListItemAvatar>
@@ -183,9 +187,6 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           fullWidth
           className={classes.actionButtonGroup}
         >
-          {/* <StyledActionButton className={classes.favoriteButton}>
-            <Favorite />
-          </StyledActionButton> */}
           <StyledActionButton className={classes.editButton}>
             <Edit />
           </StyledActionButton>

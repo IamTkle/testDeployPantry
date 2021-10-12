@@ -69,6 +69,9 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.primary.dark,
       backgroundColor: theme.palette.primary.light,
       width: "100%",
+      position: "sticky",
+      zIndex: 10,
+      top: 0,
     },
     titleTypography: {
       color: theme.palette.primary.dark,

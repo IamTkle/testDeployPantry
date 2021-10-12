@@ -1,9 +1,11 @@
 import { Container, Fab, Tab, Tabs, Theme, Toolbar } from "@material-ui/core";
 import { Add, Favorite, List } from "@material-ui/icons";
-import { makeStyles, createStyles, useTheme } from "@material-ui/styles";
+import { createStyles, makeStyles, useTheme } from "@material-ui/styles";
 import React from "react";
+import SwipeableViews from "react-swipeable-views";
 import PantryAppBar from "../../PantryAppBar";
-import RecipeEntry from "./RecipeEntry";
+import { browseRecipes, likedRecipes } from "./mockEntries";
+import RecipeTab from "./RecipeTab";
 
 interface RecipeProps {
   setNavOpen: () => void;
@@ -27,12 +29,14 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.primary.light,
       width: "100%",
       position: "sticky",
-      bottom: 0,
+      zIndex: 10,
+      // bottom: 0,
+      top: 0,
       [theme.breakpoints.up("md")]: {},
     },
 
     tabIndicator: {
-      top: 0,
+      bottom: 0,
     },
 
     fab: {
@@ -72,42 +76,7 @@ const Recipe: React.FC<RecipeProps> = ({ setNavOpen }) => {
         handleSortTypeChosen={handleSortTypeChosen}
       />
       <Toolbar />
-      <Container style={{ paddingBottom: 16 }}>
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
 
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
-      </Container>
-      <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
-        <Add />
-      </Fab>
       <Tabs
         value={activeTab}
         variant="fullWidth"
@@ -117,6 +86,28 @@ const Recipe: React.FC<RecipeProps> = ({ setNavOpen }) => {
         <Tab wrapped label="browse" value={0} icon={<List />} />
         <Tab wrapped label="favorites" value={1} icon={<Favorite />} />
       </Tabs>
+      <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
+        <SwipeableViews
+          index={activeTab}
+          onChangeIndex={(index) => setActiveTab(index)}
+        >
+          <RecipeTab
+            activeTab={activeTab}
+            index={0}
+            propEntries={browseRecipes}
+            key={0}
+          />
+          <RecipeTab
+            activeTab={activeTab}
+            index={1}
+            propEntries={likedRecipes}
+            key={1}
+          />
+        </SwipeableViews>
+      </Container>
+      <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
+        <Add />
+      </Fab>
     </div>
   );
 };
