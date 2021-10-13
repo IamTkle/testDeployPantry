@@ -20,17 +20,23 @@ import {
   Edit,
   Favorite,
   FavoriteBorderOutlined,
+  ImportContacts,
+  KeyboardArrowLeft,
 } from "@material-ui/icons";
 import React from "react";
+import { Recipe } from "./mockEntries";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
 
 // }))
 
-const StyledActionButton = styled(Button)(({ theme }) => ({
+export const StyledActionButton = styled(Button)(({ theme }) => ({
   width: "100%",
   color: theme.palette.background.default,
   backgroundColor: theme.palette.background.default,
+  "&:hover": {
+    opacity: 0.7,
+  },
 }));
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -88,7 +94,6 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.secondary.main,
       "&:hover": {
         backgroundColor: theme.palette.secondary.main,
-        opacity: 0.7,
       },
       [theme.breakpoints.down("xs")]: {
         borderRadius: 0,
@@ -99,7 +104,6 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.primary.dark,
       "&:hover": {
         backgroundColor: theme.palette.primary.dark,
-        opacity: 0.7,
       },
     },
 
@@ -108,8 +112,11 @@ const useStyles = makeStyles((theme: Theme) =>
 
       "&:hover": {
         backgroundColor: theme.palette.error.main,
-        opacity: 0.7,
       },
+    },
+
+    openButton: {
+      backgroundColor: theme.palette.text.primary,
       [theme.breakpoints.down("xs")]: {
         borderRadius: 0,
       },
@@ -118,28 +125,42 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface RecipeEntryProps {
-  recipeID: string;
-  name: string;
-  ingredients: string[];
-  img?: string;
-  fav: boolean;
-  openDialog: () => void;
+  // recipeID: string;
+  // name: string;
+  // ingredients: string[];
+  // img?: string;
+  // fav: boolean;
+  recipe: Recipe;
+  handleOpenEdit: (recipe: Recipe) => void;
+  handleRemove: (recipe: Recipe) => void;
+  handleAdd: () => void;
 }
 
 const RecipeEntry: React.FC<RecipeEntryProps> = ({
-  ingredients,
-  name,
-  recipeID,
-  img,
-  fav = false,
-  openDialog,
+  // ingredients,
+  // name,
+  // recipeID,
+  // img,
+  // fav = false,
+  recipe,
+  handleOpenEdit,
+  handleRemove,
+  handleAdd,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const ingredientsString = getIngredientsString(ingredients);
+  const ingredientsString = getIngredientsString(recipe.ingredients);
 
-  const [isFavorite, setIsFavorite] = React.useState(fav);
+  const [isFavorite, setIsFavorite] = React.useState(recipe.fav);
+
+  const handleEditButtonClick = () => {
+    handleOpenEdit(recipe);
+  };
+
+  const handleRemoveButtonClick = () => {
+    handleRemove(recipe);
+  };
 
   return (
     <Card elevation={3} classes={{ root: classes.cardContainer }}>
@@ -148,7 +169,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           <ListItemAvatar>
             <Avatar
               variant="rounded"
-              src={img}
+              src={recipe.img}
               classes={{ root: classes.entryAvatar }}
             />
           </ListItemAvatar>
@@ -161,7 +182,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
                   justifyContent: "flex-start",
                 }}
               >
-                {name}
+                {recipe.name}
                 <IconButton
                   onClick={() => setIsFavorite((prev) => !prev)}
                   size="small"
@@ -188,15 +209,21 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
         >
           <StyledActionButton
             className={classes.editButton}
-            onClick={openDialog}
+            onClick={handleEditButtonClick}
           >
             <Edit />
           </StyledActionButton>
           <StyledActionButton className={classes.addButton}>
             <AddShoppingCart />
           </StyledActionButton>
-          <StyledActionButton className={classes.removeButton}>
+          <StyledActionButton
+            className={classes.removeButton}
+            onClick={handleRemoveButtonClick}
+          >
             <Block />
+          </StyledActionButton>
+          <StyledActionButton className={classes.openButton}>
+            <ImportContacts />
           </StyledActionButton>
         </ButtonGroup>
       </ListItem>

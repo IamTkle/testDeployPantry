@@ -7,14 +7,18 @@ interface RecipeTabProps {
   activeTab: number;
   index: number;
   propEntries: Recipe[];
-  openDialog: () => void;
+  handleOpenEdit: (recipe: Recipe) => void;
+  handleRemove: (recipe: Recipe) => void;
+  handleAdd: () => void;
 }
 
 const RecipeTab: React.FC<RecipeTabProps> = ({
   activeTab,
   index,
   propEntries,
-  openDialog,
+  handleOpenEdit,
+  handleRemove,
+  handleAdd,
 }) => {
   return (
     <>
@@ -24,12 +28,15 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
             return (
               <RecipeEntry
                 key={i}
-                ingredients={r.ingredients}
-                name={r.name}
-                recipeID={r.rid}
-                img={r.img}
-                fav={r.fav}
-                openDialog={openDialog}
+                // ingredients={r.ingredients}
+                // name={r.name}
+                // recipeID={r.rid}
+                // img={r.img}
+                // fav={r.fav}
+                recipe={r}
+                handleOpenEdit={handleOpenEdit}
+                handleRemove={handleRemove}
+                handleAdd={handleAdd}
               ></RecipeEntry>
             );
           })}

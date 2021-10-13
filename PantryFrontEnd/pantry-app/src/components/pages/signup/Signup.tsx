@@ -11,7 +11,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import React, { useEffect, useReducer } from "react";
-import { useHistory, Route, Switch } from 'react-router-dom'
+import { useHistory, Route, Switch } from "react-router-dom";
 import Login from "../login/Login";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -120,7 +120,7 @@ const SignUp = () => {
   const classes = useStyles();
   const [state, dispatch] = useReducer(reducer, initialState);
   const history = useHistory();
-  
+
   useEffect(() => {
     if (state.username.trim() && state.password.trim()) {
       dispatch({
@@ -135,26 +135,33 @@ const SignUp = () => {
     }
   }, [state.username, state.password]);
 
-  
   const [message, setMessage] = React.useState("");
 
   const handleLogin = async () => {
-    
-    const response = await fetch('https://pantties.azurewebsites.net/api/Users/Register?'
-                                  + 'email=' + state.email + '&'
-                                  + 'password=' + state.password + '&'
-                                  + 'FirstName=' + state.firstName + '&'
-                                  + 'LastName=' + state.lastName );
+    const response = await fetch(
+      "https://pantties.azurewebsites.net/api/Users/Register?" +
+        "email=" +
+        state.email +
+        "&" +
+        "password=" +
+        state.password +
+        "&" +
+        "FirstName=" +
+        state.firstName +
+        "&" +
+        "LastName=" +
+        state.lastName
+    );
 
     const data = await response.json();
-    
-    if( response.ok ) {
-        setMessage(data.message);
+
+    if (response.ok) {
+      setMessage(data.message);
     } else {
-        setMessage("Error occured");
+      setMessage("Error occured");
     }
     console.log(data.message);
-     history.push("/login");
+    history.push("/login");
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -171,7 +178,7 @@ const SignUp = () => {
       payload: event.target.value,
     });
   };
- 
+
   const handlePasswordChange: React.ChangeEventHandler<HTMLInputElement> = (
     event
   ) => {
@@ -182,8 +189,8 @@ const SignUp = () => {
   };
 
   const handleEmailChange: React.ChangeEventHandler<HTMLInputElement> = (
-    event
-  )
+    event?
+  ) => {};
 
   const [checked, setChecked] = React.useState(true);
 
@@ -193,7 +200,7 @@ const SignUp = () => {
 
   const handleRoute = () => {
     history.push("/login");
-  }
+  };
 
   return (
     <React.Fragment>
@@ -278,18 +285,16 @@ const SignUp = () => {
         </Card>
         <Grid container justifyContent="flex-end">
           <Grid item>
-            <Link
-            component="button" 
-            variant="body2"
-            onClick={handleRoute}>
+            <Link component="button" variant="body2" onClick={handleRoute}>
               Already have an account? Sign in
             </Link>
           </Grid>
         </Grid>
       </form>
 
-    <Switch>
-      <Route path="/login" component={() => <Login message={message} />} /> </Switch>
+      <Switch>
+        <Route path="/login" component={() => <Login message={message} />} />{" "}
+      </Switch>
     </React.Fragment>
   );
 };
