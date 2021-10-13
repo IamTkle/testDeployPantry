@@ -123,6 +123,7 @@ interface RecipeEntryProps {
   ingredients: string[];
   img?: string;
   fav: boolean;
+  openDialog: () => void;
 }
 
 const RecipeEntry: React.FC<RecipeEntryProps> = ({
@@ -131,6 +132,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
   recipeID,
   img,
   fav = false,
+  openDialog,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
@@ -184,7 +186,10 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           fullWidth
           className={classes.actionButtonGroup}
         >
-          <StyledActionButton className={classes.editButton}>
+          <StyledActionButton
+            className={classes.editButton}
+            onClick={openDialog}
+          >
             <Edit />
           </StyledActionButton>
           <StyledActionButton className={classes.addButton}>

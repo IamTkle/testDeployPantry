@@ -7,12 +7,14 @@ interface RecipeTabProps {
   activeTab: number;
   index: number;
   propEntries: Recipe[];
+  openDialog: () => void;
 }
 
 const RecipeTab: React.FC<RecipeTabProps> = ({
   activeTab,
   index,
   propEntries,
+  openDialog,
 }) => {
   return (
     <>
@@ -27,6 +29,7 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
                 recipeID={r.rid}
                 img={r.img}
                 fav={r.fav}
+                openDialog={openDialog}
               ></RecipeEntry>
             );
           })}

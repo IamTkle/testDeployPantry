@@ -1,4 +1,13 @@
-import { Container, Fab, Tab, Tabs, Theme, Toolbar } from "@material-ui/core";
+import {
+  Container,
+  Dialog,
+  Fab,
+  Tab,
+  Tabs,
+  Theme,
+  Toolbar,
+  useMediaQuery,
+} from "@material-ui/core";
 import { Add, Favorite, List } from "@material-ui/icons";
 import { createStyles, makeStyles, useTheme } from "@material-ui/styles";
 import React from "react";
@@ -66,6 +75,12 @@ const Recipe: React.FC<RecipeProps> = ({ setNavOpen }) => {
     setActiveTab(newValue);
   };
 
+  const fullScreen = useMediaQuery((theme: Theme) =>
+    theme.breakpoints.down("sm")
+  );
+
+  const [editDialogOpen, setEditDialog] = React.useState(false);
+
   return (
     <div className={classes.pageContainer}>
       <PantryAppBar
@@ -76,6 +91,14 @@ const Recipe: React.FC<RecipeProps> = ({ setNavOpen }) => {
         handleSortTypeChosen={handleSortTypeChosen}
       />
       <Toolbar />
+
+      <Dialog
+        fullScreen={fullScreen}
+        open={editDialogOpen}
+        onClose={() => setEditDialog(false)}
+      >
+        helloThere
+      </Dialog>
 
       <Tabs
         value={activeTab}
@@ -96,12 +119,14 @@ const Recipe: React.FC<RecipeProps> = ({ setNavOpen }) => {
             index={0}
             propEntries={browseRecipes}
             key={0}
+            openDialog={() => setEditDialog(true)}
           />
           <RecipeTab
             activeTab={activeTab}
             index={1}
             propEntries={likedRecipes}
             key={1}
+            openDialog={() => setEditDialog(true)}
           />
         </SwipeableViews>
       </Container>
