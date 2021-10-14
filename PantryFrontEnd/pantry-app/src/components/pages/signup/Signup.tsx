@@ -167,26 +167,64 @@ const SignUp = () => {
       checkMe: false
   });
 
+  // const [message, setMessage] = React.useState("");
+
+  // const handleLogin = async () => {
+  
+    
+  //   const response = await fetch('https://pantties.azurewebsites.net/api/Users/Register?'
+  //                                 + 'email=' + state.email + '&'
+  //                                 + 'password=' + state.password + '&'
+  //                                 + 'FirstName=' + state.firstName + '&'
+  //                                 + 'LastName=' + state.lastName );
+
+  //   const data = await response.json();
+  
+  //   if( response.ok ) {
+  //       setMessage(data.message);
+  //   }}
+
+  // useEffect(() => {
+  //   if (state.username.trim() && state.password.trim()) {
+  //     dispatch({
+  //       type: "setIsButtonDisabled",
+  //       payload: false,
+  //     });
+  //   } else {
+  //     dispatch({
+  //       type: "setIsButtonDisabled",
+  //       payload: true,
+  //     });
+  //   }
+  // }, [state.username, state.password]);
+
   const [message, setMessage] = React.useState("");
 
   const handleLogin = async () => {
-  
-    
-    const response = await fetch('https://pantties.azurewebsites.net/api/Users/Register?'
-                                  + 'email=' + state.email + '&'
-                                  + 'password=' + state.password + '&'
-                                  + 'FirstName=' + state.firstName + '&'
-                                  + 'LastName=' + state.lastName );
+    const response = await fetch(
+      "https://pantties.azurewebsites.net/api/Users/Register?" +
+        "email=" +
+        state.email +
+        "&" +
+        "password=" +
+        state.password +
+        "&" +
+        "FirstName=" +
+        state.firstName +
+        "&" +
+        "LastName=" +
+        state.lastName
+    );
 
     const data = await response.json();
-  
-    if( response.ok ) {
-        setMessage(data.message);
+
+    if (response.ok) {
+      setMessage(data.message);
     } else {
-        setMessage("Error occured");
+      setMessage("Error occured");
     }
     console.log(data.message);
-     history.push("/login");
+    history.push("/login");
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -214,7 +252,7 @@ const SignUp = () => {
 
   const handleRoute = () => {
     history.push("/login");
-  }
+  };
 
   return (
     <React.Fragment>
@@ -308,18 +346,16 @@ const SignUp = () => {
         </Card>
         <Grid container justifyContent="flex-end">
           <Grid item>
-            <Link
-            component="button" 
-            variant="body2"
-            onClick={handleRoute}>
+            <Link component="button" variant="body2" onClick={handleRoute}>
               Already have an account? Sign in
             </Link>
           </Grid>
         </Grid>
       </form>
 
-    <Switch>
-      <Route path="/login" component={() => <Login message={message} />} /> </Switch>
+      <Switch>
+        <Route path="/login" component={() => <Login message={message} />} />{" "}
+      </Switch>
     </React.Fragment>
   );
 };
