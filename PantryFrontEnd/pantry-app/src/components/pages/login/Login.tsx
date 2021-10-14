@@ -33,7 +33,7 @@ const Login:React.FC<loginProps> = ({ message }) => {
   return (
     <Grid>
       <Paper elevation={30} variant="outlined" style={paperStyle}>
-      {message && <Snackbar open={true} autoHideDuration={6000} color="primary"><>message</></Snackbar> }
+      {/* {message && <Snackbar open={true} autoHideDuration={6000} color="primary"><>message</></Snackbar> } */}
         <Grid>s
           <Avatar alt="Remy Sharp" src="/static/images/avatars/unnamed.png" />
           <h2> Login </h2>

@@ -10,7 +10,7 @@ import Link from "@material-ui/core/Link";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { useHistory, Route, Switch } from 'react-router-dom'
 import Login from "../login/Login";
 
@@ -49,96 +49,128 @@ const useStyles = makeStyles((theme: Theme) =>
 
 //state type
 
-type State = {
-  username: string;
-  password: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  isButtonDisabled: boolean;
-  helperText: string;
-  isError: boolean;
-};
+// type State = {
+//   username: string;
+//   password: string;
+//   email: string;
+//   firstName: string;
+//   lastName: string;
+//   isButtonDisabled: boolean;
+//   helperText: string;
+//   isError: boolean;
+// };
 
-const initialState: State = {
-  username: "",
-  password: "",
-  email: "",
-  firstName: "",
-  lastName: "",
-  isButtonDisabled: true,
-  helperText: "",
-  isError: false,
-};
+// const initialState: State = {
+//   username: "",
+//   password: "",
+//   email: "",
+//   firstName: "",
+//   lastName: "",
+//   isButtonDisabled: true,
+//   helperText: "",
+//   isError: false,
+// };
 
-type Action =
-  | { type: "setUsername"; payload: string }
-  | { type: "setPassword"; payload: string }
-  | { type: "setIsButtonDisabled"; payload: boolean }
-  | { type: "loginSuccess"; payload: string }
-  | { type: "loginFailed"; payload: string }
-  | { type: "setIsError"; payload: boolean };
+// type Action =
+//   | { type: "setUsername"; payload: string }
+//   | { type: "setPassword"; payload: string }
+//   | { type: "setIsButtonDisabled"; payload: boolean }
+//   | { type: "loginSuccess"; payload: string }
+//   | { type: "loginFailed"; payload: string }
+//   | { type: "setIsError"; payload: boolean };
 
-const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
-    case "setUsername":
-      return {
-        ...state,
-        username: action.payload,
-      };
-    case "setPassword":
-      return {
-        ...state,
-        password: action.payload,
-      };
-    case "setIsButtonDisabled":
-      return {
-        ...state,
-        isButtonDisabled: action.payload,
-      };
-    case "loginSuccess":
-      return {
-        ...state,
-        helperText: action.payload,
-        isError: false,
-      };
-    case "loginFailed":
-      return {
-        ...state,
-        helperText: action.payload,
-        isError: true,
-      };
-    case "setIsError":
-      return {
-        ...state,
-        isError: action.payload,
-      };
-  }
-};
+// const reducer = (state: State, action: Action): State => {
+//   switch (action.type) {
+//     case "setUsername":
+//       return {
+//         ...state,
+//         username: action.payload,
+//       };
+//     case "setPassword":
+//       return {
+//         ...state,
+//         password: action.payload,
+//       };
+//     case "setIsButtonDisabled":
+//       return {
+//         ...state,
+//         isButtonDisabled: action.payload,
+//       };
+//     case "loginSuccess":
+//       return {
+//         ...state,
+//         helperText: action.payload,
+//         isError: false,
+//       };
+//     case "loginFailed":
+//       return {
+//         ...state,
+//         helperText: action.payload,
+//         isError: true,
+//       };
+//     case "setIsError":
+//       return {
+//         ...state,
+//         isError: action.payload,
+//       };
+//   }
+// };
 
 const SignUp = () => {
   const classes = useStyles();
-  const [state, dispatch] = useReducer(reducer, initialState);
   const history = useHistory();
-  
-  useEffect(() => {
-    if (state.username.trim() && state.password.trim()) {
-      dispatch({
-        type: "setIsButtonDisabled",
-        payload: false,
-      });
-    } else {
-      dispatch({
-        type: "setIsButtonDisabled",
-        payload: true,
-      });
-    }
-  }, [state.username, state.password]);
+
+  //const [state, dispatch] = useReducer(reducer, initialState);
+  // useEffect(() => {
+  //   if (state.username.trim() && state.password.trim()) {
+  //     dispatch({
+  //       type: "setIsButtonDisabled",
+  //       payload: false,
+  //     });
+  //   } else {
+  //     dispatch({
+  //       type: "setIsButtonDisabled",
+  //       payload: true,
+  //     });
+  //   }
+  // }, [state.username, state.password]);
 
   
+
+  // const handleUsernameChange: React.ChangeEventHandler<HTMLInputElement> = (
+  //   event
+  // ) => {
+  //   dispatch({
+  //     type: "setUsername",
+  //     payload: event.target.value,
+  //   });
+  // };
+ 
+  // const handlePasswordChange: React.ChangeEventHandler<HTMLInputElement> = (
+  //   event
+  // ) => {
+  //   dispatch({
+  //     type: "setPassword",
+  //     payload: event.target.value,
+  //   });
+  // };
+
+
+  const [state, setState] = useState({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      helperText: "",
+      isButtonDisabled: true,
+      isError: false,
+      checkMe: false
+  });
+
   const [message, setMessage] = React.useState("");
 
   const handleLogin = async () => {
+  
     
     const response = await fetch('https://pantties.azurewebsites.net/api/Users/Register?'
                                   + 'email=' + state.email + '&'
@@ -147,7 +179,7 @@ const SignUp = () => {
                                   + 'LastName=' + state.lastName );
 
     const data = await response.json();
-    
+  
     if( response.ok ) {
         setMessage(data.message);
     } else {
@@ -157,36 +189,25 @@ const SignUp = () => {
      history.push("/login");
   };
 
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const name = event.target.name;
+    const value = event.target.type === "checkbox" ? event.target.checked : event.target.value;
+    setState({
+      ...state,
+      [name]: value
+    })
+  }
+  
   const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.keyCode === 13 || event.which === 13) {
-      state.isButtonDisabled || handleLogin();
-    }
+    // if (event.keyCode === 13 || event.which === 13) {
+    //   state.isButtonDisabled || handleLogin();
+    // }
+    handleLogin();
   };
-
-  const handleUsernameChange: React.ChangeEventHandler<HTMLInputElement> = (
-    event
-  ) => {
-    dispatch({
-      type: "setUsername",
-      payload: event.target.value,
-    });
-  };
- 
-  const handlePasswordChange: React.ChangeEventHandler<HTMLInputElement> = (
-    event
-  ) => {
-    dispatch({
-      type: "setPassword",
-      payload: event.target.value,
-    });
-  };
-
-  const handleEmailChange: React.ChangeEventHandler<HTMLInputElement> = (
-    event
-  )
 
   const [checked, setChecked] = React.useState(true);
 
+  //Handling change for the checkbox
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
   };
@@ -206,49 +227,57 @@ const SignUp = () => {
               <div className={classes.flex}>
                 <TextField
                   error={state.isError}
-                  id="firstname"
+                  name="firstName"
+                  id="firstName"
                   label="First Name"
                   placeholder="First Name"
                   margin="normal"
                   variant="outlined"
-                  onChange={handleUsernameChange}
+                  value={ state.firstName }
+                  onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
                 />
                 <Divider variant="middle" />
                 <TextField
                   error={state.isError}
-                  id="lastname"
+                  name="lastName"
+                  id="lastName"
                   label="Last Name"
                   placeholder="Last Name"
                   margin="normal"
                   variant="outlined"
-                  onChange={handleUsernameChange}
+                  value={ state.lastName }
+                  onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
                 />
               </div>
               <TextField
                 error={state.isError}
                 fullWidth
+                name="email"
                 id="email"
                 type="email"
                 label="Email"
                 placeholder="Email"
                 variant="outlined"
                 margin="normal"
-                onChange={handleUsernameChange}
+                value={ state.email }
+                onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
               />
               <TextField
                 error={state.isError}
                 fullWidth
+                name="password"
                 id="password"
                 type="password"
                 label="Password"
                 placeholder="Password"
                 margin="normal"
                 variant="outlined"
+                value={ state.password }
                 helperText={state.helperText}
-                onChange={handlePasswordChange}
+                onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
               />
             </div>
@@ -256,6 +285,7 @@ const SignUp = () => {
 
           <div>
             <Checkbox
+              name="checkMe"
               checked={checked}
               onChange={handleChange}
               inputProps={{ "aria-label": "primary checkbox" }}
@@ -270,7 +300,7 @@ const SignUp = () => {
               color="secondary"
               className={classes.loginBtn}
               onClick={handleLogin}
-              disabled={state.isButtonDisabled}
+              // disabled={state.isButtonDisabled}
             >
               Sign Up
             </Button>

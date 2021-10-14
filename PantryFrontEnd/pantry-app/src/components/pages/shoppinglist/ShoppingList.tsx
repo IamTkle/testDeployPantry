@@ -71,7 +71,7 @@ const ShoppingList: React.FC<RecipeProps> = ({ setNavOpen }) => {
   return (
     <div className={classes.pageContainer}>
       <PantryAppBar
-        title={"Recipes"}
+        title={"Shopping List"}
         handleOpenMenu={setNavOpen}
         handleSearchClick={(searchTerm) => console.log(searchTerm)}
         handleSortDirectionChange={handleSortDirectionChange}
