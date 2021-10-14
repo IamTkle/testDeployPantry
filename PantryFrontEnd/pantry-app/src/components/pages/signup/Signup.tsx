@@ -11,7 +11,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import React, { useEffect, useReducer, useState } from "react";
-import { useHistory, Route, Switch } from 'react-router-dom'
+import { useHistory, Route, Switch } from "react-router-dom";
 import Login from "../login/Login";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -135,8 +135,6 @@ const SignUp = () => {
   //   }
   // }, [state.username, state.password]);
 
-  
-
   // const handleUsernameChange: React.ChangeEventHandler<HTMLInputElement> = (
   //   event
   // ) => {
@@ -145,7 +143,7 @@ const SignUp = () => {
   //     payload: event.target.value,
   //   });
   // };
- 
+
   // const handlePasswordChange: React.ChangeEventHandler<HTMLInputElement> = (
   //   event
   // ) => {
@@ -155,23 +153,21 @@ const SignUp = () => {
   //   });
   // };
 
-
   const [state, setState] = useState({
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      helperText: "",
-      isButtonDisabled: true,
-      isError: false,
-      checkMe: false
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    helperText: "",
+    isButtonDisabled: true,
+    isError: false,
+    checkMe: false,
   });
 
   // const [message, setMessage] = React.useState("");
 
   // const handleLogin = async () => {
-  
-    
+
   //   const response = await fetch('https://pantties.azurewebsites.net/api/Users/Register?'
   //                                 + 'email=' + state.email + '&'
   //                                 + 'password=' + state.password + '&'
@@ -179,7 +175,7 @@ const SignUp = () => {
   //                                 + 'LastName=' + state.lastName );
 
   //   const data = await response.json();
-  
+
   //   if( response.ok ) {
   //       setMessage(data.message);
   //   }}
@@ -201,19 +197,23 @@ const SignUp = () => {
   const [message, setMessage] = React.useState("");
 
   const handleLogin = async () => {
+    // I've done the sign-up, please do the login now
+    // It should be very similar, once they've logged in,
+    // redirect to inventory with push - Evin
+    const params = {
+      email: state.email,
+      password: state.password,
+      firstName: state.firstName,
+      lastName: state.lastName,
+    };
     const response = await fetch(
-      "https://pantties.azurewebsites.net/api/Users/Register?" +
-        "email=" +
-        state.email +
-        "&" +
-        "password=" +
-        state.password +
-        "&" +
-        "FirstName=" +
-        state.firstName +
-        "&" +
-        "LastName=" +
-        state.lastName
+      "https://pantties.azurewebsites.net/api/Users/Register?",
+      {
+        method: "POST",
+        mode: "cors",
+        body: JSON.stringify(params),
+        headers: { "Content-Type": "application/json" },
+      }
     );
 
     const data = await response.json();
@@ -229,18 +229,21 @@ const SignUp = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const name = event.target.name;
-    const value = event.target.type === "checkbox" ? event.target.checked : event.target.value;
+    const value =
+      event.target.type === "checkbox"
+        ? event.target.checked
+        : event.target.value;
     setState({
       ...state,
-      [name]: value
-    })
-  }
-  
+      [name]: value,
+    });
+  };
+
   const handleKeyPress = (event: React.KeyboardEvent) => {
     // if (event.keyCode === 13 || event.which === 13) {
     //   state.isButtonDisabled || handleLogin();
     // }
-    handleLogin();
+    // handleLogin();
   };
 
   const [checked, setChecked] = React.useState(true);
@@ -271,7 +274,7 @@ const SignUp = () => {
                   placeholder="First Name"
                   margin="normal"
                   variant="outlined"
-                  value={ state.firstName }
+                  value={state.firstName}
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
                 />
@@ -284,7 +287,7 @@ const SignUp = () => {
                   placeholder="Last Name"
                   margin="normal"
                   variant="outlined"
-                  value={ state.lastName }
+                  value={state.lastName}
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
                 />
@@ -299,7 +302,7 @@ const SignUp = () => {
                 placeholder="Email"
                 variant="outlined"
                 margin="normal"
-                value={ state.email }
+                value={state.email}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
               />
@@ -313,7 +316,7 @@ const SignUp = () => {
                 placeholder="Password"
                 margin="normal"
                 variant="outlined"
-                value={ state.password }
+                value={state.password}
                 helperText={state.helperText}
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
