@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       flexDirection: "row",
       justifyContent: "space-around",
-      [theme.breakpoints.down("xs")]: {
+      [theme.breakpoints.down("sm")]: {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       justifyContent: "flex-start",
       alignItems: "center",
-      [theme.breakpoints.up("sm")]: {
+      [theme.breakpoints.up("md")]: {
         paddingLeft: 0,
       },
     },
@@ -78,7 +78,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
     actionButtonGroup: {
       [theme.breakpoints.up("md")]: {
-        width: "60%",
+        width: "70%",
       },
     },
 
@@ -125,27 +125,19 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface RecipeEntryProps {
-  // recipeID: string;
-  // name: string;
-  // ingredients: string[];
-  // img?: string;
-  // fav: boolean;
   recipe: Recipe;
-  handleOpenEdit: (recipe: Recipe) => void;
+  handleOpenEdit: (recipe: Recipe, i: number) => void;
   handleRemove: (recipe: Recipe) => void;
   handleAdd: () => void;
+  i: number;
 }
 
 const RecipeEntry: React.FC<RecipeEntryProps> = ({
-  // ingredients,
-  // name,
-  // recipeID,
-  // img,
-  // fav = false,
   recipe,
   handleOpenEdit,
   handleRemove,
   handleAdd,
+  i,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
@@ -155,7 +147,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
   const [isFavorite, setIsFavorite] = React.useState(recipe.fav);
 
   const handleEditButtonClick = () => {
-    handleOpenEdit(recipe);
+    handleOpenEdit(recipe, i);
   };
 
   const handleRemoveButtonClick = () => {

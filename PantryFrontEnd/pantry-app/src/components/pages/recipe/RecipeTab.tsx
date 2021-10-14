@@ -7,10 +7,19 @@ interface RecipeTabProps {
   activeTab: number;
   index: number;
   propEntries: Recipe[];
-  handleOpenEdit: (recipe: Recipe) => void;
+  handleOpenEdit: (recipe: Recipe, i: number) => void;
   handleRemove: (recipe: Recipe) => void;
   handleAdd: () => void;
 }
+
+const getKey = (name: string) => {
+  var key = 0;
+  for (let i = 0; i < name.length; i++) {
+    key += name.charCodeAt(i);
+  }
+
+  return key;
+};
 
 const RecipeTab: React.FC<RecipeTabProps> = ({
   activeTab,
@@ -27,7 +36,8 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
           {propEntries.map((r, i) => {
             return (
               <RecipeEntry
-                key={i}
+                key={getKey(r.name)}
+                i={i}
                 // ingredients={r.ingredients}
                 // name={r.name}
                 // recipeID={r.rid}
