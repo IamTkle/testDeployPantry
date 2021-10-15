@@ -42,7 +42,7 @@ const theme = createTheme({
 
 const checkLoggedInCookie = () => document.cookie.includes("loggedIn");
 const isLoggedIn =
-  process.env.NODE_ENV !== "production" ? checkLoggedInCookie() : true;
+  process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true;
 
 // function urlBase64ToUint8Array(base64String: string | undefined) {
 //   if (base64String) {
@@ -98,6 +98,7 @@ const isLoggedIn =
 //     //   }
 //   }
 // };
+export const DOMAIN = "https://pantties.azurewebsites.net";
 
 function App() {
   const location = window.location.pathname;
@@ -124,21 +125,62 @@ function App() {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js", { scope: "/" })
-        .then((value) => {
+        .then(async (value) => {
           // checkVapidKey(strForm as string);
+
           const pushSubscriptionOptions: PushSubscriptionOptionsInit = {
             applicationServerKey: strForm,
             userVisibleOnly: true,
           };
-          value.pushManager
-            .subscribe(pushSubscriptionOptions)
-            .then((subscription) => {
-              console.log("Subscription info: ", JSON.stringify(subscription));
-            });
 
-          console.log("success", value);
-        })
-        .catch((value) => console.error("fail", value));
+          let subscription = await value.pushManager.getSubscription();
+
+          try {
+            subscription = await value.pushManager.subscribe(
+              pushSubscriptionOptions
+            );
+          } catch (e) {
+            console.log(e);
+            if (subscription) {
+              const unsubParams: RequestInit = {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(subscription),
+              };
+              const resp = await fetch(
+                DOMAIN + "/api/DeleteSubcriptions",
+                unsubParams
+              );
+              if (resp.ok) await subscription.unsubscribe();
+            }
+            subscription = await value.pushManager.subscribe(
+              pushSubscriptionOptions
+            );
+            console.log("Subscription info: ", JSON.stringify(subscription));
+
+            const subscriptionParams: RequestInit = {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(subscription),
+            };
+
+            const resp = await fetch(
+              DOMAIN + "/api/subcriptions/",
+              subscriptionParams
+            );
+
+            if (resp.ok) {
+              const data = await resp.json();
+              console.log(data);
+            } else {
+              console.error("Subscription unsuccessful:", resp);
+            }
+          }
+        });
     }
   }, []);
 
