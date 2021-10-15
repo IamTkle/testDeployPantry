@@ -70,20 +70,14 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   const [browseRecipes, setBrowseRecipes] = React.useState(importedBR);
 
   const [likedRecipes, setLikedRecipes] = React.useState(importedLR);
+
   const editDialogOpenState = React.useState(false);
 
-  const dialogRecipeState = React.useState<Recipe>({
-    name: "my recipe",
-    availIngredients: ["hllo"],
-    fav: false,
-    img: "no",
-    ingredients: ["bools"],
-    rid: "xed",
-  });
+  const dialogRecipeState = React.useState<Recipe | null>(null);
 
   const [currRecipeIndex, setCurrRecipeIndex] = React.useState(0);
 
-  const setCurrRecipe = dialogRecipeState[1];
+  const [currRecipe, setCurrRecipe] = dialogRecipeState;
 
   const setEditDialogOpen = editDialogOpenState[1];
 
@@ -133,11 +127,18 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
         <Tab wrapped label="browse" value={0} icon={<ListIcon />} />
         <Tab wrapped label="favorites" value={1} icon={<Favorite />} />
       </Tabs>
-      <RecipeEditDialog
-        dialogOpenState={editDialogOpenState}
-        dialogRecipeState={dialogRecipeState}
-        handleSave={handleSave}
-      />
+      {currRecipe && (
+        <RecipeEditDialog
+          dialogOpenState={editDialogOpenState}
+          dialogRecipeState={
+            dialogRecipeState as [
+              Recipe,
+              React.Dispatch<React.SetStateAction<Recipe>>
+            ]
+          }
+          handleSave={handleSave}
+        />
+      )}
       <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
         <SwipeableViews
           index={activeTab}

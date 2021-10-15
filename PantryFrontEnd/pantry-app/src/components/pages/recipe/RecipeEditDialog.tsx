@@ -22,6 +22,7 @@ import RecipeEditDialogEntries from "./RecipeEditDialogEntries";
 interface RecipeDialogProps {
   dialogOpenState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
   dialogRecipeState: [Recipe, React.Dispatch<React.SetStateAction<Recipe>>];
+  // dialogRecipeState: [Recipe | null, React.Dispatch<React.SetStateAction<Recipe | null>>]
   handleSave: (recipe: Recipe) => void;
 }
 
@@ -82,6 +83,10 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
 
   const [titleEditable, setTitleEditable] = React.useState(false);
 
+  const [initialRecipe] = React.useState(() => {
+    return { ...dialogRecipe };
+  });
+
   const isValidRecipe = React.useMemo(() => {
     if (dialogRecipe.name && dialogRecipe.ingredients.every((ingr) => !!ingr))
       return true;
@@ -130,7 +135,10 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     <Dialog
       open={editDialogOpen}
       maxWidth="sm"
-      onClose={() => setEditDialog(false)}
+      onClose={() => {
+        setEditDialog(false);
+        setDialogRecipe(initialRecipe);
+      }}
       fullWidth
     >
       <DialogTitle>
