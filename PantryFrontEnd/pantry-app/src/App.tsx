@@ -103,7 +103,7 @@ function App() {
   const [navTab, setNavTab] = React.useState(() => pageToIndex(location));
 
   var isLoggedIn =
-    process.env.NODE_ENV !== "production" ? checkLoggedInCookie() : true;
+    process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true;
 
   const [navIsOpen, setNavOpen] = React.useState(false);
 
