@@ -1,28 +1,18 @@
 import {
   AppBar,
+  Card,
+  CardContent,
+  CardHeader,
+  Container,
+  Grid,
+  IconButton,
   makeStyles,
   TextField,
   Theme,
-  useTheme,
-  Box,
-  Container,
-  Grid,
-  Paper,
-  useScrollTrigger,
   Toolbar,
   Typography,
-  Avatar,
-  FormGroup,
-  CardHeader,
-  CardContent,
-  IconButton,
-  Card,
-  List,
-  ListItem,
-  ListItemAvatar
+  useTheme,
 } from "@material-ui/core";
-//import { ArrowDownwardIcon, MoneyIcon } from '@material-ui/icons'
-import { palette } from '@material-ui/system';
 import { createStyles } from "@material-ui/core/styles";
 import SearchIcon from "@material-ui/icons/SearchOutlined";
 import FilterIcon from "@material-ui/icons/TuneOutlined";
@@ -62,22 +52,22 @@ const useStyles = makeStyles((theme: Theme) =>
       marginRight: "auto",
       marginLeft: theme.spacing(4),
       fontWeight: "bolder",
-    }, style: {
-      background : '#FFFFFF'
-    }, h3: {
-      color : '#2E3B55',  
-    }, flexContainer : {
-      display: 'flex',
-      flexDirection: 'row',
+    },
+    style: {
+      background: "#FFFFFF",
+    },
+    h3: {
+      color: "#2E3B55",
+    },
+    flexContainer: {
+      display: "flex",
+      flexDirection: "row",
       padding: 0,
-    }
+    },
   })
 );
 
-interface AccountsProps {
-  // openNavbar: () => void;
-  // closeNavbar: () => void;
-}
+interface AccountsProps {}
 
 const Account: React.FC<AccountsProps> = () => {
   const theme = useTheme();
@@ -85,169 +75,79 @@ const Account: React.FC<AccountsProps> = () => {
 
   const [expanded, setExpanded] = React.useState(false);
 
-  const [activeTab, setActiveTab] = React.useState(0);
-
-  const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
-    setActiveTab(newTab);
-  };
-
-  const flexContainer = {
-  display: 'flex',
-  flexDirection: 'row',
-  padding: 0,
-}; 
-
   return (
-    <div className={classes.container} >
-        <React.Fragment>
+    <div className={classes.container}>
+      <React.Fragment>
         <AppBar
-        color="transparent"
-        className={classes.appBar}
-        classes={{ root: classes.appBar }}
-      >
-        <Typography variant="h2" color="textPrimary" className={classes.title}>
-            Account
-        </Typography>
-        
-        <TextField
-          placeholder="Search for an item in shopping list"
-          onFocus={() => setExpanded(true)}
-          onBlur={() => setExpanded(false)}
-          size="medium"
-          color="primary"
-          variant="outlined"
-          InputProps={{
-            classes: {
-              focused: classes.root,
-              root: classes.root,
-            },
-            endAdornment: expanded ? (
-              <IconButton>
-                <SearchIcon />
-              </IconButton>
-            ) : (
-              <SearchIcon
-                onClick={(e) => {
-                  e.currentTarget.parentElement
-                    ? e.currentTarget.parentElement.click()
-                    : console.log("parent null");
-                }}
-              />
-            ),
-          }}
-        />
-        <IconButton>
-          <FilterIcon />
-        </IconButton>
-      </AppBar>
-
-      <Toolbar />
-
-          
-      <Container>
-      <Grid container spacing={1} item xs={10} >
-        <Grid item xs={4} spacing={3} md={3}> 
-
-            <Card >
-              <CardHeader 
-              action={
-                <IconButton>
-                  
-                </IconButton>
-              }
-              title="Finished Products"
-              />
-              <CardContent>
-                
-              </CardContent>
-            </Card>
-        
-        </Grid>
-        <Grid item xs={12} spacing={2} md={3}> 
-        
-            <Card >
-              <CardHeader 
-              action={
-                <IconButton>
-                  
-                </IconButton>
-              }
-              title="Food Wasted"
-              />
-              <CardContent>
-                
-              </CardContent>
-            </Card>
-        
-        </Grid>
-      </Grid>
-      </Container>
-
-      {/* <Card
-    sx={{ height: '100%' }}
-    {...props}
-  >
-    <CardContent>
-      <Grid
-        container
-        spacing={3}
-        sx={{ justifyContent: 'space-between' }}
-      >
-        <Grid item>
+          color="transparent"
+          className={classes.appBar}
+          classes={{ root: classes.appBar }}
+        >
           <Typography
-            color="textSecondary"
-            gutterBottom
-            variant="h6"
-          >
-            BUDGET
-          </Typography>
-          <Typography
+            variant="h2"
             color="textPrimary"
-            variant="h3"
+            className={classes.title}
           >
-            $24,000
+            Account
           </Typography>
-        </Grid>
-        <Grid item>
-          <Avatar
-            sx={{
-              backgroundColor: red[600],
-              height: 56,
-              width: 56
-            }}
-          >
-            <MoneyIcon />
-          </Avatar>
-        </Grid>
-      </Grid>
-      <Box
-        sx={{
-          pt: 2,
-          display: 'flex',
-          alignItems: 'center'
-        }}
-      >
-        <ArrowDownwardIcon sx={{ color: red[900] }} />
-        <Typography
-          sx={{
-            color: red[900],
-            mr: 1
-          }}
-          variant="body2"
-        >
-          12%
-        </Typography>
-        <Typography
-          color="textSecondary"
-          variant="caption"
-        >
-          Since last month
-        </Typography>
-      </Box>
-    </CardContent>
-  </Card> */}
 
-    </React.Fragment>
+          <TextField
+            placeholder="Search for an item in shopping list"
+            onFocus={() => setExpanded(true)}
+            onBlur={() => setExpanded(false)}
+            size="medium"
+            color="primary"
+            variant="outlined"
+            InputProps={{
+              classes: {
+                focused: classes.root,
+                root: classes.root,
+              },
+              endAdornment: expanded ? (
+                <IconButton>
+                  <SearchIcon />
+                </IconButton>
+              ) : (
+                <SearchIcon
+                  onClick={(e) => {
+                    e.currentTarget.parentElement
+                      ? e.currentTarget.parentElement.click()
+                      : console.log("parent null");
+                  }}
+                />
+              ),
+            }}
+          />
+          <IconButton>
+            <FilterIcon />
+          </IconButton>
+        </AppBar>
+
+        <Toolbar />
+
+        <Container>
+          <Grid container spacing={1} item xs={10}>
+            <Grid item xs={4} spacing={3} md={3}>
+              <Card>
+                <CardHeader
+                  action={<IconButton></IconButton>}
+                  title="Finished Products"
+                />
+                <CardContent></CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} spacing={2} md={3}>
+              <Card>
+                <CardHeader
+                  action={<IconButton></IconButton>}
+                  title="Food Wasted"
+                />
+                <CardContent></CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+        </Container>
+      </React.Fragment>
     </div>
   );
 };

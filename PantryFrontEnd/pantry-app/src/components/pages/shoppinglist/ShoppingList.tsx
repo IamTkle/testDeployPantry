@@ -1,264 +1,115 @@
 import {
-  AppBar,
-  IconButton,
-  makeStyles,
-  TextField,
-  Theme,
-  Toolbar,
-  Typography,
-  useTheme,
-  createStyles,
-  Card,
-  Container,
-  List,
-  ListItem,
-  ListItemAvatar,
-  Avatar,
-  ListItemSecondaryAction,
-  ButtonGroup,
-  Button,
-  ListItemText,
-  Box,
-  CssBaseline,
+  Container, createStyles, makeStyles, Theme,
+  Toolbar, useTheme, Tabs, Tab,Fab
 } from "@material-ui/core";
-import {
-  AddCircle,
-  AllInclusiveOutlined,
-  CheckOutlined,
-  DeleteOutlined,
-  LibraryBooksOutlined,
-  RemoveCircle,
-} from "@material-ui/icons";
-import SearchIcon from "@material-ui/icons/SearchOutlined";
-import FilterIcon from "@material-ui/icons/TuneOutlined";
-import InfoIcon from "@material-ui/icons/Info";
+import { Add, Favorite, List } from "@material-ui/icons";
 import React from "react";
+import SwipeableViews from "react-swipeable-views";
+import PantryAppBar from "../../PantryAppBar";
+import { browseRecipes, likedRecipes } from "./mockEntries";
+import ShoppingListTab from "./ShoppingListTab"
+
+interface RecipeProps {
+  setNavOpen: () => void;
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    container: {
-      height: "100vh",
-      marginLeft: theme.spacing(35),
-      backgroundColor: theme.palette.background.default,
-      padding: theme.spacing(4),
-    },
-    root: {
-      right: 0,
-      top: 0,
-      width: theme.spacing(6),
-      borderWidth: 10,
-      transition: "width 250ms ease-in-out",
-      float: "right",
-      "&.Mui-focused": {
-        width: theme.spacing(50),
-        float: "right",
+    pageContainer: {
+      marginLeft: theme.spacing(30),
+      paddingTop: theme.spacing(2),
+      height: "auto",
+      minHeight: "100vh",
+      backgroundColor: "#f1f9f3",
+      [theme.breakpoints.down("sm")]: {
+        marginLeft: 0,
       },
     },
-    appBar: {
-      padding: 10,
-      display: "flex",
-      flexDirection: "row",
-      justifyContent: "flex-end",
-      alignItems: "center",
-      width: `calc(100vw - ${theme.spacing(35)}px)`,
-    },
-    title: {
-      fontSize: "2rem",
-      alignSelf: "center",
-      marginRight: "auto",
-      marginLeft: theme.spacing(4),
-      fontWeight: "bolder",
-    },
-    incDecGroup: {
+
+    tabBar: {
+      color: theme.palette.primary.dark,
       backgroundColor: theme.palette.primary.light,
+      width: "100%",
+      position: "sticky",
+      zIndex: 10,
+      // bottom: 0,
+      top: 0,
+      [theme.breakpoints.up("md")]: {},
     },
-    buttonCounter: {
-      fontSize: "1.25rem",
-      fontWeight: 600,
-      color: theme.palette.text.primary,
-      opacity: 1,
+
+    tabIndicator: {
+      bottom: 0,
     },
-    disabledDec: {
-      "&.Mui-disabled": {
-        backgroundColor: theme.palette.text.secondary,
-      },
-    },
-    checkBtn: {
-      backgroundColor: theme.palette.primary.main,
-      "&:hover": {
-        backgroundColor: theme.palette.primary.light,
-      },
-    },
-    btnIcons: {
+
+    fab: {
+      position: "fixed",
+      zIndex: 5,
+      bottom: theme.spacing(11),
+      right: theme.spacing(2),
       color: theme.palette.background.default,
-    },
-    removeBtn: {
-      backgroundColor: theme.palette.error.main,
       "&:hover": {
-        backgroundColor: theme.palette.error.light,
-        opacity: 0.2,
+        backgroundColor: theme.palette.secondary.main,
       },
-    },
-    recipeBtn: {
-      backgroundColor: theme.palette.secondary.main,
-    },
-    checked: {
-      opacity: 0.5,
     },
   })
 );
 
-const ShoppingList: React.FC = () => {
+const ShoppingList: React.FC<RecipeProps> = ({ setNavOpen }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const [expanded, setExpanded] = React.useState(false);
+  const handleSortDirectionChange = (sortType: number, desc: boolean) => {};
 
-  const [count, setCount] = React.useState(1);
+  const handleSortTypeChosen = (sortType: number, desc: boolean) => {};
 
-  const [checked, setChecked] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState(0);
+
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+    setActiveTab(newValue);
+  };
 
   return (
-    <div className={classes.container}>
-      <AppBar
-        color="transparent"
-        className={classes.appBar}
-        classes={{ root: classes.appBar }}
-      >
-        <Typography variant="h2" color="textPrimary" className={classes.title}>
-          Shopping List
-        </Typography>
-        <TextField
-          placeholder="Search for an item in shopping list"
-          onFocus={() => setExpanded(true)}
-          onBlur={() => setExpanded(false)}
-          size="medium"
-          color="primary"
-          variant="outlined"
-          InputProps={{
-            classes: {
-              focused: classes.root,
-              root: classes.root,
-            },
-            endAdornment: expanded ? (
-              <IconButton>
-                <SearchIcon />
-              </IconButton>
-            ) : (
-              <SearchIcon
-                onClick={(e) => {
-                  e.currentTarget.parentElement
-                    ? e.currentTarget.parentElement.click()
-                    : console.log("parent null");
-                }}
-              />
-            ),
-          }}
-        />
-        <IconButton>
-          <FilterIcon />
-        </IconButton>
-      </AppBar>
-
+    <div className={classes.pageContainer}>
+      <PantryAppBar
+        title={"Shopping List"}
+        handleOpenMenu={setNavOpen}
+        handleSearchClick={(searchTerm) => console.log(searchTerm)}
+        handleSortDirectionChange={handleSortDirectionChange}
+        handleSortTypeChosen={handleSortTypeChosen}
+      />
       <Toolbar />
 
-      <Container>
-        <List>
-          <Card className={checked ? classes.checked : undefined}>
-            <ListItem>
-              <ListItemAvatar>
-                <Avatar variant="rounded">
-                  <AllInclusiveOutlined />
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={
-                  <Box
-                    display="flex"
-                    justifyContent="flex-start"
-                    alignItems="center"
-                    minHeight={0}
-                  >
-                    <CssBaseline />
-                    <Typography variant="h6">Human food item 1</Typography>
-                    <IconButton>
-                      <InfoIcon color="primary" />
-                    </IconButton>
-                  </Box>
-                }
-                secondary="Human food"
-                secondaryTypographyProps={{}}
-              ></ListItemText>
-              <Box
-                component={ListItemSecondaryAction}
-                flex
-                justifyContent="space-around"
-              >
-                <ButtonGroup
-                  variant="outlined"
-                  classes={{ groupedOutlinedHorizontal: classes.incDecGroup }}
-                  color={"default"}
-                >
-                  <IconButton
-                    color="primary"
-                    disabled={count === 1}
-                    onClick={() => setCount((prevCount) => prevCount - 1)}
-                    classes={{ disabled: classes.disabledDec }}
-                  >
-                    <RemoveCircle />
-                  </IconButton>
-                  <Button
-                    disabled
-                    variant="text"
-                    classes={{
-                      text: classes.buttonCounter,
-                    }}
-                  >
-                    {count}
-                  </Button>
-                  <IconButton
-                    color="primary"
-                    onClick={() => setCount((prevCount) => prevCount + 1)}
-                  >
-                    <AddCircle />
-                  </IconButton>
-                </ButtonGroup>
-                <Box ml={theme.spacing(5)} component={ButtonGroup}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    disableElevation
-                    classes={{ root: classes.removeBtn }}
-                  >
-                    <DeleteOutlined classes={{ root: classes.btnIcons }} />
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    disableElevation
-                    classes={{ root: classes.recipeBtn }}
-                  >
-                    <LibraryBooksOutlined
-                      classes={{ root: classes.btnIcons }}
-                    />
-                  </Button>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    disableElevation
-                    classes={{ root: classes.checkBtn }}
-                    onClick={() => {
-                      setChecked((prevChecked) => !prevChecked);
-                    }}
-                  >
-                    <CheckOutlined classes={{ root: classes.btnIcons }} />
-                  </Button>
-                </Box>
-              </Box>
-            </ListItem>
-          </Card>
-        </List>
+      <Tabs
+        value={activeTab}
+        variant="fullWidth"
+        onChange={handleTabChange}
+        classes={{ root: classes.tabBar, indicator: classes.tabIndicator }}
+      >
+        <Tab wrapped label="browse" value={0} icon={<List />} />
+        <Tab wrapped label="favorites" value={1} icon={<Favorite />} />
+      </Tabs>
+      <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
+        <SwipeableViews
+          index={activeTab}
+          onChangeIndex={(index) => setActiveTab(index)}
+        >
+          <ShoppingListTab
+            activeTab={activeTab}
+            index={0}
+            propEntries={browseRecipes}
+            key={0}
+          />
+          <ShoppingListTab
+            activeTab={activeTab}
+            index={1}
+            propEntries={likedRecipes}
+            key={1}
+          />
+        </SwipeableViews>
       </Container>
+      <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
+        <Add />
+      </Fab>
     </div>
   );
 };

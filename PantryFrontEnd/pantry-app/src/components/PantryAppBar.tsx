@@ -12,6 +12,8 @@ import {
   Typography,
   createStyles,
   useTheme,
+  Slide,
+  useScrollTrigger,
 } from "@material-ui/core";
 import HamburgerMenuIcon from "@material-ui/icons/Menu";
 import React from "react";
@@ -107,138 +109,141 @@ const PantryAppBar: React.FC<PantryAppBarProps> = ({
 
   const [sortType, setSortType] = React.useState(0);
 
+  const trigger = useScrollTrigger();
   return (
-    <AppBar
-      color="default"
-      variant="elevation"
-      position="fixed"
-      className={classes.appBar}
-      classes={{ root: classes.appBar }}
-    >
-      <Hidden mdUp>
-        <IconButton
-          onClick={handleOpenMenu}
+    <Slide appear={false} direction="down" in={!trigger}>
+      <AppBar
+        color="default"
+        variant="elevation"
+        position="fixed"
+        className={classes.appBar}
+        classes={{ root: classes.appBar }}
+      >
+        <Hidden mdUp>
+          <IconButton
+            onClick={handleOpenMenu}
+            color="primary"
+            className={classes.openMenuButtonContainer}
+          >
+            <HamburgerMenuIcon style={{ color: theme.palette.primary.dark }} />
+          </IconButton>
+        </Hidden>
+        <Hidden xsDown>
+          <Typography
+            variant={"h2"}
+            classes={{ root: classes.titleTypography }}
+            color="textPrimary"
+            className={classes.title}
+          >
+            {title}
+          </Typography>
+        </Hidden>
+
+        <TextField
+          placeholder="Search for an item"
+          size="medium"
           color="primary"
-          className={classes.openMenuButtonContainer}
+          variant="outlined"
+          classes={{ root: classes.textRoot }}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            classes: {
+              root: classes.searchInput,
+            },
+            endAdornment: (
+              <IconButton onClick={() => handleSearchClick(searchTerm)}>
+                <SearchIcon />
+              </IconButton>
+            ),
+          }}
+        />
+
+        <IconButton
+          onClick={(e) => {
+            setFilterMenuOpen(true);
+            setAnchorEl(e.currentTarget);
+          }}
         >
-          <HamburgerMenuIcon style={{ color: theme.palette.primary.dark }} />
+          <FilterIcon />
         </IconButton>
-      </Hidden>
-      <Hidden xsDown>
-        <Typography
-          variant={"h2"}
-          classes={{ root: classes.titleTypography }}
-          color="textPrimary"
-          className={classes.title}
+
+        <Menu
+          variant="menu"
+          open={filterMenuOpen}
+          anchorEl={anchorEl}
+          keepMounted
+          onClose={() => setFilterMenuOpen(false)}
         >
-          {title}
-        </Typography>
-      </Hidden>
-
-      <TextField
-        placeholder="Search for an item"
-        size="medium"
-        color="primary"
-        variant="outlined"
-        classes={{ root: classes.textRoot }}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        InputProps={{
-          classes: {
-            root: classes.searchInput,
-          },
-          endAdornment: (
-            <IconButton onClick={() => handleSearchClick(searchTerm)}>
-              <SearchIcon />
-            </IconButton>
-          ),
-        }}
-      />
-
-      <IconButton
-        onClick={(e) => {
-          setFilterMenuOpen(true);
-          setAnchorEl(e.currentTarget);
-        }}
-      >
-        <FilterIcon />
-      </IconButton>
-
-      <Menu
-        variant="menu"
-        open={filterMenuOpen}
-        anchorEl={anchorEl}
-        keepMounted
-        onClose={() => setFilterMenuOpen(false)}
-      >
-        <FormControl>
+          <FormControl>
+            <MenuItem
+              style={{ cursor: "default" }}
+              onClick={() => {
+                setSortDescending((prev) => !prev);
+                handleSortDirectionChange(sortType, !sortDescending);
+              }}
+            >
+              Ascending
+              <Switch
+                color="primary"
+                checked={sortDescending}
+                classes={{
+                  track: classes.ascendingTrack,
+                }}
+              />
+              Descending
+            </MenuItem>
+          </FormControl>
           <MenuItem
-            style={{ cursor: "default" }}
+            value="expiry"
+            key={0}
             onClick={() => {
-              setSortDescending((prev) => !prev);
-              handleSortDirectionChange(sortType, !sortDescending);
+              setSortType(0);
+              handleSortTypeChosen(0, sortDescending);
+            }}
+            tabIndex={0}
+            selected={sortType === 0}
+          >
+            By expiry date
+          </MenuItem>
+          <MenuItem
+            value="name"
+            key={1}
+            tabIndex={1}
+            selected={sortType === 1}
+            onClick={() => {
+              setSortType(1);
+              handleSortTypeChosen(1, sortDescending);
             }}
           >
-            Ascending
-            <Switch
-              color="primary"
-              checked={sortDescending}
-              classes={{
-                track: classes.ascendingTrack,
-              }}
-            />
-            Descending
+            By item name
           </MenuItem>
-        </FormControl>
-        <MenuItem
-          value="expiry"
-          key={0}
-          onClick={() => {
-            setSortType(0);
-            handleSortTypeChosen(0, sortDescending);
-          }}
-          tabIndex={0}
-          selected={sortType === 0}
-        >
-          By expiry date
-        </MenuItem>
-        <MenuItem
-          value="name"
-          key={1}
-          tabIndex={1}
-          selected={sortType === 1}
-          onClick={() => {
-            setSortType(1);
-            handleSortTypeChosen(1, sortDescending);
-          }}
-        >
-          By item name
-        </MenuItem>
-        <MenuItem
-          value="category"
-          key={2}
-          tabIndex={2}
-          selected={sortType === 2}
-          onClick={() => {
-            setSortType(2);
-            handleSortTypeChosen(2, sortDescending);
-          }}
-        >
-          By category
-        </MenuItem>
-        <MenuItem
-          value="quantity"
-          key={3}
-          tabIndex={3}
-          selected={sortType === 3}
-          onClick={() => {
-            setSortType(3);
-            handleSortTypeChosen(3, sortDescending);
-          }}
-        >
-          By quantity
-        </MenuItem>
-      </Menu>
-    </AppBar>
+          <MenuItem
+            value="category"
+            key={2}
+            tabIndex={2}
+            selected={sortType === 2}
+            onClick={() => {
+              setSortType(2);
+              handleSortTypeChosen(2, sortDescending);
+            }}
+          >
+            By category
+          </MenuItem>
+          <MenuItem
+            value="quantity"
+            key={3}
+            tabIndex={3}
+            selected={sortType === 3}
+            onClick={() => {
+              setSortType(3);
+              handleSortTypeChosen(3, sortDescending);
+            }}
+          >
+            By quantity
+          </MenuItem>
+        </Menu>
+      </AppBar>
+    </Slide>
   );
 };
 

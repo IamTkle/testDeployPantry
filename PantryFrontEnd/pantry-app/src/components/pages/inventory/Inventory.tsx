@@ -69,6 +69,9 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.primary.dark,
       backgroundColor: theme.palette.primary.light,
       width: "100%",
+      position: "sticky",
+      zIndex: 10,
+      top: 0,
     },
     titleTypography: {
       color: theme.palette.primary.dark,
@@ -102,7 +105,6 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const getTabCategories: () => string[] = () => {
     //need to fetch first in reality
 
-    console.log("categories checked");
     let allCategories: string[] = [];
 
     entries.forEach((item) => {
@@ -194,7 +196,6 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   );
 
   const getTabs = () => {
-    console.log("tab categories checked");
     return tabCategories.map((tab, i) => {
       return (
         <Tab
@@ -297,7 +298,6 @@ const sortByExpiry = (entries: Item[], desc: boolean) => {
     return earliestExpA.expDate < earliestExpB.expDate ? 1 : -1;
   });
 
-  console.log(sorted);
   return sorted;
 };
 

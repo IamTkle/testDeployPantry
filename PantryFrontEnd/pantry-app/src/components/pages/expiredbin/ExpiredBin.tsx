@@ -1,41 +1,37 @@
 import {
   AppBar,
+  Avatar,
+  Box,
+  Button,
+  ButtonGroup,
+  Card,
+  Container,
+  createStyles,
+  CssBaseline,
   IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemSecondaryAction,
+  ListItemText,
   makeStyles,
   TextField,
   Theme,
   Toolbar,
   Typography,
   useTheme,
-  createStyles,
-  Card,
-  Container,
-  List,
-  ListItem,
-  ListItemAvatar,
-  Avatar,
-  ListItemSecondaryAction,
-  ButtonGroup,
-  Button,
-  ListItemText,
-  Box,
-  CssBaseline,
-  Divider,
 } from "@material-ui/core";
 import {
   AddCircle,
-  AddOutlined,
   AllInclusiveOutlined,
   CheckOutlined,
   DeleteOutlined,
-  KeyboardArrowDownOutlined,
   LibraryBooksOutlined,
   RemoveCircle,
-  RemoveOutlined,
 } from "@material-ui/icons";
+import InfoIcon from "@material-ui/icons/Info";
 import SearchIcon from "@material-ui/icons/SearchOutlined";
 import FilterIcon from "@material-ui/icons/TuneOutlined";
-import InfoIcon from "@material-ui/icons/Info";
 import React from "react";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -108,9 +104,10 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     checked: {
       opacity: 0.5,
-    }, style: {
-      background : '#FFFFFF'
-    }
+    },
+    style: {
+      background: "#FFFFFF",
+    },
   })
 );
 
@@ -132,9 +129,9 @@ const ExpiredBin: React.FC = () => {
         classes={{ root: classes.appBar }}
       >
         <Typography variant="h2" color="textPrimary" className={classes.title}>
-            Expired Items
+          Expired Items
         </Typography>
-        
+
         <TextField
           placeholder="Search for an item in shopping list"
           onFocus={() => setExpanded(true)}
@@ -196,7 +193,8 @@ const ExpiredBin: React.FC = () => {
                 secondary="Expired on: 30/02/2022"
                 secondaryTypographyProps={{
                   variant: "body2",
-                  color: "error"}}
+                  color: "error",
+                }}
               ></ListItemText>
               <Box
                 component={ListItemSecondaryAction}
@@ -266,7 +264,7 @@ const ExpiredBin: React.FC = () => {
               </Box>
             </ListItem>
           </Card>
-          
+
           <Card className={checked ? classes.checked : undefined}>
             <ListItem>
               <ListItemAvatar>
@@ -292,7 +290,8 @@ const ExpiredBin: React.FC = () => {
                 secondary="Expired on: 06/03/2022"
                 secondaryTypographyProps={{
                   variant: "body2",
-                  color: "error"}}
+                  color: "error",
+                }}
               ></ListItemText>
               <Box
                 component={ListItemSecondaryAction}
@@ -388,7 +387,8 @@ const ExpiredBin: React.FC = () => {
                 secondary="Expired on: 30/03/2022"
                 secondaryTypographyProps={{
                   variant: "body2",
-                  color: "error"}}
+                  color: "error",
+                }}
               ></ListItemText>
               <Box
                 component={ListItemSecondaryAction}
@@ -458,7 +458,6 @@ const ExpiredBin: React.FC = () => {
               </Box>
             </ListItem>
           </Card>
-
         </List>
       </Container>
     </div>

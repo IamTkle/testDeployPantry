@@ -1,9 +1,16 @@
 import { Container, Fab, Tab, Tabs, Theme, Toolbar } from "@material-ui/core";
-import { Add, Favorite, List } from "@material-ui/icons";
-import { makeStyles, createStyles, useTheme } from "@material-ui/styles";
+import { Add, Favorite, List as ListIcon } from "@material-ui/icons";
+import { createStyles, makeStyles, useTheme } from "@material-ui/styles";
 import React from "react";
+import SwipeableViews from "react-swipeable-views";
 import PantryAppBar from "../../PantryAppBar";
-import RecipeEntry from "./RecipeEntry";
+import { Recipe } from "../shoppinglist/mockEntries";
+import {
+  browseRecipes as importedBR,
+  likedRecipes as importedLR,
+} from "./mockEntries";
+import RecipeEditDialog from "./RecipeEditDialog";
+import RecipeTab from "./RecipeTab";
 
 interface RecipeProps {
   setNavOpen: () => void;
@@ -27,19 +34,21 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.primary.light,
       width: "100%",
       position: "sticky",
-      bottom: 0,
+      zIndex: 10,
+      // bottom: 0,
+      top: 0,
       [theme.breakpoints.up("md")]: {},
     },
 
     tabIndicator: {
-      top: 0,
+      bottom: 0,
     },
 
     fab: {
       position: "fixed",
       zIndex: 5,
-      bottom: theme.spacing(11),
-      right: theme.spacing(2),
+      bottom: theme.spacing(4),
+      right: theme.spacing(4),
       color: theme.palette.background.default,
       "&:hover": {
         backgroundColor: theme.palette.secondary.main,
@@ -48,7 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Recipe: React.FC<RecipeProps> = ({ setNavOpen }) => {
+const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
@@ -58,8 +67,44 @@ const Recipe: React.FC<RecipeProps> = ({ setNavOpen }) => {
 
   const [activeTab, setActiveTab] = React.useState(0);
 
+  const [browseRecipes, setBrowseRecipes] = React.useState(importedBR);
+
+  const [likedRecipes, setLikedRecipes] = React.useState(importedLR);
+
+  const editDialogOpenState = React.useState(false);
+
+  const dialogRecipeState = React.useState<Recipe | null>(null);
+
+  const [currRecipeIndex, setCurrRecipeIndex] = React.useState(0);
+
+  const [currRecipe, setCurrRecipe] = dialogRecipeState;
+
+  const setEditDialogOpen = editDialogOpenState[1];
+
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setActiveTab(newValue);
+  };
+
+  const handleOpenEdit = (recipe: Recipe, i: number) => {
+    setCurrRecipe({ ...recipe });
+    setCurrRecipeIndex(i);
+    setEditDialogOpen(true);
+  };
+
+  const handleRemove = (recipe: Recipe) => {
+    setBrowseRecipes((recipes) =>
+      recipes.filter((cur) => cur.name !== recipe.name)
+    );
+    setLikedRecipes((recipes) =>
+      recipes.filter((cur) => cur.name !== recipe.name)
+    );
+  };
+
+  const handleSave = (recipe: Recipe) => {
+    setBrowseRecipes((prev) => {
+      prev[currRecipeIndex] = recipe;
+      return prev;
+    });
   };
 
   return (
@@ -72,53 +117,59 @@ const Recipe: React.FC<RecipeProps> = ({ setNavOpen }) => {
         handleSortTypeChosen={handleSortTypeChosen}
       />
       <Toolbar />
-      <Container style={{ paddingBottom: 16 }}>
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
 
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
-        <RecipeEntry
-          ingredients={["bols in yo jaws"]}
-          name="My Recipe"
-          recipeID="3432P"
-        />
-      </Container>
-      <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
-        <Add />
-      </Fab>
       <Tabs
         value={activeTab}
         variant="fullWidth"
         onChange={handleTabChange}
         classes={{ root: classes.tabBar, indicator: classes.tabIndicator }}
       >
-        <Tab wrapped label="browse" value={0} icon={<List />} />
+        <Tab wrapped label="browse" value={0} icon={<ListIcon />} />
         <Tab wrapped label="favorites" value={1} icon={<Favorite />} />
       </Tabs>
+      {currRecipe && (
+        <RecipeEditDialog
+          dialogOpenState={editDialogOpenState}
+          dialogRecipeState={
+            dialogRecipeState as [
+              Recipe,
+              React.Dispatch<React.SetStateAction<Recipe>>
+            ]
+          }
+          handleSave={handleSave}
+        />
+      )}
+      <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
+        <SwipeableViews
+          index={activeTab}
+          onChangeIndex={(index) => setActiveTab(index)}
+        >
+          <RecipeTab
+            activeTab={activeTab}
+            index={0}
+            propEntries={browseRecipes}
+            key={0}
+            handleOpenEdit={handleOpenEdit}
+            handleAdd={() => {}}
+            handleRemove={handleRemove}
+          />
+
+          <RecipeTab
+            activeTab={activeTab}
+            index={1}
+            propEntries={likedRecipes}
+            key={1}
+            handleOpenEdit={handleOpenEdit}
+            handleAdd={() => {}}
+            handleRemove={handleRemove}
+          />
+        </SwipeableViews>
+      </Container>
+      <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
+        <Add />
+      </Fab>
     </div>
   );
 };
 
-export default Recipe;
+export default RecipePage;

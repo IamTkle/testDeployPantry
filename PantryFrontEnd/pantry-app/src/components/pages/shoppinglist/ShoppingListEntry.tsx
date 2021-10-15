@@ -20,23 +20,17 @@ import {
   Edit,
   Favorite,
   FavoriteBorderOutlined,
-  ImportContacts,
-  KeyboardArrowLeft,
 } from "@material-ui/icons";
 import React from "react";
-import { Recipe } from "./mockEntries";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
 
 // }))
 
-export const StyledActionButton = styled(Button)(({ theme }) => ({
+const StyledActionButton = styled(Button)(({ theme }) => ({
   width: "100%",
   color: theme.palette.background.default,
   backgroundColor: theme.palette.background.default,
-  "&:hover": {
-    opacity: 0.7,
-  },
 }));
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -50,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       flexDirection: "row",
       justifyContent: "space-around",
-      [theme.breakpoints.down("sm")]: {
+      [theme.breakpoints.down("xs")]: {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
@@ -63,7 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       justifyContent: "flex-start",
       alignItems: "center",
-      [theme.breakpoints.up("md")]: {
+      [theme.breakpoints.up("sm")]: {
         paddingLeft: 0,
       },
     },
@@ -78,7 +72,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
     actionButtonGroup: {
       [theme.breakpoints.up("md")]: {
-        width: "70%",
+        width: "60%",
       },
     },
 
@@ -94,6 +88,7 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.secondary.main,
       "&:hover": {
         backgroundColor: theme.palette.secondary.main,
+        opacity: 0.7,
       },
       [theme.breakpoints.down("xs")]: {
         borderRadius: 0,
@@ -104,6 +99,7 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.primary.dark,
       "&:hover": {
         backgroundColor: theme.palette.primary.dark,
+        opacity: 0.7,
       },
     },
 
@@ -112,11 +108,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
       "&:hover": {
         backgroundColor: theme.palette.error.main,
+        opacity: 0.7,
       },
-    },
-
-    openButton: {
-      backgroundColor: theme.palette.text.primary,
       [theme.breakpoints.down("xs")]: {
         borderRadius: 0,
       },
@@ -124,35 +117,27 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface RecipeEntryProps {
-  recipe: Recipe;
-  handleOpenEdit: (recipe: Recipe, i: number) => void;
-  handleRemove: (recipe: Recipe) => void;
-  handleAdd: () => void;
-  i: number;
+interface ShoppingListEntryProps {
+  recipeID: string;
+  name: string;
+  ingredients: string[];
+  img?: string;
+  fav: boolean;
 }
 
-const RecipeEntry: React.FC<RecipeEntryProps> = ({
-  recipe,
-  handleOpenEdit,
-  handleRemove,
-  handleAdd,
-  i,
+const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
+  ingredients,
+  name,
+  recipeID,
+  img,
+  fav = false,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const ingredientsString = getIngredientsString(recipe.ingredients);
+  const ingredientsString = getIngredientsString(ingredients);
 
-  const [isFavorite, setIsFavorite] = React.useState(recipe.fav);
-
-  const handleEditButtonClick = () => {
-    handleOpenEdit(recipe, i);
-  };
-
-  const handleRemoveButtonClick = () => {
-    handleRemove(recipe);
-  };
+  const [isFavorite, setIsFavorite] = React.useState(fav);
 
   return (
     <Card elevation={3} classes={{ root: classes.cardContainer }}>
@@ -161,7 +146,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           <ListItemAvatar>
             <Avatar
               variant="rounded"
-              src={recipe.img}
+              src={img}
               classes={{ root: classes.entryAvatar }}
             />
           </ListItemAvatar>
@@ -174,7 +159,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
                   justifyContent: "flex-start",
                 }}
               >
-                {recipe.name}
+                {name}
                 <IconButton
                   onClick={() => setIsFavorite((prev) => !prev)}
                   size="small"
@@ -199,23 +184,14 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           fullWidth
           className={classes.actionButtonGroup}
         >
-          <StyledActionButton
-            className={classes.editButton}
-            onClick={handleEditButtonClick}
-          >
+          <StyledActionButton className={classes.editButton}>
             <Edit />
           </StyledActionButton>
           <StyledActionButton className={classes.addButton}>
             <AddShoppingCart />
           </StyledActionButton>
-          <StyledActionButton
-            className={classes.removeButton}
-            onClick={handleRemoveButtonClick}
-          >
+          <StyledActionButton className={classes.removeButton}>
             <Block />
-          </StyledActionButton>
-          <StyledActionButton className={classes.openButton}>
-            <ImportContacts />
           </StyledActionButton>
         </ButtonGroup>
       </ListItem>
@@ -247,4 +223,4 @@ const getIngredientsString = (ingredients: string[]) => {
   return igstr;
 };
 
-export default RecipeEntry;
+export default ShoppingListEntry;
