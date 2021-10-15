@@ -40,9 +40,7 @@ const theme = createTheme({
   },
 });
 
-const checkLoggedInCookie = () => document.cookie.includes("loggedIn");
-const isLoggedIn =
-  process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true;
+const checkLoggedInCookie = () => document.cookie.includes("LoggedIn");
 
 // function urlBase64ToUint8Array(base64String: string | undefined) {
 //   if (base64String) {
@@ -104,6 +102,9 @@ function App() {
   const location = window.location.pathname;
   const [navTab, setNavTab] = React.useState(() => pageToIndex(location));
 
+  var isLoggedIn =
+    process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true;
+
   const [navIsOpen, setNavOpen] = React.useState(false);
 
   const callBackNavOpen = React.useCallback(() => {
@@ -136,14 +137,16 @@ function App() {
           let subscription = await value.pushManager.getSubscription();
 
           try {
-            subscription = await value.pushManager.subscribe(
-              pushSubscriptionOptions
-            );
+            subscription = await value.pushManager
+              .subscribe(pushSubscriptionOptions)
+              .catch((e) => {
+                throw e;
+              });
           } catch (e) {
             console.log(e);
             if (subscription) {
               const unsubParams: RequestInit = {
-                method: "POST",
+                method: "DELETE",
                 headers: {
                   "Content-Type": "application/json",
                 },
@@ -234,7 +237,10 @@ function App() {
           )}
           <Switch>
             {isLoggedIn ? (
-              <Redirect exact from="/" to="/inventory" />
+              <>
+                <Redirect exact from="/" to="/inventory" />
+                <Redirect exact from="/login" to="/inventory" />
+              </>
             ) : (
               <Redirect from="/" to="/login" />
             )}

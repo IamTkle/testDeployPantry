@@ -61,14 +61,15 @@ const getKey = (name: string) => {
   return key;
 };
 
-const areEqual = (rA: Recipe, rB: Recipe) => {
-  if (
-    rA.name === rB.name &&
-    rA.ingredients.every((ingr, i) => ingr === rB.ingredients[i])
-  )
-    return true;
-  return false;
-};
+// const areEqual = (rA: Recipe, rB: Recipe) => {
+//   if (
+//     rA.name === rB.name &&
+//     rA.ingredients.every((ingr, i) => ingr === rB.ingredients[i])
+//   )
+//     return true;
+//   return false;
+// };
+
 const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   dialogOpenState,
   dialogRecipeState,
