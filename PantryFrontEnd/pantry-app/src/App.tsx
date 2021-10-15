@@ -40,14 +40,9 @@ const theme = createTheme({
   },
 });
 
-const checkLoggedInCookie = () => {
-  const cookies = document.cookie.split(";");
-
-  return cookies.includes("loggedIn");
-};
-
+const checkLoggedInCookie = () => document.cookie.includes("loggedIn");
 const isLoggedIn =
-  process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true;
+  process.env.NODE_ENV !== "production" ? checkLoggedInCookie() : true;
 
 // function urlBase64ToUint8Array(base64String: string | undefined) {
 //   if (base64String) {
