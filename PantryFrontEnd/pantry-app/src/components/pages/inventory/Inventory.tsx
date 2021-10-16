@@ -100,9 +100,18 @@ interface InventoryProps {
 }
 
 const getInitialEntries: () => Item[] = () => {
+  const params: RequestInit = {
+    method: "GET",
+    credentials: "include",
+    headers: {
+      Accept: "*/*",
+      "Content-Type": "application/json",
+    },
+  };
+
   var data: any = {};
 
-  fetch(DOMAIN + "/api/GetInventoryList")
+  fetch(DOMAIN + "/api/GetInventoryList", params)
     .then((resp) => resp.json())
     .then((d) => (data = d));
 

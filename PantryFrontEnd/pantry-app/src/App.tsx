@@ -55,7 +55,7 @@ function App() {
   const [navTab, setNavTab] = React.useState(() => pageToIndex(location));
 
   const loggedInState = React.useState(
-    process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true
+    process.env.NODE_ENV !== "production" ? checkLoggedInCookie() : true
   );
 
   const [isLoggedIn] = loggedInState;
@@ -102,6 +102,7 @@ function App() {
             if (subscription) {
               const unsubParams: RequestInit = {
                 method: "DELETE",
+                credentials: "include",
                 headers: {
                   "Content-Type": "application/json",
                 },
