@@ -11,8 +11,8 @@ import {
   Typography,
 } from "@material-ui/core";
 import React from "react";
-import { useHistory } from "react-router-dom";
-import { DOMAIN } from "../../../App";
+import { useHistory, useLocation } from "react-router-dom";
+import { DOMAIN, MyLocationDesc } from "../../../App";
 
 interface loginProps {
   message?: string;
@@ -22,6 +22,7 @@ enum LOGIN_FIELDS {
   EMAIL = "email",
   PASSWORD = "password",
 }
+
 const Login: React.FC<loginProps> = ({ message }) => {
   const paperStyle = {
     padding: 20,
@@ -31,6 +32,7 @@ const Login: React.FC<loginProps> = ({ message }) => {
   };
 
   const history = useHistory();
+  const location = useLocation() as MyLocationDesc;
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -54,8 +56,15 @@ const Login: React.FC<loginProps> = ({ message }) => {
 
     console.log(resp);
     if (resp.ok) {
-      document.cookie += "LoggedIn=True; path=/";
-      window.location.reload();
+      if (!document.cookie.includes("LoggedIn"))
+        document.cookie = "LoggedIn=True; path=/;" + document.cookie;
+
+      console.log(document.cookie);
+
+      if (location) {
+        const setLoggedIn = location.setLoggedIn;
+        setLoggedIn(true);
+      }
     } else console.log("error");
   };
 
@@ -79,7 +88,6 @@ const Login: React.FC<loginProps> = ({ message }) => {
       <Paper elevation={30} variant="outlined" style={paperStyle}>
         {/* {message && <Snackbar open={true} autoHideDuration={6000} color="primary"><>message</></Snackbar> } */}
         <Grid>
-          s
           <Avatar alt="Remy Sharp" src="/static/images/avatars/unnamed.png" />
           <h2> Login </h2>
         </Grid>

@@ -21,7 +21,6 @@ import {
   Favorite,
   FavoriteBorderOutlined,
   ImportContacts,
-  KeyboardArrowLeft,
 } from "@material-ui/icons";
 import React from "react";
 import { Recipe } from "./mockEntries";

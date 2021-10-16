@@ -126,6 +126,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
 
   const tabCategories = React.useMemo(getTabCategories, [entries]);
 
+  const topEleRef = React.useRef<HTMLDivElement | null>(null);
   const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
     setActiveTab(newTab);
   };
@@ -228,6 +229,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
 
   return (
     <div className={classes.container}>
+      <div ref={topEleRef} />
       <PantryAppBar
         title={"Inventory"}
         handleOpenMenu={handleOpenMenu}
