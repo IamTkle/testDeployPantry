@@ -104,7 +104,6 @@ const getInitialEntries: () => Item[] = () => {
     method: "GET",
     credentials: "include",
     headers: {
-      Accept: "*/*",
       "Content-Type": "application/json",
     },
   };
