@@ -56,8 +56,8 @@ const Login: React.FC<loginProps> = ({ message }) => {
 
     console.log(resp);
     if (resp.ok) {
-      if (!document.cookie.includes("LoggedIn"))
-        document.cookie = "LoggedIn=True; path=/;" + document.cookie;
+      // if (!document.cookie.includes("LoggedIn"))
+      //   document.cookie = "LoggedIn=True; path=/;" + document.cookie;
 
       console.log(document.cookie);
 

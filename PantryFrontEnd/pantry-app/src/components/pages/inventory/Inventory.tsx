@@ -13,9 +13,10 @@ import InfoIcon from "@material-ui/icons/Info";
 import React, { ReactNode } from "react";
 import { GiFruitBowl as FruitsIcon } from "react-icons/gi";
 import SwipeableViews from "react-swipeable-views";
+import { DOMAIN } from "../../../App";
 import PantryAppBar from "../../PantryAppBar";
 import InventoryTab from "./InventoryTab";
-import { entries as mockEntries, Item } from "./mockEntries";
+import { APIItem, Item } from "./mockEntries";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -98,6 +99,26 @@ interface InventoryProps {
   setNavOpen: () => void;
 }
 
+const getInitialEntries: () => Item[] = () => {
+  var data: any = {};
+
+  fetch(DOMAIN + "/api/GetInventoryList")
+    .then((resp) => resp.json())
+    .then((d) => (data = d));
+
+  let entries: Item[] = [];
+
+  Object.keys(data).forEach((category) => {
+    const products: APIItem[] = data[category];
+
+    for (let product of products) {
+      entries.push({ ...product, category: category });
+    }
+  });
+
+  return entries;
+};
+
 const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
@@ -119,7 +140,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const [activeTab, setActiveTab] = React.useState(0);
 
   const [entries, setEntries] = React.useState(() =>
-    sortByExpiry(mockEntries, true)
+    sortByExpiry(getInitialEntries(), true)
   );
 
   const [searchEntries, setSearchEntries] = React.useState<Item[]>([]);
@@ -285,8 +306,8 @@ const areEqual: (
 
 const sortByExpiry = (entries: Item[], desc: boolean) => {
   const sorted = entries.sort((entryA, entryB) => {
-    const expGrpsA = entryA.expiryGroups;
-    const expGrpsB = entryB.expiryGroups;
+    const expGrpsA = entryA.expiry_Count;
+    const expGrpsB = entryB.expiry_Count;
 
     const earliestExpA = expGrpsA.reduce((prev, curr) =>
       prev.expDate < curr.expDate ? prev : curr
@@ -323,8 +344,8 @@ const sortByCategory = (entries: Item[], desc: boolean) => {
 
 const sortByQuantity = (entries: Item[], desc: boolean) => {
   const sorted = entries.sort((A, B) => {
-    const expGrpsA = A.expiryGroups;
-    const expGrpsB = B.expiryGroups;
+    const expGrpsA = A.expiry_Count;
+    const expGrpsB = B.expiry_Count;
 
     var totalCountA = 0;
     expGrpsA.forEach((eg) => (totalCountA += eg.count));
