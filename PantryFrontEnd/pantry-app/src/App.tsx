@@ -48,11 +48,11 @@ interface SetLoggedIn {
 }
 export type MyLocationDesc = LocationDescriptor<any> & SetLoggedIn;
 
+const checkLoggedInCookie = () => document.cookie.includes("LoggedIn");
+
 function App() {
   const location = window.location.pathname;
   const [navTab, setNavTab] = React.useState(() => pageToIndex(location));
-
-  const checkLoggedInCookie = () => document.cookie.includes("LoggedIn");
 
   const loggedInState = React.useState(
     process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true
@@ -78,7 +78,7 @@ function App() {
 
     console.log("current key:", strForm);
 
-    if ("serviceWorker" in navigator) {
+    if ("serviceWorker" in navigator && isLoggedIn) {
       navigator.serviceWorker
         .register("/sw.js", { scope: "/" })
         .then(async (value) => {
@@ -102,6 +102,7 @@ function App() {
             if (subscription) {
               const unsubParams: RequestInit = {
                 method: "DELETE",
+                credentials: "include",
                 headers: {
                   "Content-Type": "application/json",
                 },
@@ -120,6 +121,7 @@ function App() {
 
             const subscriptionParams: RequestInit = {
               method: "POST",
+              credentials: "include",
               headers: {
                 "Content-Type": "application/json",
               },
@@ -140,7 +142,7 @@ function App() {
           }
         });
     }
-  }, []);
+  }, [isLoggedIn]);
 
   const renderRoute = React.useCallback(
     (item: navItem) => {

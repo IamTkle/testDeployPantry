@@ -23,9 +23,9 @@ const InventoryTab: React.FC<InventoryTabProps> = ({
           {propEntries.map((item) => {
             return (
               <InventoryEntry
-                key={item.iid}
+                key={item.itemID}
                 name={item.name}
-                expiryGroups={item.expiryGroups}
+                expiryGroups={item.expiry_Count}
                 quantity={item.quantity}
                 category={item.category}
               />
