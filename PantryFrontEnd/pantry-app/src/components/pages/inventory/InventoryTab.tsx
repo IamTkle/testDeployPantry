@@ -15,6 +15,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({
   propEntries,
   index,
 }) => {
+  window.scrollTo(0, 0);
   return (
     <>
       {activeTab === index && (

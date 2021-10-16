@@ -4,6 +4,7 @@ import React from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import "./App.css";
 import NavBar, { navItem, navItems } from "./components/navbar/NavBar";
+import { LocationDescriptor } from "history";
 import { pageToIndex } from "./components/routingTable";
 
 const theme = createTheme({
@@ -40,70 +41,24 @@ const theme = createTheme({
   },
 });
 
-const checkLoggedInCookie = () => document.cookie.includes("LoggedIn");
-
-// function urlBase64ToUint8Array(base64String: string | undefined) {
-//   if (base64String) {
-//     var padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-//     var base64 = (base64String + padding)
-//       .replace(/\-/g, "+")
-//       .replace(/_/g, "/");
-
-//     var rawData = window.atob(base64);
-//     var outputArray = new Uint8Array(rawData.length);
-
-//     for (var i = 0; i < rawData.length; ++i) {
-//       outputArray[i] = rawData.charCodeAt(i);
-//     }
-//     return outputArray;
-//   }
-//   return;
-// }
-
-// const checkVapidKey = async (newKeyStr: string) => {
-//   const reg = await navigator.serviceWorker.ready;
-//   const pshMngr = reg.pushManager;
-//   const sub = await pshMngr.getSubscription();
-
-//   if (sub) {
-//     sub.unsubscribe();
-//     // const jsonForm = sub.toJSON();
-
-//     // if (jsonForm && jsonForm.keys) {
-//     //   const key = jsonForm.keys["p256dh"];
-
-//     //   console.log("str form:", key);
-//     //   console.log(sub);
-//     //   if (key !== newKeyStr) {
-//     //     sub.unsubscribe();
-//     //     console.log("unsubscribed");
-//     //   }
-//     // const currKey = new Uint8Array(sub.getKey("p256dh") as ArrayBufferLike);
-
-//     // console.log("curr key", currKey);
-
-//     // const newKey = urlBase64ToUint8Array(newKeyStr);
-//     // console.log("new key", newKey);
-
-//     // if (currKey && newKey) {
-//     //   if (currKey.byteLength !== newKey.byteLength) return;
-
-//     //   for (let i = 0; i < currKey.byteLength; i++) {
-//     //     if (currKey[i] !== newKey[i]) {
-//     //       sub.unsubscribe();
-//     //       return;
-//     //     }
-//     //   }
-//   }
-// };
 export const DOMAIN = "https://pantties.azurewebsites.net";
+
+interface SetLoggedIn {
+  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+}
+export type MyLocationDesc = LocationDescriptor<any> & SetLoggedIn;
 
 function App() {
   const location = window.location.pathname;
   const [navTab, setNavTab] = React.useState(() => pageToIndex(location));
 
-  var isLoggedIn =
-    process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true;
+  const checkLoggedInCookie = () => document.cookie.includes("LoggedIn");
+
+  const loggedInState = React.useState(
+    process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true
+  );
+
+  const [isLoggedIn] = loggedInState;
 
   const [navIsOpen, setNavOpen] = React.useState(false);
 
@@ -235,6 +190,7 @@ function App() {
               </Hidden>
             </>
           )}
+          {navPageRoutes}
           <Switch>
             {isLoggedIn ? (
               <>
@@ -242,10 +198,17 @@ function App() {
                 <Redirect exact from="/login" to="/inventory" />
               </>
             ) : (
-              <Redirect from="/" to="/login" />
+              <Redirect
+                // from="/"
+                to={
+                  {
+                    pathname: "/login",
+                    setLoggedIn: loggedInState[1],
+                  } as MyLocationDesc
+                }
+              />
             )}
           </Switch>
-          {navPageRoutes}
         </ThemeProvider>
       </BrowserRouter>
     </div>
