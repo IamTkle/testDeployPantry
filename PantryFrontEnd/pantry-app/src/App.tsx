@@ -54,7 +54,7 @@ function App() {
   const location = window.location.pathname;
   const [navTab, setNavTab] = React.useState(() => pageToIndex(location));
 
-  const loggedInState = React.useState(
+  const loggedInState = React.useState(() =>
     process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true
   );
 
@@ -91,6 +91,8 @@ function App() {
 
           let subscription = await value.pushManager.getSubscription();
 
+          console.log(subscription?.toJSON());
+
           try {
             subscription = await value.pushManager
               .subscribe(pushSubscriptionOptions)
@@ -106,7 +108,7 @@ function App() {
                 headers: {
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify(subscription),
+                body: JSON.stringify(subscription.toJSON()),
               };
               const resp = await fetch(
                 DOMAIN + "/api/DeleteSubcriptions",
@@ -114,6 +116,7 @@ function App() {
               );
               if (resp.ok) await subscription.unsubscribe();
             }
+
             subscription = await value.pushManager.subscribe(
               pushSubscriptionOptions
             );

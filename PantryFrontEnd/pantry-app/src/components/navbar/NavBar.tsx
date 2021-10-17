@@ -1,31 +1,32 @@
-import React, { ReactElement } from "react";
-import Drawer from "@material-ui/core/Drawer";
 import {
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
   makeStyles,
   Theme,
   useTheme,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  List,
 } from "@material-ui/core";
+import Drawer from "@material-ui/core/Drawer";
+import AccountIcon from "@material-ui/icons/AccountCircle";
 import InventoryIcon from "@material-ui/icons/AllInbox";
-import ShoppingListIcon from "@material-ui/icons/ShoppingCartOutlined";
+import QRIcon from "@material-ui/icons/CropFreeOutlined";
 import ExpiredBinIcon from "@material-ui/icons/DeleteOutline";
 import RecipeIcon from "@material-ui/icons/MenuBookOutlined";
-import QRIcon from "@material-ui/icons/CropFreeOutlined";
 import SettingsIcon from "@material-ui/icons/Settings";
-import AccountIcon from "@material-ui/icons/AccountCircle";
+import ShoppingListIcon from "@material-ui/icons/ShoppingCartOutlined";
 import { createStyles } from "@material-ui/styles";
+import React, { ReactElement } from "react";
 import { Link } from "react-router-dom";
-import { pageToIndex } from "../routingTable";
-import Inventory from "../pages/inventory/Inventory";
-import ShoppingList from "../pages/shoppinglist/ShoppingList";
-import ExpiredBin from "../pages/expiredbin/ExpiredBin";
 import Account from "../pages/account/Account";
-import Signup from "../pages/signup/Signup";
+import ExpiredBin from "../pages/expiredbin/ExpiredBin";
+import Inventory from "../pages/inventory/Inventory";
 import Login from "../pages/login/Login";
+import QR from "../pages/qrcode/QR";
 import Recipe from "../pages/recipe/Recipe";
+import ShoppingList from "../pages/shoppinglist/ShoppingList";
+import Signup from "../pages/signup/Signup";
+import { pageToIndex } from "../routingTable";
 
 export type navItem = {
   icon: ReactElement<any, any>;
@@ -181,7 +182,7 @@ export const navItems: navItem[] = [
   {
     descText: "QR Scan",
     link: "/qrscan",
-    component: React.Fragment,
+    component: QR,
     icon: <QRIcon />,
   },
 
