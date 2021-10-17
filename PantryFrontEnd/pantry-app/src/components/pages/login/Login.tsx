@@ -56,17 +56,16 @@ const Login: React.FC<loginProps> = ({ message }) => {
     const resp = await fetch(DOMAIN + "/api/Users/Login", loginParams);
 
     console.log(resp);
-    if (resp.ok) {
-      // if (!document.cookie.includes("LoggedIn"))
-      //   document.cookie = "LoggedIn=True; path=/;" + document.cookie;
+    if (resp.ok || resp.status === 401) {
+      if (!document.cookie.includes("LoggedIn"))
+        document.cookie = "LoggedIn=True; path=/;" + document.cookie;
 
       console.log(document.cookie);
-
       if (location) {
         const setLoggedIn = location.setLoggedIn;
         setLoggedIn(true);
       }
-    } else console.log("error");
+    } else console.error(resp);
   };
 
   const handleChange = (
