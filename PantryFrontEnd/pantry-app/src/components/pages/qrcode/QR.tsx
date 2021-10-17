@@ -1,12 +1,11 @@
 import {
   AppBar,
+  createStyles,
   IconButton,
   makeStyles,
   Theme,
   Toolbar,
   useTheme,
-  createStyles,
-  Hidden,
 } from "@material-ui/core";
 import { ArrowBackIos } from "@material-ui/icons";
 import QRCode from "qrcode.react";
