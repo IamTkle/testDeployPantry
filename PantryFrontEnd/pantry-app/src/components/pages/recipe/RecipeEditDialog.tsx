@@ -89,7 +89,10 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   });
 
   const isValidRecipe = React.useMemo(() => {
-    if (dialogRecipe.name && dialogRecipe.ingredients.every((ingr) => !!ingr))
+    if (
+      dialogRecipe.name &&
+      dialogRecipe.ingredients.every((ingr) => ingr.length > 0)
+    )
       return true;
     return false;
   }, [dialogRecipe.ingredients, dialogRecipe.name]);
