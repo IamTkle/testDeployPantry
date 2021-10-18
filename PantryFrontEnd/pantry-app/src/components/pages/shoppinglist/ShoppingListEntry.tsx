@@ -12,14 +12,14 @@ import {
   makeStyles,
   styled,
   Theme,
-  useTheme,
+  useTheme
 } from "@material-ui/core";
 import {
-  AddShoppingCart,
-  Block,
-  Edit,
-  Favorite,
+  Clear,
+  Done, Favorite,
   FavoriteBorderOutlined,
+  MenuBook,
+  Info,
 } from "@material-ui/icons";
 import React from "react";
 
@@ -72,19 +72,19 @@ const useStyles = makeStyles((theme: Theme) =>
 
     actionButtonGroup: {
       [theme.breakpoints.up("md")]: {
-        width: "60%",
+        width: "30%",
       },
     },
 
-    favoritedButton: {
-      color: "#FF6A85",
+    infoButton: {
+      color: "#69abce",
       "&:hover": {
-        color: "#FF6A85",
+        color: "#69abce",
         opacity: 0.7,
       },
     },
 
-    editButton: {
+    menuButton: {
       backgroundColor: theme.palette.secondary.main,
       "&:hover": {
         backgroundColor: theme.palette.secondary.main,
@@ -118,26 +118,39 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface ShoppingListEntryProps {
+  // recipeID: string;
+  // name: string;
+  // ingredients: string[];
+  // img?: string;
+  // fav: boolean;
   recipeID: string;
   name: string;
-  ingredients: string[];
+  category: string;
+  intake: string;
+  price: number;
   img?: string;
-  fav: boolean;
 }
 
 const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
-  ingredients,
-  name,
+  // ingredients,
+  // name,
+  // recipeID,
+  // img,
+  // fav = false,
   recipeID,
+  name,
+  category,
+  intake,
+  price,
   img,
-  fav = false,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const ingredientsString = getIngredientsString(ingredients);
+  //const ingredientsString = getIngredientsString(ingredients);
 
-  const [isFavorite, setIsFavorite] = React.useState(fav);
+  //const [isFavorite, setIsFavorite] = React.useState(fav);
+  const infoString = category + '\n' + intake;
 
   return (
     <Card elevation={3} classes={{ root: classes.cardContainer }}>
@@ -160,7 +173,7 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                 }}
               >
                 {name}
-                <IconButton
+                {/* <IconButton
                   onClick={() => setIsFavorite((prev) => !prev)}
                   size="small"
                 >
@@ -171,10 +184,14 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                       style={{ color: theme.palette.text.secondary }}
                     />
                   )}
+                </IconButton> */}
+                <IconButton size="small">
+                  <Info className={classes.infoButton} />
                 </IconButton>
               </Container>
             }
-            secondary={<Container>{ingredientsString}</Container>}
+            //secondary={<Container>{ingredientsString}</Container>}
+            secondary={<Container>{infoString}</Container>}
           />
         </Container>
 
@@ -184,14 +201,14 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
           fullWidth
           className={classes.actionButtonGroup}
         >
-          <StyledActionButton className={classes.editButton}>
-            <Edit />
-          </StyledActionButton>
-          <StyledActionButton className={classes.addButton}>
-            <AddShoppingCart />
+          <StyledActionButton className={classes.menuButton}>
+            <MenuBook />
           </StyledActionButton>
           <StyledActionButton className={classes.removeButton}>
-            <Block />
+            <Clear />
+          </StyledActionButton>
+          <StyledActionButton className={classes.addButton}>
+            <Done />
           </StyledActionButton>
         </ButtonGroup>
       </ListItem>
