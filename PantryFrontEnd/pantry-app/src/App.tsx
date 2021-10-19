@@ -1,7 +1,7 @@
 import { CssBaseline, Hidden } from "@material-ui/core";
-import { VariantType, useSnackbar } from "notistack";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import { LocationDescriptor } from "history";
+import { useSnackbar } from "notistack";
 import React from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import NavBar, { navItem, navItems } from "./components/navbar/NavBar";
@@ -19,9 +19,11 @@ const theme = createTheme({
       light: "#BDF2C9",
     },
     secondary: {
-      // main: "#E6AA38",
       light: "#F9DFAF",
-      main: "#efa448",
+      // main: "#efa448",
+      // main: "#e88b65",
+      main: "#f08559",
+      dark: "#e4794c",
     },
     text: {
       primary: "#666666",
@@ -34,6 +36,9 @@ const theme = createTheme({
     },
     info: {
       main: "#a2e9f3",
+    },
+    error: {
+      main: "#d24d43",
     },
   },
   spacing: 8,
@@ -56,7 +61,7 @@ function App() {
   const [navTab, setNavTab] = React.useState(0);
 
   const loggedInState = React.useState(() =>
-    process.env.NODE_ENV !== "production" ? checkLoggedInCookie() : true
+    process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true
   );
 
   const [isLoggedIn, setLoggedIn] = loggedInState;
@@ -79,9 +84,6 @@ function App() {
       });
 
     const strForm = process.env["REACT_APP_PUBLIC_VAPID_KEY"];
-    // const vapidKey = urlBase64ToUint8Array(
-    //   process.env["REACT_APP_PUBLIC_VAPID_KEY"]
-    // );
 
     console.log("current key:", strForm);
 
@@ -104,6 +106,7 @@ function App() {
             subscription = await value.pushManager
               .subscribe(pushSubscriptionOptions)
               .catch((e) => {
+                console.error("caught e");
                 throw e;
               });
           } catch (e) {
@@ -120,8 +123,18 @@ function App() {
               const resp = await fetch(
                 DOMAIN + "/api/DeleteSubcriptions",
                 unsubParams
-              );
-              if (resp.ok) await subscription.unsubscribe();
+              ).catch((e) => {
+                console.error("Subscription deletion error:", e);
+                enqueueSnackbar("Failed to enable push notifications!", {
+                  variant: "error",
+                });
+              });
+
+              if (resp && resp.ok) await subscription.unsubscribe();
+              else
+                enqueueSnackbar("Failed to enable push notifications!", {
+                  variant: "error",
+                });
             }
 
             subscription = await value.pushManager.subscribe(
@@ -145,6 +158,9 @@ function App() {
 
             if (resp.ok) {
               const data = await resp.json();
+              enqueueSnackbar("Notifications successfully enabled!", {
+                variant: "success",
+              });
               console.log(data);
             } else {
               console.error("Subscription unsuccessful:", resp);
@@ -152,7 +168,7 @@ function App() {
           }
         });
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, enqueueSnackbar]);
 
   const renderRoute = React.useCallback(
     (item: navItem) => {
@@ -195,6 +211,7 @@ function App() {
       document.cookie =
         "LoggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;" +
         document.cookie;
+      console.log(document.cookie);
       callbackFn();
       setLoggedIn(false);
     }

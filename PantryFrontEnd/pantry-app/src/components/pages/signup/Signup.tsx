@@ -11,7 +11,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import React, { useState } from "react";
-import { Redirect, Switch, useHistory } from "react-router-dom";
+import { Redirect, Switch } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SignUp = () => {
   const classes = useStyles();
-  const history = useHistory();
+  // const history = useHistory();
 
   const [state, setState] = useState({
     firstName: "",
@@ -61,7 +61,7 @@ const SignUp = () => {
     checkMe: false,
   });
 
-  const [message, setMessage] = React.useState("");
+  // const [message, setMessage] = React.useState("");
 
   const handleLogin = async () => {
     // I've done the sign-up, please do the login now
@@ -83,15 +83,13 @@ const SignUp = () => {
       }
     );
 
-    const data = await response.json();
+    // const data = await response.json();
 
     if (response.ok) {
-      setMessage(data.message);
-      history.goBack();
-    } else {
-      setMessage("Error occured");
+      // history.goBack();
+      setToLogin(true);
     }
-    console.log(data.message);
+    // console.log(data.message);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,13 +113,15 @@ const SignUp = () => {
 
   const [checked, setChecked] = React.useState(true);
 
+  const [toLogin, setToLogin] = React.useState(false);
   //Handling change for the checkbox
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked);
   };
 
   const handleRoute = () => {
-    history.goBack();
+    // history.goBack();
+    setToLogin(true);
   };
 
   return (
@@ -222,6 +222,7 @@ const SignUp = () => {
           </Grid>
         </Grid>
       </form>
+      <Switch>{toLogin && <Redirect to="/login"></Redirect>}</Switch>
     </React.Fragment>
   );
 };
