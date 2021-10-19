@@ -1,9 +1,9 @@
 import { CssBaseline, Hidden } from "@material-ui/core";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
+import { LocationDescriptor } from "history";
 import React from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import NavBar, { navItem, navItems } from "./components/navbar/NavBar";
-import { LocationDescriptor } from "history";
 import { pageToIndex } from "./components/routingTable";
 
 const theme = createTheme({
@@ -56,10 +56,10 @@ function App() {
   const [navTab, setNavTab] = React.useState(() => pageToIndex(location));
 
   const loggedInState = React.useState(() =>
-    process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true
+    process.env.NODE_ENV !== "production" ? checkLoggedInCookie() : true
   );
 
-  const [isLoggedIn] = loggedInState;
+  const [isLoggedIn, setLoggedIn] = loggedInState;
 
   const [navIsOpen, setNavOpen] = React.useState(false);
 
@@ -170,6 +170,30 @@ function App() {
 
   const navPageRoutes = React.useMemo(getNavPageRoutes, [renderRoute]);
 
+  const handleLogout = async (callbackFn: () => void) => {
+    const resp = await fetch(DOMAIN + "/api/Users/Logout", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).catch((e) => console.error(e));
+
+    if (!resp) {
+      callbackFn();
+      return;
+    }
+
+    // success
+    if (resp.ok || resp.status === 401) {
+      document.cookie =
+        "LoggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;" +
+        document.cookie;
+      callbackFn();
+      setLoggedIn(false);
+    }
+  };
+
   return (
     <div className="App">
       <BrowserRouter>
@@ -183,6 +207,7 @@ function App() {
                   drawerVariant="permanent"
                   setNavTab={setNavTab}
                   setNavOpen={setNavOpen}
+                  handleLogout={handleLogout}
                 />
               </Hidden>
               <Hidden mdUp={true}>
@@ -192,6 +217,7 @@ function App() {
                   open={navIsOpen}
                   setNavTab={setNavTab}
                   setNavOpen={setNavOpen}
+                  handleLogout={handleLogout}
                 />
               </Hidden>
             </>

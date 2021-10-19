@@ -1,4 +1,6 @@
 import {
+  Button,
+  CircularProgress,
   List,
   ListItem,
   ListItemIcon,
@@ -8,6 +10,7 @@ import {
   useTheme,
 } from "@material-ui/core";
 import Drawer from "@material-ui/core/Drawer";
+import { ExitToApp } from "@material-ui/icons";
 import AccountIcon from "@material-ui/icons/AccountCircle";
 import InventoryIcon from "@material-ui/icons/AllInbox";
 import QRIcon from "@material-ui/icons/CropFreeOutlined";
@@ -80,6 +83,19 @@ const useStyles = makeStyles((theme: Theme) =>
     icon: {
       color: theme.palette.primary.dark,
     },
+
+    logOutButton: {
+      textAlign: "center",
+      color: theme.palette.secondary.light,
+      marginTop: "auto",
+      fontWeight: 700,
+    },
+
+    logOutButtonRoot: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    },
   })
 );
 
@@ -89,6 +105,7 @@ interface NavbarProps {
   drawerVariant: "permanent" | "persistent" | "temporary" | undefined;
   setNavOpen: React.Dispatch<React.SetStateAction<boolean>>;
   open?: boolean;
+  handleLogout: (callbackFn: () => void) => void;
 }
 
 const NavBar: React.FC<NavbarProps> = ({
@@ -97,9 +114,12 @@ const NavBar: React.FC<NavbarProps> = ({
   drawerVariant,
   setNavOpen,
   open = false,
+  handleLogout,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
+
+  const [isLoggingOut, setLoggingOut] = React.useState(false);
 
   const handleNavClick = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -108,6 +128,11 @@ const NavBar: React.FC<NavbarProps> = ({
     if (i !== undefined) {
       setNavTab(i);
     }
+  };
+
+  const handleLogoutClick = () => {
+    setLoggingOut(true);
+    handleLogout(() => setLoggingOut(false));
   };
 
   return (
@@ -120,29 +145,53 @@ const NavBar: React.FC<NavbarProps> = ({
       onClose={() => setNavOpen(false)}
     >
       <List component="nav">
-        {navItems.map((item) => {
-          return (
-            <Link
-              key={item.link}
-              to={item.link}
-              style={{ textDecoration: "none" }}
-            >
-              <ListItem
-                button
-                selected={currNavTab === pageToIndex(item.link)}
-                onClick={(e) => handleNavClick(e, pageToIndex(item.link))}
-                alignItems="center"
-                classes={{ selected: classes.root }}
-                className={classes.root}
+        {navItems.map((item, i) => {
+          if (
+            navItems.length - 1 !== pageToIndex(item.link) &&
+            navItems.length - 2 !== pageToIndex(item.link)
+          )
+            return (
+              <Link
+                key={item.link}
+                to={item.link}
+                style={{ textDecoration: "none" }}
               >
-                <ListItemIcon style={{ color: theme.palette.primary.light }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.descText} disableTypography />
-              </ListItem>
-            </Link>
-          );
+                <ListItem
+                  button
+                  selected={currNavTab === pageToIndex(item.link)}
+                  onClick={(e) => handleNavClick(e, pageToIndex(item.link))}
+                  alignItems="center"
+                  classes={{ selected: classes.root }}
+                  className={classes.root}
+                >
+                  <ListItemIcon style={{ color: theme.palette.primary.light }}>
+                    {item.icon}
+                  </ListItemIcon>
+                  <ListItemText primary={item.descText} disableTypography />
+                </ListItem>
+              </Link>
+            );
+          return <></>;
         })}
+        <ListItem key={420}>
+          <Button
+            color="secondary"
+            variant="contained"
+            className={classes.logOutButton}
+            classes={{ root: classes.logOutButtonRoot }}
+            onClick={handleLogoutClick}
+            fullWidth
+          >
+            <ListItemIcon>
+              {isLoggingOut ? (
+                <CircularProgress variant="indeterminate" color="primary" />
+              ) : (
+                <ExitToApp style={{ color: theme.palette.secondary.light }} />
+              )}
+            </ListItemIcon>
+            <ListItemText>Logout</ListItemText>
+          </Button>
+        </ListItem>
       </List>
     </Drawer>
   );
@@ -199,7 +248,6 @@ export const navItems: navItem[] = [
     component: Account,
     icon: <AccountIcon />,
   },
-
   {
     descText: "Login",
     link: "/login",

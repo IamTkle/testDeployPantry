@@ -4,7 +4,7 @@ import { createStyles, makeStyles, useTheme } from "@material-ui/styles";
 import React from "react";
 import SwipeableViews from "react-swipeable-views";
 import PantryAppBar from "../../PantryAppBar";
-import { Recipe } from "../shoppinglist/mockEntries";
+import { Recipe } from "../recipe/mockEntries";
 import {
   browseRecipes as importedBR,
   likedRecipes as importedLR,
