@@ -6,7 +6,7 @@ import { Add, DeleteSweep, DoneAll, PlaylistAdd } from "@material-ui/icons";
 import React from "react";
 import SwipeableViews from "react-swipeable-views";
 import PantryAppBar from "../../PantryAppBar";
-import { browseRecipes, listInfo } from "./mockEntries";
+import { listInfo } from "./mockEntries";
 import ShoppingListTab from "./ShoppingListTab";
 
 interface RecipeProps {

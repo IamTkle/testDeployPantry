@@ -205,22 +205,13 @@
 //   ).getObj(),
 // ];
 
-
-export type Recipe = {
-  rid: string;
-  name: string;
-  ingredients: string[];
-  availIngredients: string[];
-  img: string;
-  fav: boolean;
-};
-
 export type List = {
   rid: string;
   name: string;
   category: string;
   intake: string;
   price: number;
+  quantity: number;
   img: string;
 };
 
@@ -231,6 +222,7 @@ export const listInfo: List[] = [
     category: "Meat",
     intake: "500g",
     price: 12.50,
+    quantity: 2,
     img: "https://spoonacular.com/recipeImages/73420-312x231.jpg",
   },
   {
@@ -239,6 +231,7 @@ export const listInfo: List[] = [
     category: "Dairy",
     intake: "10g",
     price: 5.00,
+    quantity: 1,
     img: "https://webknox.com/recipeImages/1515523-556x370.jpg",
   },
   {
@@ -247,29 +240,8 @@ export const listInfo: List[] = [
     category: "Meat",
     intake: "1Kg",
     price: 20,
+    quantity: 3,
     img: "https://webknox.com/recipeImages/1506697-556x370.jpg",
   },
   
-];
-
-export const browseRecipes: Recipe[] = [
-  {
-    rid: "123457P",
-    name: "wappy spagettee",
-    ingredients: ["Breat", "meed", "beeph", "shugir", "bols", "potatos"],
-    availIngredients: ["Breat", "meed", "beeph", "shugir", "bols"],
-    fav: false,
-    img: "https://spoonacular.com/recipeImages/73420-312x231.jpg",
-  },
-];
-
-export const likedRecipes: Recipe[] = [
-  {
-    rid: "123457P",
-    name: "wappy spagettee",
-    ingredients: ["Breat", "meed", "beeph", "shugir", "bols", "potatos"],
-    availIngredients: ["Breat", "meed", "beeph", "shugir", "bols"],
-    fav: true,
-    img: "https://spoonacular.com/recipeImages/73420-312x231.jpg",
-  },
 ];

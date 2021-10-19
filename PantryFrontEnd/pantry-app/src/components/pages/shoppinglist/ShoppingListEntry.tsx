@@ -12,16 +12,15 @@ import {
   makeStyles,
   styled,
   Theme,
-  useTheme
+  useTheme,
+  Box,
 } from "@material-ui/core";
 import {
   Clear,
-  Done, Favorite,
-  FavoriteBorderOutlined,
-  MenuBook,
-  Info,
+  Done, Info, MenuBook
 } from "@material-ui/icons";
 import React from "react";
+import { createEmitAndSemanticDiagnosticsBuilderProgram } from "typescript";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
 
@@ -128,29 +127,26 @@ interface ShoppingListEntryProps {
   category: string;
   intake: string;
   price: number;
+  quantity: number;
   img?: string;
 }
 
 const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
-  // ingredients,
-  // name,
-  // recipeID,
-  // img,
-  // fav = false,
   recipeID,
   name,
   category,
   intake,
   price,
+  quantity,
   img,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
-
-  //const ingredientsString = getIngredientsString(ingredients);
-
-  //const [isFavorite, setIsFavorite] = React.useState(fav);
+  
+  const itemQuantity = "x" + quantity
   const infoString = category + '\n' + intake;
+  const itemPrice = "$" + price;
+  const totalPrice = "$" + quantity * price
 
   return (
     <Card elevation={3} classes={{ root: classes.cardContainer }}>
@@ -173,25 +169,44 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                 }}
               >
                 {name}
-                {/* <IconButton
-                  onClick={() => setIsFavorite((prev) => !prev)}
-                  size="small"
-                >
-                  {isFavorite ? (
-                    <Favorite className={classes.favoritedButton} />
-                  ) : (
-                    <FavoriteBorderOutlined
-                      style={{ color: theme.palette.text.secondary }}
-                    />
-                  )}
-                </IconButton> */}
+        
                 <IconButton size="small">
                   <Info className={classes.infoButton} />
                 </IconButton>
               </Container>
             }
-            //secondary={<Container>{ingredientsString}</Container>}
             secondary={<Container>{infoString}</Container>}
+          />
+
+          <ListItemText 
+            primary={
+              <Container 
+              style={{
+                  color: 'grey',
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+               }}>
+                  
+                  {/* <div style={{ width: '100%'}}> */}
+                    <Box
+                    sx={{
+                      fontSize: "20px",
+                      display: 'flex',
+                      justifyContent: 'center',
+                      p: 1,
+                      m: 1,
+                      bgcolor: 'background.paper',
+                      width: '100%'
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'row', p: 1, flexGrow: 1}}>{itemPrice}</Box>
+                    <Box sx={{ p: 1, flexGrow: 1}}>{itemQuantity}</Box>
+                    <Box sx={{ p: 1, flexGrow: 1}}>{totalPrice}</Box>
+                  </Box>
+                {/* </div> */}
+              </Container>
+            }
           />
         </Container>
 
@@ -214,30 +229,6 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
       </ListItem>
     </Card>
   );
-};
-
-const getIngredientsString = (ingredients: string[]) => {
-  var igstr = "";
-
-  var itersCount = 5;
-
-  var plusOthers = true;
-
-  if (ingredients.length <= 5) {
-    itersCount = ingredients.length;
-    plusOthers = false;
-  }
-
-  for (let i = 0; i < itersCount; i++) {
-    igstr += ingredients[i];
-    if (i + 1 < itersCount) igstr += ", ";
-  }
-
-  if (plusOthers) {
-    igstr += `+ ${ingredients.length - 5} more`;
-  }
-
-  return igstr;
 };
 
 export default ShoppingListEntry;

@@ -1,6 +1,6 @@
 import { Container } from "@material-ui/core";
 import React from "react";
-import { Recipe, List } from "./mockEntries";
+import { List } from "./mockEntries";
 import ShoppingListEntry from "./ShoppingListEntry";
 
 interface ShoppingListTabProps {
@@ -35,6 +35,7 @@ const ShoppingListTab: React.FC<ShoppingListTabProps> = ({
                 category={r.category}
                 intake={r.intake}
                 price={r.price}
+                quantity={r.quantity}
                 img={r.img}
               ></ShoppingListEntry>
             );
