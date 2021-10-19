@@ -78,7 +78,7 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
   };
 
   return (
-    <ListItem>
+    <ListItem disableGutters>
       <ListItemText
         primary={
           <TextField

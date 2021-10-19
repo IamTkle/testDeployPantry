@@ -139,7 +139,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
           handleSave={handleSave}
         />
       )}
-      <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
+      <Container disableGutters style={{ paddingBottom: 16, maxWidth: "none" }}>
         <SwipeableViews
           index={activeTab}
           onChangeIndex={(index) => setActiveTab(index)}

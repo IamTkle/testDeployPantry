@@ -2,7 +2,6 @@ import { CssBaseline, Hidden } from "@material-ui/core";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import React from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
-import "./App.css";
 import NavBar, { navItem, navItems } from "./components/navbar/NavBar";
 import { LocationDescriptor } from "history";
 import { pageToIndex } from "./components/routingTable";
@@ -10,8 +9,10 @@ import { pageToIndex } from "./components/routingTable";
 const theme = createTheme({
   palette: {
     primary: {
-      dark: "#31C15B",
-      main: "#52D378",
+      // dark: "#31C15B",
+      dark: "#2aa64e",
+      // main: "#52D378",
+      main: "#2eb455",
       // dark: "#52D378",
       // main: "#31C15B",
       light: "#BDF2C9",
