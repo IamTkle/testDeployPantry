@@ -6,10 +6,10 @@ import { Add, DeleteSweep, DoneAll, PlaylistAdd } from "@material-ui/icons";
 import React from "react";
 import SwipeableViews from "react-swipeable-views";
 import PantryAppBar from "../../PantryAppBar";
-import { listInfo } from "./mockEntries";
+import { listInfo as importedList, ShoppingList as SL } from "./mockEntries";
 import ShoppingListTab from "./ShoppingListTab";
 
-interface RecipeProps {
+interface ShoppingListProps {
   setNavOpen: () => void;
 }
 
@@ -94,7 +94,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const ShoppingList: React.FC<RecipeProps> = ({ setNavOpen }) => {
+const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
@@ -102,7 +102,10 @@ const ShoppingList: React.FC<RecipeProps> = ({ setNavOpen }) => {
 
   const handleSortTypeChosen = (sortType: number, desc: boolean) => {};
 
+  const [listInfo, setListInfo] = React.useState(importedList);
   const [activeTab, setActiveTab] = React.useState(0);
+  const [activeTabTwo, setActiveTabTwo] = React.useState(0);
+
   const [chipData, setChipData] = React.useState<chipData[]>([
 
   ]);
@@ -111,10 +114,27 @@ const ShoppingList: React.FC<RecipeProps> = ({ setNavOpen }) => {
     console.info('You clicked the Chip.');
   };
 
-  const handleChipClick = () => {
+  const handleClearAll = () => {
+    if( window.confirm("Are you sure you want to clear the list?")){
 
-  }
+    }
+  };
 
+  const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
+    setActiveTabTwo(newTab);
+  };
+  
+  const handleRemove = (shoppingList: SL) => {
+    setListInfo((shoppingLists) =>
+      shoppingLists.filter((cur) => cur.name !== shoppingList.name)
+      );
+    };
+
+    const handleAdd = (shoppingList: SL) => {
+    setListInfo((shoppingLists) =>
+      shoppingLists.filter((cur) => cur.name !== shoppingList.name)
+      );
+    };
 
   return (
     <div className={classes.pageContainer}>
@@ -192,9 +212,10 @@ const ShoppingList: React.FC<RecipeProps> = ({ setNavOpen }) => {
           <ShoppingListTab
             activeTab={activeTab}
             index={0}
-            //propEntries={browseRecipes}
             propEntries={listInfo}
             key={0}
+            handleAdd={handleAdd}
+            handleRemove={handleRemove}
           />
         </SwipeableViews>
         
@@ -209,7 +230,7 @@ const ShoppingList: React.FC<RecipeProps> = ({ setNavOpen }) => {
       </Fab>
       
       <Fab size="large" classes={{ root: classes.fab3 }} >
-        <DoneAll />
+        <DoneAll onClick={handleClearAll}/>
       </Fab>
 
       <Fab size="large" classes={{ root: classes.fab4 }} >

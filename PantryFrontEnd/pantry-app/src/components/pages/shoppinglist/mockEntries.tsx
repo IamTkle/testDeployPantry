@@ -205,7 +205,7 @@
 //   ).getObj(),
 // ];
 
-export type List = {
+export type ShoppingList = {
   rid: string;
   name: string;
   category: string;
@@ -215,7 +215,7 @@ export type List = {
   img: string;
 };
 
-export const listInfo: List[] = [
+export const listInfo: ShoppingList[] = [
   {
     rid: "123456Q",
     name: "Ground beef",

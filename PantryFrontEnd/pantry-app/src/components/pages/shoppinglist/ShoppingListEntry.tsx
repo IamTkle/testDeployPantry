@@ -21,10 +21,9 @@ import {
 } from "@material-ui/icons";
 import React from "react";
 import { createEmitAndSemanticDiagnosticsBuilderProgram } from "typescript";
+import { ShoppingList } from "./mockEntries";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
-
-// }))
 
 const StyledActionButton = styled(Button)(({ theme }) => ({
   width: "100%",
@@ -113,40 +112,70 @@ const useStyles = makeStyles((theme: Theme) =>
         borderRadius: 0,
       },
     },
+
+    collapseRoot: {
+      backgroundColor: theme.palette.primary.light,
+      paddingTop: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+    },
+
+    collapseRootHidden: {
+      paddingTop: 0,
+      paddingBottom: 0,
+    },
+
   })
 );
 
 interface ShoppingListEntryProps {
   // recipeID: string;
   // name: string;
-  // ingredients: string[];
+  // category: string;
+  // intake: string;
+  // price: number;
+  // quantity: number;
   // img?: string;
-  // fav: boolean;
-  recipeID: string;
-  name: string;
-  category: string;
-  intake: string;
-  price: number;
-  quantity: number;
-  img?: string;
+  shoppingList: ShoppingList;
+  handleRemove: (shoppingList: ShoppingList) => void;
+  handleAdd: (shoppingList: ShoppingList) => void;
+  i: number;
 }
 
 const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
-  recipeID,
-  name,
-  category,
-  intake,
-  price,
-  quantity,
-  img,
+  // recipeID,
+  // name,
+  // category,
+  // intake,
+  // price,
+  // quantity,
+  // img,
+  shoppingList,
+  handleRemove,
+  handleAdd,
+  i,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
   
-  const itemQuantity = "x" + quantity
-  const infoString = category + '\n' + intake;
-  const itemPrice = "$" + price;
-  const totalPrice = "$" + quantity * price
+  const [isOpen, setOpen] = React.useState(false);
+
+  const itemQuantity = "x" + shoppingList.quantity
+  const infoString = shoppingList.category + '\n' + shoppingList.intake;
+  const itemPrice = "$" + shoppingList.price;
+  const totalPrice = "$" + shoppingList.quantity * shoppingList.price
+  
+  const handleItemDone = () => {
+    handleAdd(shoppingList);
+  }
+
+  const handleItemDelete = () => {
+    handleRemove(shoppingList);
+  }
+
+  const handleItemMenu = () => {
+    console.log('Menu button clicked')
+  }
+
 
   return (
     <Card elevation={3} classes={{ root: classes.cardContainer }}>
@@ -155,7 +184,7 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
           <ListItemAvatar>
             <Avatar
               variant="rounded"
-              src={img}
+              src={shoppingList.img}
               classes={{ root: classes.entryAvatar }}
             />
           </ListItemAvatar>
@@ -168,7 +197,7 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                   justifyContent: "flex-start",
                 }}
               >
-                {name}
+                {shoppingList.name}
         
                 <IconButton size="small">
                   <Info className={classes.infoButton} />
@@ -217,13 +246,13 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
           className={classes.actionButtonGroup}
         >
           <StyledActionButton className={classes.menuButton}>
-            <MenuBook />
+            <MenuBook onClick={handleItemMenu} />
           </StyledActionButton>
           <StyledActionButton className={classes.removeButton}>
-            <Clear />
+            <Clear onClick={handleItemDelete} />
           </StyledActionButton>
           <StyledActionButton className={classes.addButton}>
-            <Done />
+            <Done onClick={handleItemDone}/>
           </StyledActionButton>
         </ButtonGroup>
       </ListItem>
