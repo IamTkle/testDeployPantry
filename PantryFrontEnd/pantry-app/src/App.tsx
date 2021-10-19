@@ -52,8 +52,7 @@ export type MyLocationDesc = LocationDescriptor<any> & SetLoggedIn;
 const checkLoggedInCookie = () => document.cookie.includes("LoggedIn");
 
 function App() {
-  const location = window.location.pathname;
-  const [navTab, setNavTab] = React.useState(() => pageToIndex(location));
+  const [navTab, setNavTab] = React.useState(0);
 
   const loggedInState = React.useState(() =>
     process.env.NODE_ENV !== "production" ? checkLoggedInCookie() : true
@@ -226,7 +225,7 @@ function App() {
           <Switch>
             {isLoggedIn ? (
               <>
-                <Redirect exact from="/" to="/inventory" />
+                {/* <Redirect exact from="/" to="/inventory" /> */}
                 <Redirect exact from="/login" to="/inventory" />
               </>
             ) : (

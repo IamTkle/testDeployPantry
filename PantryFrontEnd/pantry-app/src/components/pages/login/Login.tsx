@@ -3,15 +3,20 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   FormControlLabel,
   Grid,
   Link,
   Paper,
+  Snackbar,
+  SnackbarCloseReason,
   TextField,
   Typography,
+  useTheme,
 } from "@material-ui/core";
 import React from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useLocation, Switch } from "react-router-dom";
+import { Redirect } from "react-router";
 import { DOMAIN, MyLocationDesc } from "../../../App";
 
 interface loginProps {
@@ -31,19 +36,45 @@ const Login: React.FC<loginProps> = ({ message }) => {
     margin: "20px auto",
   };
 
-  const history = useHistory();
+  const theme = useTheme();
+
+  // const history = useHistory();
   const location = useLocation() as MyLocationDesc;
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
+  const [isLoggingIn, setIsLoggingIn] = React.useState(false);
+
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+
+  const [snackbarMessage, setSnackbarMessage] = React.useState("");
+
+  const [toSignUp, setToSignUp] = React.useState(false);
+
   const handleRoute = () => {
-    history.push("/signup");
+    // history.push("/signup");
+    setToSignUp(true);
+  };
+
+  const openSnackbar = (message: string) => {
+    setSnackbarMessage(message);
+    setSnackbarOpen(true);
+  };
+
+  const handleSnackbarClose = (
+    event: React.SyntheticEvent<any, Event>,
+    reason: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") return;
+
+    setSnackbarOpen(false);
   };
 
   const handleLogin = async (e: React.FormEvent<HTMLButtonElement>) => {
     if (!email || !password) return;
 
+    setIsLoggingIn(true);
     const loginParams: RequestInit = {
       method: "POST",
       credentials: "include",
@@ -53,7 +84,15 @@ const Login: React.FC<loginProps> = ({ message }) => {
       body: JSON.stringify({ email: email, password: password }),
     };
 
-    const resp = await fetch(DOMAIN + "/api/Users/Login", loginParams);
+    const resp = await fetch(DOMAIN + "/api/Users/Login", loginParams).catch(
+      (e) => console.error(e)
+    );
+
+    if (!resp) {
+      setIsLoggingIn(false);
+      openSnackbar("Could not log in");
+      return;
+    }
 
     console.log(resp);
     if (resp.ok || resp.status === 401) {
@@ -65,7 +104,11 @@ const Login: React.FC<loginProps> = ({ message }) => {
         const setLoggedIn = location.setLoggedIn;
         setLoggedIn(true);
       }
-    } else console.error(resp);
+    } else {
+      console.error(resp);
+      openSnackbar("Could not log in");
+    }
+    setIsLoggingIn(false);
   };
 
   const handleChange = (
@@ -87,6 +130,22 @@ const Login: React.FC<loginProps> = ({ message }) => {
     <Grid>
       <Paper elevation={30} variant="outlined" style={paperStyle}>
         {/* {message && <Snackbar open={true} autoHideDuration={6000} color="primary"><>message</></Snackbar> } */}
+        <Snackbar
+          open={snackbarOpen}
+          autoHideDuration={2500}
+          onClose={handleSnackbarClose}
+        >
+          <div
+            style={{
+              backgroundColor: theme.palette.error.main,
+              color: theme.palette.background.default,
+              padding: theme.spacing(4),
+              borderRadius: theme.spacing(4),
+            }}
+          >
+            {snackbarMessage}
+          </div>
+        </Snackbar>
         <Grid>
           <Avatar alt="Remy Sharp" src="/static/images/avatars/unnamed.png" />
           <h2> Login </h2>
@@ -127,8 +186,11 @@ const Login: React.FC<loginProps> = ({ message }) => {
           variant="contained"
           onClick={handleLogin}
         >
-          {" "}
-          Login{" "}
+          {isLoggingIn ? (
+            <CircularProgress color="secondary" variant="indeterminate" />
+          ) : (
+            "Login"
+          )}
         </Button>
         <Typography>
           {" "}
@@ -142,6 +204,11 @@ const Login: React.FC<loginProps> = ({ message }) => {
             Sign Up
           </Link>
         </Typography>
+        {toSignUp && (
+          <Switch>
+            <Redirect to="/signup" />
+          </Switch>
+        )}
       </Paper>
     </Grid>
   );
