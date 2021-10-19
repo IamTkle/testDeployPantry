@@ -15,8 +15,8 @@ import {
   useTheme,
 } from "@material-ui/core";
 import React from "react";
+import { Redirect, Switch } from "react-router";
 import { useLocation } from "react-router-dom";
-import { Redirect, Route, Switch, useHistory } from "react-router";
 import { DOMAIN, MyLocationDesc } from "../../../App";
 import SignUp from "../signup/Signup";
 
@@ -39,7 +39,7 @@ const Login: React.FC<loginProps> = ({ message }) => {
 
   const theme = useTheme();
 
-  const history = useHistory();
+  // const history = useHistory();
   const location = useLocation() as MyLocationDesc;
 
   const [email, setEmail] = React.useState("");

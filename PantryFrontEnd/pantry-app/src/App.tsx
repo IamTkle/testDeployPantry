@@ -37,6 +37,9 @@ const theme = createTheme({
     info: {
       main: "#a2e9f3",
     },
+    error: {
+      main: "#d24d43",
+    },
   },
   spacing: 8,
   typography: {

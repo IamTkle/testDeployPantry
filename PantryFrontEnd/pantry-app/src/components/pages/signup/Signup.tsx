@@ -11,7 +11,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import React, { useState } from "react";
-import { Redirect, Switch, useHistory } from "react-router-dom";
+import { Redirect, Switch } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SignUp = () => {
   const classes = useStyles();
-  const history = useHistory();
+  // const history = useHistory();
 
   const [state, setState] = useState({
     firstName: "",
