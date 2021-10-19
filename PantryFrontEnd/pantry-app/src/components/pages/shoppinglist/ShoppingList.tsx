@@ -160,7 +160,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           label="All"
           clickable
           color="primary"
-          onClick={handleClick}
+          onChange={() => handleTabChange}
           />
 
           <Chip
@@ -168,7 +168,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           label="Meat"
           clickable
           color="primary"
-          onClick={handleClick}
+          onChange={() => handleTabChange}
           />
 
           <Chip
@@ -176,7 +176,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           label="Vegetables"
           clickable
           color="primary"
-          onClick={handleClick}
+          onChange={() => handleTabChange}
           />
 
           <Chip
@@ -184,7 +184,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           label="Bakery"
           clickable
           color="primary"
-          onClick={handleClick}
+          onChange={() => handleTabChange}
           />
 
           <Chip
@@ -192,7 +192,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           label="Dairy"
           clickable
           color="primary"
-          onClick={handleClick}
+          onChange={() => handleTabChange}
           />
 
           <Chip
@@ -200,7 +200,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           label="Misc"
           clickable
           color="primary"
-          onClick={handleClick}
+          onChange={() => handleTabChange}
           />
       </Box>
 
