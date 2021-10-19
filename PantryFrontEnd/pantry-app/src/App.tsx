@@ -1,4 +1,5 @@
 import { CssBaseline, Hidden } from "@material-ui/core";
+import { VariantType, useSnackbar } from "notistack";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import { LocationDescriptor } from "history";
 import React from "react";
@@ -66,10 +67,16 @@ function App() {
     setNavOpen((prev) => !prev);
   }, []);
 
+  const { enqueueSnackbar } = useSnackbar();
+
   React.useEffect(() => {
-    Notification.requestPermission((status) => {
-      console.log("Permission", status);
-    });
+    if (Notification.permission !== "granted")
+      Notification.requestPermission((status) => {
+        console.log("Permission", status);
+        enqueueSnackbar("Notifications permissions are needed!", {
+          variant: "info",
+        });
+      });
 
     const strForm = process.env["REACT_APP_PUBLIC_VAPID_KEY"];
     // const vapidKey = urlBase64ToUint8Array(

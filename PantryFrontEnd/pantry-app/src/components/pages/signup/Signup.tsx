@@ -61,8 +61,6 @@ const SignUp = () => {
     checkMe: false,
   });
 
-  const [toLogin, setToLogin] = React.useState(false);
-
   const [message, setMessage] = React.useState("");
 
   const handleLogin = async () => {
@@ -89,11 +87,11 @@ const SignUp = () => {
 
     if (response.ok) {
       setMessage(data.message);
+      history.goBack();
     } else {
       setMessage("Error occured");
     }
     console.log(data.message);
-    setToLogin(true);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,7 +121,7 @@ const SignUp = () => {
   };
 
   const handleRoute = () => {
-    setToLogin(true);
+    history.goBack();
   };
 
   return (
@@ -224,12 +222,6 @@ const SignUp = () => {
           </Grid>
         </Grid>
       </form>
-
-      {toLogin && (
-        <Switch>
-          <Redirect to="/login" />
-        </Switch>
-      )}
     </React.Fragment>
   );
 };
