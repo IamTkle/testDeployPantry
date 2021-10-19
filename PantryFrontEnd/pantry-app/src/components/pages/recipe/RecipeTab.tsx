@@ -38,11 +38,6 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
               <RecipeEntry
                 key={getKey(r.name)}
                 i={i}
-                // ingredients={r.ingredients}
-                // name={r.name}
-                // recipeID={r.rid}
-                // img={r.img}
-                // fav={r.fav}
                 recipe={r}
                 handleOpenEdit={handleOpenEdit}
                 handleRemove={handleRemove}
