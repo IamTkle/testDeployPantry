@@ -1,5 +1,6 @@
 import {
   AppBar,
+  CircularProgress,
   createStyles,
   IconButton,
   makeStyles,
@@ -9,7 +10,8 @@ import {
 } from "@material-ui/core";
 import { ArrowBackIos } from "@material-ui/icons";
 import QRCode from "qrcode.react";
-import React from "react";
+import React, { useEffect } from "react";
+import { DOMAIN } from "../../../App";
 
 interface QRProps {
   setNavOpen: () => void;
@@ -55,19 +57,31 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const fetchAccountID: () => string = () => {
-  // const resp = fetch("")
-
-  return "cum69cum69cum69cum69cum69cum69";
-};
-
 const QR: React.FC<QRProps> = ({ setNavOpen }) => {
   React.useEffect(() => setNavOpen(), [setNavOpen]);
 
-  const [accountID] = React.useState(() => fetchAccountID());
+  const [accountID, setAccountID] = React.useState("");
 
   const theme = useTheme();
   const classes = useStyles(theme);
+
+  useEffect(() => {
+    fetch(DOMAIN + "/api/GetUser", {
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((resp) => {
+        console.log(resp);
+        return resp.json();
+      })
+      .then((data) => {
+        setAccountID(data.userID);
+        console.log(data);
+      })
+      .catch((e) => console.error(e));
+  }, []);
 
   return (
     <>
@@ -78,17 +92,25 @@ const QR: React.FC<QRProps> = ({ setNavOpen }) => {
           </IconButton>
         </Toolbar>
       </AppBar>
-      {/* <Hidden mdUp>
-        <Toolbar />
-      </Hidden> */}
+
       <div className={classes.qrContainer}>
-        <QRCode
-          includeMargin
-          value={accountID}
-          className={classes.qrCode}
-          level="H"
-          size={theme.spacing(40)}
-        />
+        {accountID && (
+          <QRCode
+            includeMargin
+            value={accountID}
+            className={classes.qrCode}
+            level="H"
+            size={theme.spacing(40)}
+          />
+        )}
+        {!accountID && (
+          <CircularProgress
+            variant="indeterminate"
+            size={theme.spacing(30)}
+            className={classes.qrCode}
+            style={{ border: "none" }}
+          />
+        )}
       </div>
     </>
   );
