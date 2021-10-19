@@ -1,4 +1,5 @@
 import { CssBaseline, Hidden } from "@material-ui/core";
+import { VariantType, useSnackbar } from "notistack";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import { LocationDescriptor } from "history";
 import React from "react";
@@ -52,8 +53,7 @@ export type MyLocationDesc = LocationDescriptor<any> & SetLoggedIn;
 const checkLoggedInCookie = () => document.cookie.includes("LoggedIn");
 
 function App() {
-  const location = window.location.pathname;
-  const [navTab, setNavTab] = React.useState(() => pageToIndex(location));
+  const [navTab, setNavTab] = React.useState(0);
 
   const loggedInState = React.useState(() =>
     process.env.NODE_ENV !== "production" ? checkLoggedInCookie() : true
@@ -67,10 +67,16 @@ function App() {
     setNavOpen((prev) => !prev);
   }, []);
 
+  const { enqueueSnackbar } = useSnackbar();
+
   React.useEffect(() => {
-    Notification.requestPermission((status) => {
-      console.log("Permission", status);
-    });
+    if (Notification.permission !== "granted")
+      Notification.requestPermission((status) => {
+        console.log("Permission", status);
+        enqueueSnackbar("Notifications permissions are needed!", {
+          variant: "info",
+        });
+      });
 
     const strForm = process.env["REACT_APP_PUBLIC_VAPID_KEY"];
     // const vapidKey = urlBase64ToUint8Array(
@@ -226,7 +232,7 @@ function App() {
           <Switch>
             {isLoggedIn ? (
               <>
-                <Redirect exact from="/" to="/inventory" />
+                {/* <Redirect exact from="/" to="/inventory" /> */}
                 <Redirect exact from="/login" to="/inventory" />
               </>
             ) : (

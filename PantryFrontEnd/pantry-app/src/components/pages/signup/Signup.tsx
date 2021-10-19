@@ -11,8 +11,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Typography from "@material-ui/core/Typography";
 import React, { useState } from "react";
-import { Route, Switch, useHistory } from "react-router-dom";
-import Login from "../login/Login";
+import { Redirect, Switch, useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -88,11 +87,11 @@ const SignUp = () => {
 
     if (response.ok) {
       setMessage(data.message);
+      history.goBack();
     } else {
       setMessage("Error occured");
     }
     console.log(data.message);
-    history.push("/login");
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,7 +121,7 @@ const SignUp = () => {
   };
 
   const handleRoute = () => {
-    history.push("/login");
+    history.goBack();
   };
 
   return (
@@ -223,10 +222,6 @@ const SignUp = () => {
           </Grid>
         </Grid>
       </form>
-
-      <Switch>
-        <Route path="/login" component={() => <Login message={message} />} />{" "}
-      </Switch>
     </React.Fragment>
   );
 };
