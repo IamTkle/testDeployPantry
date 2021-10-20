@@ -15,9 +15,10 @@ import {
   useTheme,
 } from "@material-ui/core";
 import React from "react";
-import { useLocation, Switch } from "react-router-dom";
-import { Redirect } from "react-router";
+import { Redirect, Switch } from "react-router";
+import { useLocation } from "react-router-dom";
 import { DOMAIN, MyLocationDesc } from "../../../App";
+import SignUp from "../signup/Signup";
 
 interface loginProps {
   message?: string;
@@ -55,6 +56,13 @@ const Login: React.FC<loginProps> = ({ message }) => {
   const handleRoute = () => {
     // history.push("/signup");
     setToSignUp(true);
+    // setToSignUp(false);
+    // history.listen((location, action) => {
+    //   if (action === "POP") {
+    //     setToSignUp(false);
+    //     // console.log("hi");
+    //   }
+    // });
   };
 
   const openSnackbar = (message: string) => {
@@ -100,9 +108,11 @@ const Login: React.FC<loginProps> = ({ message }) => {
         document.cookie = "LoggedIn=True; path=/;" + document.cookie;
 
       console.log(document.cookie);
-      if (location) {
+      if (location && location.setLoggedIn) {
         const setLoggedIn = location.setLoggedIn;
         setLoggedIn(true);
+      } else {
+        document.location.reload();
       }
     } else {
       console.error(resp);
@@ -204,11 +214,13 @@ const Login: React.FC<loginProps> = ({ message }) => {
             Sign Up
           </Link>
         </Typography>
-        {toSignUp && (
-          <Switch>
-            <Redirect to="/signup" />
-          </Switch>
-        )}
+        <Switch>
+          {toSignUp && (
+            <Redirect to="/signup">
+              <SignUp />
+            </Redirect>
+          )}
+        </Switch>
       </Paper>
     </Grid>
   );
