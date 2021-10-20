@@ -184,7 +184,10 @@ const NavBar: React.FC<NavbarProps> = ({
           >
             <ListItemIcon>
               {isLoggingOut ? (
-                <CircularProgress variant="indeterminate" color="primary" />
+                <CircularProgress
+                  variant="indeterminate"
+                  style={{ color: theme.palette.secondary.light }}
+                />
               ) : (
                 <ExitToApp style={{ color: theme.palette.secondary.light }} />
               )}

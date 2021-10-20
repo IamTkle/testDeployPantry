@@ -130,7 +130,7 @@ const useStyles = makeStyles((theme: Theme) =>
 interface ShoppingListEntryProps {
   // recipeID: string;
   // name: string;
-  // category: string;
+  category: string;
   // intake: string;
   // price: number;
   // quantity: number;
@@ -144,7 +144,7 @@ interface ShoppingListEntryProps {
 const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
   // recipeID,
   // name,
-  // category,
+  category,
   // intake,
   // price,
   // quantity,
@@ -156,8 +156,6 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
-  
-  const [isOpen, setOpen] = React.useState(false);
 
   const itemQuantity = "x" + shoppingList.quantity
   const infoString = shoppingList.category + '\n' + shoppingList.intake;

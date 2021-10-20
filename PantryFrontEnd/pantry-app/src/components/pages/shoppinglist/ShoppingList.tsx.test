@@ -1,6 +1,6 @@
 import {
   Box, Chip, Container, createStyles, Fab, makeStyles, Theme,
-  Toolbar, useTheme, Tabs, Tab, Divider
+  Toolbar, useTheme, Tabs, Tab
 } from "@material-ui/core";
 import { Add, DeleteSweep, DoneAll, PlaylistAdd,  } from "@material-ui/icons";
 import InfoIcon from "@material-ui/icons/Info";
@@ -14,6 +14,10 @@ interface ShoppingListProps {
   setNavOpen: () => void;
 }
 
+interface chipData {
+  key: number;
+  label: string
+}
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     pageContainer: {
@@ -102,6 +106,10 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   const [activeTab, setActiveTab] = React.useState(0);
   const [activeTabTwo, setActiveTabTwo] = React.useState(0);
 
+  // const [chipData, setChipData] = React.useState<chipData[]>([
+
+  // ]);
+
   const handleClick = () => {
     console.info('You clicked the Chip.');
   };
@@ -113,7 +121,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   };
 
   const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
-    setActiveTab(newTab);
+    setActiveTabTwo(newTab);
   };
   
   const handleRemove = (shoppingList: SL) => {
@@ -162,12 +170,15 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     return tabCategories.map((tab, i) => {
       return (
         <Chip
+          // wrapped
+          // key={tab}
           size="medium"
           clickable
           label={tab}
           onChange={() => handleTabChange}
           variant="outlined"
           color="primary"
+          // value={i + 1}
         />
       );
     });
@@ -186,7 +197,74 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
       />
       <Toolbar />
 
-      <Container disableGutters style={{ maxWidth: "none"  }}>
+      {/* <Box 
+      sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          p: 1,
+          m: 1,
+      }}>
+
+          <Chip
+          size="medium"
+          label="All"
+          clickable
+          color="primary"
+          onChange={() => handleTabChange}
+          />
+
+          <Chip
+          size="medium"
+          label="Meat"
+          clickable
+          color="primary"
+          onChange={() => handleTabChange}
+          />
+
+          <Chip
+          size="medium"
+          label="Vegetables"
+          clickable
+          color="primary"
+          onChange={() => handleTabChange}
+          />
+
+          <Chip
+          size="medium"
+          label="Bakery"
+          clickable
+          color="primary"
+          onChange={() => handleTabChange}
+          />
+
+          <Chip
+          size="medium"
+          label="Dairy"
+          clickable
+          color="primary"
+          onChange={() => handleTabChange}
+          />
+
+          <Chip
+          size="medium"
+          label="Misc"
+          clickable
+          color="primary"
+          onChange={() => handleTabChange}
+          />
+      </Box> */}
+
+      <Container disableGutters style={{ maxWidth: "none" }}>
+        {/* <Chip
+          variant="outlined"
+          size="medium"
+          label="All"
+          clickable
+          color="primary"
+          onChange={() => handleTabChange}
+        >
+        {tabs}
+        </Chip> */}
         <Tabs
           value={activeTab}
           variant="scrollable"
@@ -194,7 +272,6 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           onChange={handleTabChange}
           classes={{ root: classes.tabBar }}
         >
-          
           <Chip
           variant="outlined"
           size="medium"
@@ -204,6 +281,14 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           onChange={() => handleTabChange}
           />
           {tabs}
+          {/* <Tab wrapped label={"All"} value={0} icon={<InfoIcon />} />
+          {tabs}
+          <Tab
+            wrapped
+            label={"Search"}
+            value={tabCategories.length + 1}
+            icon={<InfoIcon />}
+          /> */}
         </Tabs>
       </Container>
 
@@ -221,6 +306,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
             handleRemove={handleRemove}
           />
         </SwipeableViews>
+        
       </Container>
 
       <Fab size="large" color="secondary" classes={{ root: classes.fab }}>

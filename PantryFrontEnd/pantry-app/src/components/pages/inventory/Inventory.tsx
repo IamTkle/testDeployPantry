@@ -99,37 +99,40 @@ interface InventoryProps {
   setNavOpen: () => void;
 }
 
-const getInitialEntries: () => Item[] = () => {
-  const params: RequestInit = {
-    method: "GET",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
-
-  var data: any = {};
-
-  fetch(DOMAIN + "/api/GetInventoryList", params)
-    .then((resp) => resp.json())
-    .then((d) => (data = d));
-
-  let entries: Item[] = [];
-
-  Object.keys(data).forEach((category) => {
-    const products: APIItem[] = data[category];
-
-    for (let product of products) {
-      entries.push({ ...product, category: category });
-    }
-  });
-
-  return entries;
-};
-
 const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
+
+  const getInitialEntries: () => void = () => {
+    const params: RequestInit = {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    fetch(DOMAIN + "/api/GetInventoryList", params)
+      .then((resp) => resp.json())
+      .then((data) => {
+        console.log(data);
+        let entries: Item[] = [];
+
+        Object.keys(data).forEach((category) => {
+          const products: APIItem[] = data[category];
+
+          for (let product of products) {
+            entries.push({ ...product, category: category });
+          }
+        });
+        console.log(entries);
+        setEntries(sortByExpiry(entries, true));
+      });
+  };
+
+  React.useEffect(() => {
+    getInitialEntries();
+  }, []);
 
   const getTabCategories: () => string[] = () => {
     //need to fetch first in reality
@@ -147,9 +150,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
 
   const [activeTab, setActiveTab] = React.useState(0);
 
-  const [entries, setEntries] = React.useState(() =>
-    sortByExpiry(getInitialEntries(), true)
-  );
+  const [entries, setEntries] = React.useState<Item[]>(() => []);
 
   const [searchEntries, setSearchEntries] = React.useState<Item[]>([]);
 
