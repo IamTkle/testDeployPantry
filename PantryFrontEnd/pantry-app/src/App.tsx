@@ -1,10 +1,17 @@
-import { CssBaseline, Hidden } from "@material-ui/core";
+import {
+  CircularProgress,
+  CssBaseline,
+  Hidden,
+  Typography,
+} from "@material-ui/core";
 import { createTheme, ThemeProvider } from "@material-ui/core/styles";
 import { LocationDescriptor } from "history";
 import { useSnackbar } from "notistack";
 import React from "react";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import NavBar, { navItem, navItems } from "./components/navbar/NavBar";
+import Login from "./components/pages/login/Login";
+import SignUp from "./components/pages/signup/Signup";
 import { pageToIndex } from "./components/routingTable";
 
 const theme = createTheme({
@@ -55,18 +62,16 @@ interface SetLoggedIn {
 }
 export type MyLocationDesc = LocationDescriptor<any> & SetLoggedIn;
 
-const checkLoggedInCookie = () => document.cookie.includes("LoggedIn");
-
 function App() {
   const [navTab, setNavTab] = React.useState(0);
 
-  const loggedInState = React.useState(() =>
-    process.env.NODE_ENV === "production" ? checkLoggedInCookie() : true
-  );
+  const loggedInState = React.useState(() => false);
 
   const [isLoggedIn, setLoggedIn] = loggedInState;
 
   const [navIsOpen, setNavOpen] = React.useState(false);
+
+  const [isFetching, setFetching] = React.useState(true);
 
   const callBackNavOpen = React.useCallback(() => {
     setNavOpen((prev) => !prev);
@@ -74,7 +79,108 @@ function App() {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  const checkLoggedIn = React.useCallback(() => {
+    fetch(DOMAIN + "/api/isLoggedIn", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((resp) => resp.json())
+      .then((data) => {
+        if (data.isLoggedIn) {
+          setLoggedIn(true);
+          enqueueSnackbar("Welcome back!", { variant: "success" });
+        }
+        setFetching(false);
+      })
+      .catch((e) => {
+        console.error(e);
+        setFetching(false);
+      });
+  }, [enqueueSnackbar, setLoggedIn]);
+
+  const replaceSubscriptionOnServer = React.useCallback(
+    async (subscription: PushSubscription | null) => {
+      if (!subscription) return;
+      const unsubParams: RequestInit = {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(subscription),
+      };
+
+      const resp = await fetch(
+        DOMAIN + "/api/replaceSubscription",
+        unsubParams
+      ).catch((e) => {
+        console.error("Subscription deletion error:", e);
+        enqueueSnackbar("Could not replace subscription from server!", {
+          variant: "error",
+        });
+      });
+
+      if (!resp || !resp.ok) {
+        await subscription.unsubscribe();
+        enqueueSnackbar("Failed to enable push notifications!", {
+          variant: "error",
+        });
+      } else enqueueSnackbar("Notifications successfully enabled");
+    },
+    [enqueueSnackbar]
+  );
+
+  const syncSubscriptionWithServer = React.useCallback(
+    async (subscription: PushSubscription) => {
+      const subscriptionParams: RequestInit = {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(subscription),
+      };
+
+      const resp = await fetch(
+        DOMAIN + "/api/subcriptions/",
+        subscriptionParams
+      ).catch((e) => {
+        console.error(e);
+        if (subscription) subscription.unsubscribe();
+      });
+
+      if (resp && resp.ok) {
+        enqueueSnackbar("Notifications successfully enabled!", {
+          variant: "success",
+        });
+      } else if (resp && resp.status === 401) {
+        // setTimeout(() => {
+        replaceSubscriptionOnServer(subscription);
+        // }, 7500);
+      } else {
+        enqueueSnackbar("Notifications could not be enabled on the server!", {
+          variant: "warning",
+        });
+        if (subscription) subscription.unsubscribe();
+        console.error("Subscription unsuccessful:", resp);
+      }
+    },
+    [enqueueSnackbar, replaceSubscriptionOnServer]
+  );
+
   React.useEffect(() => {
+    checkLoggedIn();
+    fetch(DOMAIN + "/api/Test", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((resp) => (resp.ok ? console.log(resp) : null));
+  }, [checkLoggedIn]);
+
+  React.useEffect(() => {
+    if (!isLoggedIn) return;
     if (Notification.permission !== "granted")
       Notification.requestPermission((status) => {
         console.log("Permission", status);
@@ -87,88 +193,58 @@ function App() {
 
     console.log("current key:", strForm);
 
-    if ("serviceWorker" in navigator && isLoggedIn) {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker
         .register("/sw.js", { scope: "/" })
         .then(async (value) => {
-          // checkVapidKey(strForm as string);
-
           const pushSubscriptionOptions: PushSubscriptionOptionsInit = {
             applicationServerKey: strForm,
             userVisibleOnly: true,
           };
+          let serviceWorker;
 
-          let subscription = await value.pushManager.getSubscription();
+          if (value.installing) serviceWorker = value.installing;
+          else if (value.waiting) serviceWorker = value.waiting;
+          if (value.active) serviceWorker = value.active;
+          if (serviceWorker) {
+            serviceWorker.onstatechange = async (e: any) => {
+              if (e.target.state === "activated") {
+                console.log("activation confirmed");
 
-          console.log(subscription?.toJSON());
+                try {
+                  value.pushManager
+                    .subscribe(pushSubscriptionOptions)
+                    .then((subscription) => {
+                      syncSubscriptionWithServer(subscription);
+                    })
+                    .catch((e) => {
+                      console.error("caught e");
+                      throw e;
+                    });
+                } catch (e) {
+                  // a different subscription exists
+                  console.log(e);
+                  let subscription = await value.pushManager.getSubscription();
 
-          try {
-            subscription = await value.pushManager
-              .subscribe(pushSubscriptionOptions)
-              .catch((e) => {
-                console.error("caught e");
-                throw e;
-              });
-          } catch (e) {
-            console.log(e);
-            if (subscription) {
-              const unsubParams: RequestInit = {
-                method: "DELETE",
-                credentials: "include",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(subscription.toJSON()),
-              };
-              const resp = await fetch(
-                DOMAIN + "/api/DeleteSubcriptions",
-                unsubParams
-              ).catch((e) => {
-                console.error("Subscription deletion error:", e);
-                enqueueSnackbar("Failed to enable push notifications!", {
-                  variant: "error",
-                });
-              });
-
-              if (resp && resp.ok) await subscription.unsubscribe();
-              else
-                enqueueSnackbar("Failed to enable push notifications!", {
-                  variant: "error",
-                });
-            }
-
-            subscription = await value.pushManager.subscribe(
-              pushSubscriptionOptions
-            );
-            console.log("Subscription info: ", JSON.stringify(subscription));
-
-            const subscriptionParams: RequestInit = {
-              method: "POST",
-              credentials: "include",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(subscription),
+                  if (subscription) {
+                    const success = await subscription.unsubscribe();
+                    if (success) {
+                      const newSub = await value.pushManager.subscribe();
+                      replaceSubscriptionOnServer(newSub);
+                    }
+                  }
+                }
+              }
             };
-
-            const resp = await fetch(
-              DOMAIN + "/api/subcriptions/",
-              subscriptionParams
-            );
-
-            if (resp.ok) {
-              const data = await resp.json();
-              enqueueSnackbar("Notifications successfully enabled!", {
-                variant: "success",
-              });
-              console.log(data);
-            } else {
-              console.error("Subscription unsuccessful:", resp);
-            }
           }
         });
     }
-  }, [isLoggedIn, enqueueSnackbar]);
+  }, [
+    isLoggedIn,
+    enqueueSnackbar,
+    syncSubscriptionWithServer,
+    replaceSubscriptionOnServer,
+  ]);
 
   const renderRoute = React.useCallback(
     (item: navItem) => {
@@ -208,10 +284,6 @@ function App() {
 
     // success
     if (resp.ok || resp.status === 401) {
-      document.cookie =
-        "LoggedIn=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;" +
-        document.cookie;
-      console.log(document.cookie);
       callbackFn();
       setLoggedIn(false);
     }
@@ -245,23 +317,45 @@ function App() {
               </Hidden>
             </>
           )}
-          {navPageRoutes}
           <Switch>
-            {isLoggedIn ? (
+            {isLoggedIn && (
               <>
-                {/* <Redirect exact from="/" to="/inventory" /> */}
+                {navPageRoutes}
                 <Redirect exact from="/login" to="/inventory" />
               </>
+            )}
+            {!isFetching ? (
+              <>
+                <Route
+                  path="/login"
+                  render={() => <Login setLoggedIn={setLoggedIn} />}
+                />
+                <Route path="/signup" component={SignUp} />
+                <Redirect to="/login" />
+              </>
             ) : (
-              <Redirect
-                // from="/"
-                to={
-                  {
-                    pathname: "/login",
-                    setLoggedIn: loggedInState[1],
-                  } as MyLocationDesc
-                }
-              />
+              <div
+                style={{
+                  minWidth: "100vw",
+                  minHeight: "100vh",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <CircularProgress
+                  variant="indeterminate"
+                  size={theme.spacing(30)}
+                  style={{
+                    marginBottom: theme.spacing(10),
+                    color: theme.palette.primary.light,
+                  }}
+                />
+                <Typography variant="h4" color="textPrimary">
+                  Loading
+                </Typography>
+              </div>
             )}
           </Switch>
         </ThemeProvider>

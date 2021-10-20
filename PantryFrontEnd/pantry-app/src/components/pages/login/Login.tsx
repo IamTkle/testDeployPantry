@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   Button,
   Checkbox,
@@ -8,20 +7,18 @@ import {
   Grid,
   Link,
   Paper,
-  Snackbar,
-  SnackbarCloseReason,
   TextField,
   Typography,
   useTheme,
 } from "@material-ui/core";
+import { useSnackbar } from "notistack";
 import React from "react";
 import { Redirect, Switch } from "react-router";
-import { useLocation } from "react-router-dom";
-import { DOMAIN, MyLocationDesc } from "../../../App";
+import { DOMAIN } from "../../../App";
 import SignUp from "../signup/Signup";
 
 interface loginProps {
-  message?: string;
+  setLoggedIn?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 enum LOGIN_FIELDS {
@@ -29,7 +26,7 @@ enum LOGIN_FIELDS {
   PASSWORD = "password",
 }
 
-const Login: React.FC<loginProps> = ({ message }) => {
+const Login: React.FC<loginProps> = ({ setLoggedIn }) => {
   const paperStyle = {
     padding: 20,
     height: "80vh",
@@ -39,45 +36,18 @@ const Login: React.FC<loginProps> = ({ message }) => {
 
   const theme = useTheme();
 
-  // const history = useHistory();
-  const location = useLocation() as MyLocationDesc;
-
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
 
   const [isLoggingIn, setIsLoggingIn] = React.useState(false);
 
-  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-
-  const [snackbarMessage, setSnackbarMessage] = React.useState("");
-
   const [toSignUp, setToSignUp] = React.useState(false);
 
   const handleRoute = () => {
-    // history.push("/signup");
     setToSignUp(true);
-    // setToSignUp(false);
-    // history.listen((location, action) => {
-    //   if (action === "POP") {
-    //     setToSignUp(false);
-    //     // console.log("hi");
-    //   }
-    // });
   };
 
-  const openSnackbar = (message: string) => {
-    setSnackbarMessage(message);
-    setSnackbarOpen(true);
-  };
-
-  const handleSnackbarClose = (
-    event: React.SyntheticEvent<any, Event>,
-    reason: SnackbarCloseReason
-  ) => {
-    if (reason === "clickaway") return;
-
-    setSnackbarOpen(false);
-  };
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleLogin = async (e: React.FormEvent<HTMLButtonElement>) => {
     if (!email || !password) return;
@@ -98,25 +68,24 @@ const Login: React.FC<loginProps> = ({ message }) => {
 
     if (!resp) {
       setIsLoggingIn(false);
-      openSnackbar("Could not log in");
+      enqueueSnackbar("Could not log in!", { variant: "error" });
       return;
     }
 
     console.log(resp);
     if (resp.ok || resp.status === 401) {
-      if (!document.cookie.includes("LoggedIn"))
-        document.cookie = "LoggedIn=True; path=/;" + document.cookie;
-
-      console.log(document.cookie);
-      if (location && location.setLoggedIn) {
-        const setLoggedIn = location.setLoggedIn;
+      // if (location && location.setLoggedIn) {
+      //   const setLoggedIn = location.setLoggedIn;
+      //   setLoggedIn(true);
+      // } else {
+      //   document.location.reload();
+      // }
+      if (setLoggedIn) {
         setLoggedIn(true);
-      } else {
-        document.location.reload();
       }
     } else {
       console.error(resp);
-      openSnackbar("Could not log in");
+      enqueueSnackbar("Could not log in!", { variant: "error" });
     }
     setIsLoggingIn(false);
   };
@@ -140,24 +109,7 @@ const Login: React.FC<loginProps> = ({ message }) => {
     <Grid>
       <Paper elevation={30} variant="outlined" style={paperStyle}>
         {/* {message && <Snackbar open={true} autoHideDuration={6000} color="primary"><>message</></Snackbar> } */}
-        <Snackbar
-          open={snackbarOpen}
-          autoHideDuration={2500}
-          onClose={handleSnackbarClose}
-        >
-          <div
-            style={{
-              backgroundColor: theme.palette.error.main,
-              color: theme.palette.background.default,
-              padding: theme.spacing(4),
-              borderRadius: theme.spacing(4),
-            }}
-          >
-            {snackbarMessage}
-          </div>
-        </Snackbar>
-        <Grid>
-          <Avatar alt="Remy Sharp" src="/static/images/avatars/unnamed.png" />
+        <Grid item xs={12} style={{ textAlign: "center" }}>
           <h2> Login </h2>
         </Grid>
         <Box mt={5}>
@@ -195,20 +147,23 @@ const Login: React.FC<loginProps> = ({ message }) => {
           fullWidth
           variant="contained"
           onClick={handleLogin}
+          style={{ height: theme.spacing(5) }}
         >
           {isLoggingIn ? (
-            <CircularProgress color="secondary" variant="indeterminate" />
+            <CircularProgress
+              style={{ color: theme.palette.primary.light }}
+              variant="indeterminate"
+              size={theme.spacing(4)}
+            />
           ) : (
             "Login"
           )}
         </Button>
         <Typography>
-          {" "}
           Don't have an account?
           <Link href="#">Forgot Password?</Link>
         </Typography>
         <Typography>
-          {" "}
           Don't have an account?
           <Link component="button" variant="body1" onClick={handleRoute}>
             Sign Up
