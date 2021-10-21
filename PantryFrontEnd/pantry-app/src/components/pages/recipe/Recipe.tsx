@@ -1,8 +1,18 @@
-import { Container, Fab, Tab, Tabs, Theme, Toolbar } from "@material-ui/core";
+import {
+  CircularProgress,
+  Container,
+  Fab,
+  Tab,
+  Tabs,
+  Theme,
+  Toolbar,
+} from "@material-ui/core";
 import { Add, Favorite, List as ListIcon } from "@material-ui/icons";
 import { createStyles, makeStyles, useTheme } from "@material-ui/styles";
 import React from "react";
+import InfiniteScroller from "react-infinite-scroll-component";
 import SwipeableViews from "react-swipeable-views";
+import { DOMAIN } from "../../../App";
 import PantryAppBar from "../../PantryAppBar";
 import { Recipe } from "../recipe/mockEntries";
 import {
@@ -16,6 +26,13 @@ interface RecipeProps {
   setNavOpen: () => void;
 }
 
+interface APIRecipe {
+  ingredientsList: string[];
+  photoUrl: string;
+  recipeName: string;
+  recipeId: number;
+}
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     pageContainer: {
@@ -27,6 +44,7 @@ const useStyles = makeStyles((theme: Theme) =>
       [theme.breakpoints.down("sm")]: {
         marginLeft: 0,
       },
+      overflow: "hidden",
     },
 
     tabBar: {
@@ -37,7 +55,6 @@ const useStyles = makeStyles((theme: Theme) =>
       zIndex: 10,
       // bottom: 0,
       top: 0,
-      [theme.breakpoints.up("md")]: {},
     },
 
     tabIndicator: {
@@ -54,6 +71,11 @@ const useStyles = makeStyles((theme: Theme) =>
         backgroundColor: theme.palette.secondary.main,
       },
     },
+
+    centerFlexContainer: {
+      display: "flex",
+      justifyContent: "center",
+    },
   })
 );
 
@@ -67,7 +89,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
 
   const [activeTab, setActiveTab] = React.useState(0);
 
-  const [browseRecipes, setBrowseRecipes] = React.useState(importedBR);
+  const [browseRecipes, setBrowseRecipes] = React.useState<Recipe[]>([]);
 
   const [likedRecipes, setLikedRecipes] = React.useState(importedLR);
 
@@ -80,6 +102,33 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   const [currRecipe, setCurrRecipe] = dialogRecipeState;
 
   const setEditDialogOpen = editDialogOpenState[1];
+
+  const scrollRef = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    fetch(DOMAIN + "/api/getUserRecipes", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((resp) => resp.json())
+      .then((recipes: APIRecipe[]) => {
+        setBrowseRecipes(
+          recipes.map((r) => {
+            const recipe: Recipe = {
+              fav: false,
+              img: r.photoUrl,
+              ingredients: r.ingredientsList,
+              rid: r.recipeId,
+              name: r.recipeName,
+            };
+            return recipe;
+          })
+        );
+      })
+      .catch((e) => console.error(e));
+  }, []);
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setActiveTab(newValue);
@@ -107,67 +156,111 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
     });
   };
 
+  const handleFetchNext = () => {
+    fetch(DOMAIN + "/api/getUserRecipes?index=" + browseRecipes.length, {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((resp) => resp.json())
+      .then((recipes: APIRecipe[]) => {
+        setBrowseRecipes((prev) => [
+          ...prev,
+          ...recipes.map((r) => {
+            const recipe: Recipe = {
+              fav: false,
+              img: r.photoUrl,
+              ingredients: r.ingredientsList,
+              rid: r.recipeId,
+              name: r.recipeName,
+            };
+            return recipe;
+          }),
+        ]);
+      })
+      .catch((e) => console.error(e));
+  };
+
+  const topAnchorRef = React.useRef<HTMLDivElement | null>(null);
+
   return (
-    <div className={classes.pageContainer}>
-      <PantryAppBar
-        title={"Recipes"}
-        handleOpenMenu={setNavOpen}
-        handleSearchClick={(searchTerm) => console.log(searchTerm)}
-        handleSortDirectionChange={handleSortDirectionChange}
-        handleSortTypeChosen={handleSortTypeChosen}
-      />
-      <Toolbar />
-
-      <Tabs
-        value={activeTab}
-        variant="fullWidth"
-        onChange={handleTabChange}
-        classes={{ root: classes.tabBar, indicator: classes.tabIndicator }}
+    <div className={classes.pageContainer} ref={scrollRef}>
+      <InfiniteScroller
+        dataLength={browseRecipes.length}
+        hasMore={true}
+        loader={
+          <Container className={classes.centerFlexContainer}>
+            <CircularProgress size={80} />
+          </Container>
+        }
+        next={handleFetchNext}
+        style={{ overflow: "unset" }}
+        // scrollableTarget={document.body}
       >
-        <Tab wrapped label="browse" value={0} icon={<ListIcon />} />
-        <Tab wrapped label="favorites" value={1} icon={<Favorite />} />
-      </Tabs>
-      {currRecipe && (
-        <RecipeEditDialog
-          dialogOpenState={editDialogOpenState}
-          dialogRecipeState={
-            dialogRecipeState as [
-              Recipe,
-              React.Dispatch<React.SetStateAction<Recipe>>
-            ]
-          }
-          handleSave={handleSave}
+        <PantryAppBar
+          title={"Recipes"}
+          handleOpenMenu={setNavOpen}
+          handleSearchClick={(searchTerm) => console.log(searchTerm)}
+          handleSortDirectionChange={handleSortDirectionChange}
+          handleSortTypeChosen={handleSortTypeChosen}
         />
-      )}
-      <Container disableGutters style={{ paddingBottom: 16, maxWidth: "none" }}>
-        <SwipeableViews
-          index={activeTab}
-          onChangeIndex={(index) => setActiveTab(index)}
-        >
-          <RecipeTab
-            activeTab={activeTab}
-            index={0}
-            propEntries={browseRecipes}
-            key={0}
-            handleOpenEdit={handleOpenEdit}
-            handleAdd={() => {}}
-            handleRemove={handleRemove}
-          />
+        <Toolbar ref={topAnchorRef} />
 
-          <RecipeTab
-            activeTab={activeTab}
-            index={1}
-            propEntries={likedRecipes}
-            key={1}
-            handleOpenEdit={handleOpenEdit}
-            handleAdd={() => {}}
-            handleRemove={handleRemove}
-          />
-        </SwipeableViews>
-      </Container>
-      <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
-        <Add />
-      </Fab>
+        <Container disableGutters style={{ maxWidth: "none" }}>
+          <Tabs
+            value={activeTab}
+            variant="fullWidth"
+            onChange={handleTabChange}
+            classes={{ root: classes.tabBar, indicator: classes.tabIndicator }}
+          >
+            <Tab wrapped label="browse" value={0} icon={<ListIcon />} />
+            <Tab wrapped label="favorites" value={1} icon={<Favorite />} />
+          </Tabs>
+          {currRecipe && (
+            <RecipeEditDialog
+              dialogOpenState={editDialogOpenState}
+              dialogRecipeState={
+                dialogRecipeState as [
+                  Recipe,
+                  React.Dispatch<React.SetStateAction<Recipe>>
+                ]
+              }
+              handleSave={handleSave}
+            />
+          )}
+        </Container>
+        <Container
+          disableGutters
+          style={{ paddingBottom: 16, maxWidth: "none" }}
+        >
+          <SwipeableViews
+            index={activeTab}
+            onChangeIndex={(index) => setActiveTab(index)}
+          >
+            <RecipeTab
+              activeTab={activeTab}
+              index={0}
+              propEntries={browseRecipes}
+              key={0}
+              handleOpenEdit={handleOpenEdit}
+              handleAdd={() => {}}
+              handleRemove={handleRemove}
+            />
+
+            <RecipeTab
+              activeTab={activeTab}
+              index={1}
+              propEntries={likedRecipes}
+              key={1}
+              handleOpenEdit={handleOpenEdit}
+              handleAdd={() => {}}
+              handleRemove={handleRemove}
+            />
+          </SwipeableViews>
+        </Container>
+        <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
+          <Add />
+        </Fab>
+      </InfiniteScroller>
     </div>
   );
 };

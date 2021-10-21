@@ -18,17 +18,17 @@ const theme = createTheme({
   palette: {
     primary: {
       // dark: "#31C15B",
-      dark: "#2aa64e",
       // main: "#52D378",
-      main: "#2eb455",
       // dark: "#52D378",
       // main: "#31C15B",
+      dark: "#2aa64e",
+      main: "#2eb455",
       light: "#BDF2C9",
     },
     secondary: {
-      light: "#F9DFAF",
       // main: "#efa448",
       // main: "#e88b65",
+      light: "#F9DFAF",
       main: "#f08559",
       dark: "#e4794c",
     },
@@ -182,16 +182,16 @@ function App() {
   React.useEffect(() => {
     if (!isLoggedIn) return;
     if (Notification.permission !== "granted")
-      Notification.requestPermission((status) => {
-        console.log("Permission", status);
-        enqueueSnackbar("Notifications permissions are needed!", {
-          variant: "info",
-        });
+      enqueueSnackbar("Notifications permissions are needed!", {
+        variant: "info",
       });
+    Notification.requestPermission((status) => {
+      console.log("Permission", status);
+    });
 
     const strForm = process.env["REACT_APP_PUBLIC_VAPID_KEY"];
 
-    console.log("current key:", strForm);
+    // console.log("current key:", strForm);
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
@@ -277,16 +277,11 @@ function App() {
       },
     }).catch((e) => console.error(e));
 
-    if (!resp) {
-      callbackFn();
-      return;
-    }
-
     // success
-    if (resp.ok || resp.status === 401) {
-      callbackFn();
+    if (resp && (resp.ok || resp.status === 401)) {
       setLoggedIn(false);
     }
+    callbackFn();
   };
 
   return (

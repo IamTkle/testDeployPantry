@@ -59,6 +59,21 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.secondary.main,
     },
 
+    switchThumb: {
+      // backgroundColor: theme.palette.secondary.main,
+    },
+    switchBase: {
+      "& .MuiSwitch-thumb": {
+        backgroundColor: theme.palette.secondary.main,
+        // "&$checked": {
+        //   backgroundColor: theme.palette.primary.main,
+        // },
+      },
+      "&$checked .MuiSwitch-thumb": {
+        backgroundColor: theme.palette.primary.main,
+      },
+    },
+    checked: {},
     textRoot: {
       right: 0,
       top: 0,
@@ -87,6 +102,17 @@ interface PantryAppBarProps {
   handleSearchClick: (searchTerm: string) => void;
   handleSortTypeChosen: (sortType: number, desc: boolean) => void;
   handleSortDirectionChange: (sortType: number, desc: boolean) => void;
+  sortByExpiry?: boolean;
+  sortByName?: boolean;
+  sortByCategory?: boolean;
+  sortByQuantity?: boolean;
+}
+
+export enum SORT_TYPES {
+  byExpiryDate,
+  byName,
+  byCategory,
+  byQuantity,
 }
 
 const PantryAppBar: React.FC<PantryAppBarProps> = ({
@@ -95,6 +121,10 @@ const PantryAppBar: React.FC<PantryAppBarProps> = ({
   handleSearchClick,
   handleSortDirectionChange,
   handleSortTypeChosen,
+  sortByExpiry = false,
+  sortByName = false,
+  sortByCategory = false,
+  sortByQuantity = false,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
@@ -188,59 +218,70 @@ const PantryAppBar: React.FC<PantryAppBarProps> = ({
                 checked={sortDescending}
                 classes={{
                   track: classes.ascendingTrack,
+                  thumb: classes.switchThumb,
+                  switchBase: classes.switchBase,
+                  checked: classes.checked,
                 }}
               />
               Descending
             </MenuItem>
           </FormControl>
-          <MenuItem
-            value="expiry"
-            key={0}
-            onClick={() => {
-              setSortType(0);
-              handleSortTypeChosen(0, sortDescending);
-            }}
-            tabIndex={0}
-            selected={sortType === 0}
-          >
-            By expiry date
-          </MenuItem>
-          <MenuItem
-            value="name"
-            key={1}
-            tabIndex={1}
-            selected={sortType === 1}
-            onClick={() => {
-              setSortType(1);
-              handleSortTypeChosen(1, sortDescending);
-            }}
-          >
-            By item name
-          </MenuItem>
-          <MenuItem
-            value="category"
-            key={2}
-            tabIndex={2}
-            selected={sortType === 2}
-            onClick={() => {
-              setSortType(2);
-              handleSortTypeChosen(2, sortDescending);
-            }}
-          >
-            By category
-          </MenuItem>
-          <MenuItem
-            value="quantity"
-            key={3}
-            tabIndex={3}
-            selected={sortType === 3}
-            onClick={() => {
-              setSortType(3);
-              handleSortTypeChosen(3, sortDescending);
-            }}
-          >
-            By quantity
-          </MenuItem>
+          {sortByExpiry && (
+            <MenuItem
+              value="expiry"
+              key={SORT_TYPES.byExpiryDate}
+              onClick={() => {
+                setSortType(SORT_TYPES.byExpiryDate);
+                handleSortTypeChosen(SORT_TYPES.byExpiryDate, sortDescending);
+              }}
+              tabIndex={SORT_TYPES.byExpiryDate}
+              selected={sortType === SORT_TYPES.byExpiryDate}
+            >
+              By expiry date
+            </MenuItem>
+          )}
+          {sortByName && (
+            <MenuItem
+              value="name"
+              key={SORT_TYPES.byName}
+              tabIndex={SORT_TYPES.byName}
+              selected={sortType === SORT_TYPES.byName}
+              onClick={() => {
+                setSortType(SORT_TYPES.byName);
+                handleSortTypeChosen(SORT_TYPES.byName, sortDescending);
+              }}
+            >
+              By name
+            </MenuItem>
+          )}
+          {sortByCategory && (
+            <MenuItem
+              value="category"
+              key={SORT_TYPES.byCategory}
+              tabIndex={SORT_TYPES.byCategory}
+              selected={sortType === SORT_TYPES.byCategory}
+              onClick={() => {
+                setSortType(SORT_TYPES.byCategory);
+                handleSortTypeChosen(SORT_TYPES.byCategory, sortDescending);
+              }}
+            >
+              By category
+            </MenuItem>
+          )}
+          {sortByQuantity && (
+            <MenuItem
+              value="quantity"
+              key={SORT_TYPES.byQuantity}
+              tabIndex={SORT_TYPES.byQuantity}
+              selected={sortType === SORT_TYPES.byQuantity}
+              onClick={() => {
+                setSortType(SORT_TYPES.byQuantity);
+                handleSortTypeChosen(SORT_TYPES.byQuantity, sortDescending);
+              }}
+            >
+              By quantity
+            </MenuItem>
+          )}
         </Menu>
       </AppBar>
     </Slide>
