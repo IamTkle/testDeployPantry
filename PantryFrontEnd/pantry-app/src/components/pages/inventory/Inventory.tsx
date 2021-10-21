@@ -266,6 +266,10 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         handleSearchClick={handleSearchClick}
         handleSortDirectionChange={handleSortDirectionChange}
         handleSortTypeChosen={handleSortTypeChosen}
+        sortByCategory
+        sortByExpiry
+        sortByName
+        sortByQuantity
       />
       <Toolbar />
 

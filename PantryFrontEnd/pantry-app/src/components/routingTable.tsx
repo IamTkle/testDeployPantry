@@ -11,8 +11,8 @@ const pageToIndexLookup: RoutingTable = {
   "/qrscan": 4,
   "/settings": 5,
   "/account": 6,
-  "/login": 7,
-  "/signup": 8,
+  // "/login": 7,
+  // "/signup": 8,
 };
 
 export const pageToIndex: (link: string) => number = (link) => {

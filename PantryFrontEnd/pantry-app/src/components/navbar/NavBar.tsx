@@ -24,11 +24,9 @@ import { Link } from "react-router-dom";
 import Account from "../pages/account/Account";
 import ExpiredBin from "../pages/expiredbin/ExpiredBin";
 import Inventory from "../pages/inventory/Inventory";
-import Login from "../pages/login/Login";
 import QR from "../pages/qrcode/QR";
 import Recipe from "../pages/recipe/Recipe";
 import ShoppingList from "../pages/shoppinglist/ShoppingList";
-import Signup from "../pages/signup/Signup";
 import { pageToIndex } from "../routingTable";
 
 export type navItem = {
@@ -146,32 +144,32 @@ const NavBar: React.FC<NavbarProps> = ({
     >
       <List component="nav">
         {navItems.map((item, i) => {
-          if (
-            navItems.length - 1 !== pageToIndex(item.link) &&
-            navItems.length - 2 !== pageToIndex(item.link)
-          )
-            return (
-              <Link
-                key={item.link}
-                to={item.link}
-                style={{ textDecoration: "none" }}
+          // if (
+          //   navItems.length - 1 !== pageToIndex(item.link) &&
+          //   navItems.length - 2 !== pageToIndex(item.link)
+          // )
+          return (
+            <Link
+              key={item.link}
+              to={item.link}
+              style={{ textDecoration: "none" }}
+            >
+              <ListItem
+                button
+                selected={currNavTab === pageToIndex(item.link)}
+                onClick={(e) => handleNavClick(e, pageToIndex(item.link))}
+                alignItems="center"
+                classes={{ selected: classes.root }}
+                className={classes.root}
               >
-                <ListItem
-                  button
-                  selected={currNavTab === pageToIndex(item.link)}
-                  onClick={(e) => handleNavClick(e, pageToIndex(item.link))}
-                  alignItems="center"
-                  classes={{ selected: classes.root }}
-                  className={classes.root}
-                >
-                  <ListItemIcon style={{ color: theme.palette.primary.light }}>
-                    {item.icon}
-                  </ListItemIcon>
-                  <ListItemText primary={item.descText} disableTypography />
-                </ListItem>
-              </Link>
-            );
-          return <></>;
+                <ListItemIcon style={{ color: theme.palette.primary.light }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.descText} disableTypography />
+              </ListItem>
+            </Link>
+          );
+          // return <></>;
         })}
         <ListItem key={420}>
           <Button
@@ -251,16 +249,16 @@ export const navItems: navItem[] = [
     component: Account,
     icon: <AccountIcon />,
   },
-  {
-    descText: "Login",
-    link: "/login",
-    component: Login,
-    icon: <AccountIcon />,
-  },
-  {
-    descText: "Signup",
-    link: "/signup",
-    component: Signup,
-    icon: <AccountIcon />,
-  },
+  // {
+  //   descText: "Login",
+  //   link: "/login",
+  //   component: Login,
+  //   icon: <AccountIcon />,
+  // },
+  // {
+  //   descText: "Signup",
+  //   link: "/signup",
+  //   component: Signup,
+  //   icon: <AccountIcon />,
+  // },
 ];

@@ -182,16 +182,16 @@ function App() {
   React.useEffect(() => {
     if (!isLoggedIn) return;
     if (Notification.permission !== "granted")
-      Notification.requestPermission((status) => {
-        console.log("Permission", status);
-        enqueueSnackbar("Notifications permissions are needed!", {
-          variant: "info",
-        });
+      enqueueSnackbar("Notifications permissions are needed!", {
+        variant: "info",
       });
+    Notification.requestPermission((status) => {
+      console.log("Permission", status);
+    });
 
     const strForm = process.env["REACT_APP_PUBLIC_VAPID_KEY"];
 
-    console.log("current key:", strForm);
+    // console.log("current key:", strForm);
 
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
@@ -277,16 +277,11 @@ function App() {
       },
     }).catch((e) => console.error(e));
 
-    if (!resp) {
-      callbackFn();
-      return;
-    }
-
     // success
-    if (resp.ok || resp.status === 401) {
-      callbackFn();
+    if (resp && (resp.ok || resp.status === 401)) {
       setLoggedIn(false);
     }
+    callbackFn();
   };
 
   return (
