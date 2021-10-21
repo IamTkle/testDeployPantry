@@ -321,6 +321,7 @@ const InventoryEntry: React.FC<EntryProps> = ({
             spacing={1}
           >
             {expiryGroups.map((eg, i) => {
+              eg.expDate = new Date(eg.expDate);
               const diff = getMonthDifference(eg.expDate);
               const localDateStr = eg.expDate.toLocaleDateString();
 
