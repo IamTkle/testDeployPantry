@@ -3,6 +3,7 @@ import { Add, Favorite, List as ListIcon } from "@material-ui/icons";
 import { createStyles, makeStyles, useTheme } from "@material-ui/styles";
 import React from "react";
 import SwipeableViews from "react-swipeable-views";
+import { DOMAIN } from "../../../App";
 import PantryAppBar from "../../PantryAppBar";
 import { Recipe } from "../recipe/mockEntries";
 import {
@@ -14,6 +15,13 @@ import RecipeTab from "./RecipeTab";
 
 interface RecipeProps {
   setNavOpen: () => void;
+}
+
+interface APIRecipe {
+  ingredientsList: string[];
+  photoUrl: string;
+  recipeName: string;
+  recipeId: number;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -80,6 +88,32 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   const [currRecipe, setCurrRecipe] = dialogRecipeState;
 
   const setEditDialogOpen = editDialogOpenState[1];
+
+  React.useEffect(() => {
+    fetch(DOMAIN + "/api/getUserRecipes", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((resp) => resp.json())
+      .then((recipes: APIRecipe[]) => {
+        setBrowseRecipes(
+          recipes.map((r) => {
+            const recipe: Recipe = {
+              fav: false,
+              img: r.photoUrl,
+              ingredients: r.ingredientsList,
+              rid: r.recipeId,
+              name: r.recipeName,
+            };
+            return recipe;
+          })
+        );
+      })
+      .catch((e) => console.error(e));
+  }, []);
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setActiveTab(newValue);

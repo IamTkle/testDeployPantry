@@ -1,15 +1,15 @@
 export type Recipe = {
-  rid: string;
+  rid: number;
   name: string;
   ingredients: string[];
-  availIngredients: string[];
+  availIngredients?: string[];
   img: string;
   fav: boolean;
 };
 
 export const browseRecipes: Recipe[] = [
   {
-    rid: "123457P",
+    rid: 123457,
     name: "wappy spagettee",
     ingredients: ["Breat", "meed", "beeph", "shugir", "bols", "potatos"],
     availIngredients: ["Breat", "meed", "beeph", "shugir", "bols"],
@@ -20,7 +20,7 @@ export const browseRecipes: Recipe[] = [
 
 export const likedRecipes: Recipe[] = [
   {
-    rid: "123457P",
+    rid: 123457,
     name: "wappy spagettee",
     ingredients: ["Breat", "meed", "beeph", "shugir", "bols", "potatos"],
     availIngredients: ["Breat", "meed", "beeph", "shugir", "bols"],

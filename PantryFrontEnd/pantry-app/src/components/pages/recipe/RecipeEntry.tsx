@@ -240,7 +240,7 @@ const getIngredientsString = (ingredients: string[]) => {
   }
 
   if (plusOthers) {
-    igstr += `+ ${ingredients.length - 5} more`;
+    igstr += ` + ${ingredients.length - 5} more`;
   }
 
   return igstr;
