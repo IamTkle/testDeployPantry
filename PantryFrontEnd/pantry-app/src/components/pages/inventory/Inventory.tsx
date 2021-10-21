@@ -14,7 +14,7 @@ import React, { ReactNode } from "react";
 import { GiFruitBowl as FruitsIcon } from "react-icons/gi";
 import SwipeableViews from "react-swipeable-views";
 import { DOMAIN } from "../../../App";
-import PantryAppBar from "../../PantryAppBar";
+import PantryAppBar, { SORT_TYPES } from "../../PantryAppBar";
 import InventoryTab from "./InventoryTab";
 import { APIItem, Item } from "./mockEntries";
 
@@ -208,17 +208,17 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const handleSortTypeChosen = React.useCallback(
     (sortBy: number, desc: boolean) => {
       switch (sortBy) {
-        case 0:
+        case SORT_TYPES.byExpiryDate:
           setEntries((prevEntries) => [...sortByExpiry(prevEntries, desc)]);
           break;
         default:
-        case 1:
+        case SORT_TYPES.byName:
           setEntries((prevEntries) => [...sortByName(prevEntries, desc)]);
           break;
-        case 2:
+        case SORT_TYPES.byCategory:
           setEntries((prevEntries) => [...sortByCategory(prevEntries, desc)]);
           break;
-        case 3:
+        case SORT_TYPES.byQuantity:
           setEntries((prevEntries) => [...sortByQuantity(prevEntries, desc)]);
           break;
       }
