@@ -25,18 +25,21 @@ import {
   KeyboardArrowDownOutlined,
   Info as InfoIcon,
   CheckOutlined,
-  DeleteOutlined,
 } from "@material-ui/icons";
 import { createStyles, makeStyles } from "@material-ui/styles";
+import { useSnackbar } from "notistack";
 import React from "react";
+import { DOMAIN } from "../../../App";
 import { ExpiryGroup } from "./mockEntries";
 
 interface EntryProps {
   FoodIcon?: OverridableComponent<SvgIconTypeMap<{}, "svg">>;
-  expiryGroups?: ExpiryGroup[];
+  inExpiryGroups?: ExpiryGroup[];
   name?: string;
   category?: string;
   quantity?: string;
+  itemID: string;
+  photo?: string;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -129,6 +132,19 @@ const useStyles = makeStyles((theme: Theme) =>
         display: "block",
       },
     },
+
+    expired: {
+      backgroundColor: theme.palette.error.main,
+      color: theme.palette.error.main,
+    },
+    expiring: {
+      backgroundColor: theme.palette.secondary.main,
+      color: theme.palette.secondary.main,
+    },
+    notExpiring: {
+      backgroundColor: theme.palette.primary.main,
+      color: theme.palette.primary.main,
+    },
   })
 );
 
@@ -138,10 +154,12 @@ const msToMonthsRatio = msToDaysRatio * 30;
 
 const InventoryEntry: React.FC<EntryProps> = ({
   FoodIcon = InfoIcon,
-  expiryGroups = [],
+  inExpiryGroups = [],
   name = "Human food item 1",
   category = "Human food",
   quantity = "1kg",
+  photo,
+  itemID,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
@@ -149,6 +167,14 @@ const InventoryEntry: React.FC<EntryProps> = ({
   const [earliestExpPc, setEarliestExpPc] = React.useState<number>(100);
   const [earliestExpDate, setEarliestExpDate] = React.useState("01/01/1970");
   const [expRemainStr, setRemainStr] = React.useState("12+ months");
+  const [colorClass, setColorClass] = React.useState(classes.notExpiring);
+  const [expiryGroups, setExpiryGroups] = React.useState(inExpiryGroups);
+  const [count, setCount] = React.useState(0);
+  const { enqueueSnackbar } = useSnackbar();
+
+  React.useEffect(() => {
+    setCount(expiryGroups.reduce((prev, curr) => prev + curr.count, 0));
+  }, [expiryGroups]);
 
   const handleNewEarliestExpiry = (
     expDate: string,
@@ -158,241 +184,304 @@ const InventoryEntry: React.FC<EntryProps> = ({
     setEarliestExpDate(expDate);
     setEarliestExpPc(percentageDiff);
     setRemainStr(diffStr);
+    if (percentageDiff <= 0) setColorClass(classes.expired);
+    else if (percentageDiff < 5) setColorClass(classes.expiring);
   };
 
+  const handleDeleteItem = React.useCallback(
+    (index: number) => {
+      setExpiryGroups((prev) => {
+        let newExpGroups = [...prev];
+        let currGroup = newExpGroups[index];
+
+        if (currGroup) {
+          currGroup.count--;
+          fetch(DOMAIN + "/api/removeInventoryItem", {
+            method: "DELETE",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              productID: itemID,
+              exp: currGroup.expDate.toLocaleDateString(),
+              count: 1,
+            }),
+          })
+            .then((resp) => resp.json())
+            .then((data) => {
+              enqueueSnackbar(data.message, { variant: "success" });
+            })
+            .catch((e) => enqueueSnackbar("Error! " + e, { variant: "error" }));
+        }
+        if (currGroup && currGroup.count <= 0) newExpGroups.splice(index, 1);
+
+        return newExpGroups;
+      });
+    },
+    [enqueueSnackbar, itemID]
+  );
   return (
     <>
-      <Card
-        elevation={3}
-        style={{
-          marginTop: theme.spacing(2),
-          marginBottom: theme.spacing(2),
-        }}
-      >
-        <ListItem component="li">
-          <ListItemAvatar
-            classes={{
-              root: classes.entryAvatarRoot,
-            }}
-          >
-            <Avatar variant="rounded" style={{ width: "100%", height: "100%" }}>
-              <FoodIcon />
-              {/* <img
-                src="https://spoonacular.com/recipeImages/716429-556x370.jpg"
-                alt="recipe"
-                width={`${theme.spacing(16)}`}
-              ></img> */}
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText
-            primary={
-              <Container classes={{ root: classes.mainTextContainer }}>
-                <CssBaseline />
-                <Container
-                  classes={{ root: classes.embeddedMainTextContainer }}
-                >
-                  <Typography
-                    variant="h6"
-                    // noWrap
-                    classes={{ root: classes.h6Down }}
-                    display="block"
+      {count > 0 && (
+        <Card
+          elevation={3}
+          style={{
+            marginTop: theme.spacing(2),
+            marginBottom: theme.spacing(2),
+          }}
+        >
+          <ListItem component="li">
+            <ListItemAvatar
+              classes={{
+                root: classes.entryAvatarRoot,
+              }}
+            >
+              <Avatar
+                variant="rounded"
+                style={{ width: "100%", height: "100%" }}
+              >
+                {photo ? (
+                  <img
+                    src={`https://shop.coles.com.au${photo}`}
+                    alt="recipe"
+                    width={`${theme.spacing(16)}`}
+                  />
+                ) : (
+                  <FoodIcon />
+                )}
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary={
+                <Container classes={{ root: classes.mainTextContainer }}>
+                  <CssBaseline />
+                  <Container
+                    classes={{ root: classes.embeddedMainTextContainer }}
                   >
-                    {name}
-                  </Typography>
+                    <Typography
+                      variant="h6"
+                      // noWrap
+                      classes={{ root: classes.h6Down }}
+                      display="block"
+                    >
+                      {name}
+                    </Typography>
+                    <Typography
+                      paragraph={false}
+                      color="textSecondary"
+                      display="inline"
+                      classes={{ root: classes.body1Down }}
+                    >
+                      {category}
+                    </Typography>
+                    <Typography
+                      // noWrap
+                      variant="h5"
+                      display="block"
+                      color="textSecondary"
+                      // style={{ marginLeft: theme.spacing(1) }}
+                      classes={{ root: classes.h5Down }}
+                    >
+                      {quantity} x {count}
+                    </Typography>
+                  </Container>
+                  <ButtonGroup
+                    orientation="vertical"
+                    variant="outlined"
+                    className={classes.infoExpandButtonGroup}
+                  >
+                    <Hidden>
+                      <IconButton className={classes.infoButton}>
+                        <InfoIcon
+                          color="primary"
+                          fontSize="medium"
+                          className={classes.infoButton}
+                        />
+                      </IconButton>
+                    </Hidden>
+                    <Hidden smUp>
+                      <IconButton
+                        onClick={() => setOpen((prevOpen) => !prevOpen)}
+                        color="primary"
+                      >
+                        <KeyboardArrowDownOutlined
+                          fontSize="medium"
+                          classes={{ root: classes.expandEntryButton }}
+                          style={isOpen ? { transform: "rotate(180deg)" } : {}}
+                        />
+                      </IconButton>
+                    </Hidden>
+                  </ButtonGroup>
+                </Container>
+              }
+              secondary={
+                <Container classes={{ root: classes.secondaryTextContainer }}>
                   <Typography
+                    variant="body1"
                     paragraph={false}
-                    color="textSecondary"
                     display="inline"
                     classes={{ root: classes.body1Down }}
+                    color="textPrimary"
                   >
-                    {category}
+                    Earliest expiry:
                   </Typography>
                   <Typography
-                    // noWrap
-                    variant="h5"
-                    display="block"
-                    color="textSecondary"
-                    // style={{ marginLeft: theme.spacing(1) }}
-                    classes={{ root: classes.h5Down }}
+                    // color={earliestExpPc < 50 ? "secondary" : "primary"}
+                    display="inline"
+                    style={{
+                      marginLeft: theme.spacing(1),
+                      backgroundColor: "transparent",
+                    }}
+                    // className={colorClass}
+                    classes={{ root: colorClass }}
                   >
-                    {quantity} x {expiryGroups.length * 3}
+                    {earliestExpDate}
+                  </Typography>
+                  <Typography
+                    color="textSecondary"
+                    variant="body1"
+                    // style={{ marginLeft: theme.spacing(2) }}
+                    className={classes.expiryRemainTyp}
+                  >
+                    {expRemainStr}
                   </Typography>
                 </Container>
-                <ButtonGroup
-                  orientation="vertical"
-                  variant="outlined"
-                  className={classes.infoExpandButtonGroup}
-                >
-                  <Hidden>
-                    <IconButton className={classes.infoButton}>
-                      <InfoIcon
-                        color="primary"
-                        fontSize="medium"
-                        className={classes.infoButton}
-                      />
-                    </IconButton>
-                  </Hidden>
-                  <Hidden smUp>
-                    <IconButton
-                      onClick={() => setOpen((prevOpen) => !prevOpen)}
-                      color="primary"
-                    >
-                      <KeyboardArrowDownOutlined
-                        fontSize="medium"
-                        classes={{ root: classes.expandEntryButton }}
-                        style={isOpen ? { transform: "rotate(180deg)" } : {}}
-                      />
-                    </IconButton>
-                  </Hidden>
-                </ButtonGroup>
+              }
+            />
+            <Hidden mdDown>
+              <Container maxWidth="sm" disableGutters={true}>
+                <LinearProgress
+                  variant="determinate"
+                  value={100 - earliestExpPc}
+                  color={earliestExpPc < 5 ? "secondary" : "primary"}
+                  // color={exp}
+                  classes={{ bar1Determinate: colorClass }}
+                />
               </Container>
-            }
-            secondary={
-              <Container classes={{ root: classes.secondaryTextContainer }}>
-                <Typography
-                  variant="body1"
-                  paragraph={false}
-                  display="inline"
-                  classes={{ root: classes.body1Down }}
-                  color="textPrimary"
+            </Hidden>
+            <Hidden xsDown>
+              <ListItemIcon>
+                <IconButton
+                  onClick={() => setOpen((prevOpen) => !prevOpen)}
+                  color="primary"
                 >
-                  Earliest expiry:
-                </Typography>
-                <Typography
-                  color={earliestExpPc < 50 ? "secondary" : "primary"}
-                  display="inline"
-                  style={{ marginLeft: theme.spacing(1) }}
-                >
-                  {earliestExpDate}
-                </Typography>
-                <Typography
-                  color="textSecondary"
-                  variant="body1"
-                  // style={{ marginLeft: theme.spacing(2) }}
-                  className={classes.expiryRemainTyp}
-                >
-                  {expRemainStr}
-                </Typography>
-              </Container>
-            }
-          />
-          <Hidden mdDown>
-            <Container maxWidth="sm" disableGutters={true}>
+                  <KeyboardArrowDownOutlined
+                    fontSize="medium"
+                    classes={{ root: classes.expandEntryButton }}
+                    style={isOpen ? { transform: "rotate(180deg)" } : {}}
+                  />
+                </IconButton>
+              </ListItemIcon>
+            </Hidden>
+          </ListItem>
+          <Hidden lgUp>
+            <Container disableGutters={true}>
               <LinearProgress
                 variant="determinate"
                 value={100 - earliestExpPc}
-                color={earliestExpPc < 50 ? "secondary" : "primary"}
+                color={earliestExpPc < 5 ? "secondary" : "primary"}
+                classes={{ bar1Determinate: colorClass }}
               />
             </Container>
           </Hidden>
-          <Hidden xsDown>
-            <ListItemIcon>
-              <IconButton
-                onClick={() => setOpen((prevOpen) => !prevOpen)}
-                color="primary"
-              >
-                <KeyboardArrowDownOutlined
-                  fontSize="medium"
-                  classes={{ root: classes.expandEntryButton }}
-                  style={isOpen ? { transform: "rotate(180deg)" } : {}}
-                />
-              </IconButton>
-            </ListItemIcon>
-          </Hidden>
-        </ListItem>
-        <Hidden lgUp>
-          <Container disableGutters={true}>
-            <LinearProgress
-              variant="determinate"
-              value={100 - earliestExpPc}
-              color={earliestExpPc < 50 ? "secondary" : "primary"}
-            />
-          </Container>
-        </Hidden>
-        <Collapse
-          in={isOpen}
-          className={classes.collapseRoot}
-          classes={{ hidden: classes.collapseRootHidden }}
-        >
-          <Grid
-            container
-            justifyContent="space-between"
-            alignItems="center"
-            spacing={1}
+          <Collapse
+            in={isOpen}
+            className={classes.collapseRoot}
+            classes={{ hidden: classes.collapseRootHidden }}
           >
-            {expiryGroups.map((eg, i) => {
-              eg.expDate = new Date(eg.expDate);
-              const diff = getMonthDifference(eg.expDate);
-              const localDateStr = eg.expDate.toLocaleDateString();
+            <Grid
+              container
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={1}
+            >
+              {expiryGroups.map((eg, i) => {
+                eg.expDate = new Date(eg.expDate);
+                const diff = getMonthDifference(eg.expDate);
+                const localDateStr = eg.expDate.toLocaleDateString();
 
-              var percentageDiff;
-              var diffStr =
-                diff < 6
-                  ? "" + Math.floor(diff * 31) + " days"
-                  : "" + Math.floor(diff) + " months";
+                var percentageDiff;
+                var color = classes.notExpiring;
+                var diffStr =
+                  diff <= 1
+                    ? "" + Math.floor(diff * 31) + " days"
+                    : "" + Math.floor(diff) + " months";
 
-              if (diff > 12) {
-                percentageDiff = 100;
-                diffStr = "12+ months";
-              } else {
-                percentageDiff = (diff / 12) * 100;
-              }
+                if (diff > 12) {
+                  percentageDiff = 100;
+                  diffStr = "12+ months";
+                } else {
+                  percentageDiff = (diff / 12) * 100;
+                }
 
-              if (percentageDiff < earliestExpPc) {
-                handleNewEarliestExpiry(localDateStr, percentageDiff, diffStr);
-              }
-              return (
-                <Grid item xs={12} lg={6} key={i}>
-                  <Container>
-                    <Card elevation={2}>
-                      <Container className={classes.expiryGroupContainer}>
-                        {/* {localDateStr} x {eg.count} ({diffStr}) */}
-                        <Box flex>
-                          <Typography
-                            variant="h6"
-                            color={
-                              percentageDiff < 50 ? "secondary" : "primary"
-                            }
+                if (percentageDiff < earliestExpPc) {
+                  handleNewEarliestExpiry(
+                    localDateStr,
+                    percentageDiff,
+                    diffStr
+                  );
+                }
+
+                if (percentageDiff < 0) color = classes.expired;
+                else if (percentageDiff < 5) color = classes.expiring;
+
+                return (
+                  <Grid item xs={12} lg={6} key={i}>
+                    <Container>
+                      <Card
+                        elevation={2}
+                        style={{ opacity: percentageDiff <= 0 ? 0.5 : 1 }}
+                      >
+                        <Container className={classes.expiryGroupContainer}>
+                          {/* {localDateStr} x {eg.count} ({diffStr}) */}
+                          <Box flex>
+                            <Typography variant="h6">{localDateStr}</Typography>
+                            <Typography variant="h6" color="textSecondary">
+                              ({diffStr})
+                            </Typography>
+                          </Box>
+                          <Typography variant="h6" color="textPrimary">
+                            x {eg.count}
+                          </Typography>
+                          <ButtonGroup
+                            variant="contained"
+                            size="large"
+                            disableElevation
                           >
-                            {localDateStr}
-                          </Typography>
-                          <Typography variant="h6" color="textSecondary">
-                            ({diffStr})
-                          </Typography>
-                        </Box>
-                        <Typography variant="h6" color="textPrimary">
-                          x {eg.count}
-                        </Typography>
-                        <ButtonGroup
-                          variant="contained"
-                          size="large"
-                          disableElevation
-                        >
-                          <Button color="primary">
-                            <CheckOutlined style={{ color: "white" }} />
-                          </Button>
-                          <Button
+                            <Button
+                              color="primary"
+                              onClick={() => handleDeleteItem(i)}
+                            >
+                              <CheckOutlined style={{ color: "white" }} />
+                            </Button>
+                            {/* <Button
                             style={{
                               backgroundColor: theme.palette.error.main,
                             }}
                           >
                             <DeleteOutlined style={{ color: "white" }} />
-                          </Button>
-                        </ButtonGroup>
-                      </Container>
-                      <LinearProgress
-                        variant="determinate"
-                        value={100 - percentageDiff}
-                        color={diff < 6 ? "secondary" : "primary"}
-                      />
-                    </Card>
-                  </Container>
-                </Grid>
-              );
-            })}
-          </Grid>
-        </Collapse>
-      </Card>
+                          </Button> */}
+                          </ButtonGroup>
+                        </Container>
+                        <LinearProgress
+                          variant="determinate"
+                          value={100 - percentageDiff}
+                          color={
+                            color === classes.expiring ? "secondary" : "primary"
+                          }
+                          // color={"error"}
+                          classes={{
+                            bar1Determinate: color,
+                          }}
+                        />
+                      </Card>
+                    </Container>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </Collapse>
+        </Card>
+      )}
     </>
   );
 };

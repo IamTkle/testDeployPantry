@@ -1,4 +1,4 @@
-import { Container } from "@material-ui/core";
+import { CircularProgress, Container } from "@material-ui/core";
 import React from "react";
 import { Recipe } from "./mockEntries";
 import RecipeEntry from "./RecipeEntry";
@@ -32,19 +32,30 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
   return (
     <>
       {activeTab === index && (
-        <Container style={{ maxWidth: "none" }}>
-          {propEntries.map((r, i) => {
-            return (
-              <RecipeEntry
-                key={getKey(r.name)}
-                i={i}
-                recipe={r}
-                handleOpenEdit={handleOpenEdit}
-                handleRemove={handleRemove}
-                handleAdd={handleAdd}
-              ></RecipeEntry>
-            );
-          })}
+        <Container
+          style={{
+            maxWidth: "none",
+            textAlign: "center",
+            overflow: "hidden",
+            marginBottom: "2rem",
+          }}
+        >
+          {propEntries.length > 0 ? (
+            propEntries.map((r, i) => {
+              return (
+                <RecipeEntry
+                  key={getKey(r.name)}
+                  i={i}
+                  recipe={r}
+                  handleOpenEdit={handleOpenEdit}
+                  handleRemove={handleRemove}
+                  handleAdd={handleAdd}
+                ></RecipeEntry>
+              );
+            })
+          ) : (
+            <CircularProgress color="primary" size={100} />
+          )}
         </Container>
       )}
     </>
