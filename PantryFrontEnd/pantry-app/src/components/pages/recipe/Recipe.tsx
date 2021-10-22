@@ -14,11 +14,9 @@ import InfiniteScroller from "react-infinite-scroll-component";
 import SwipeableViews from "react-swipeable-views";
 import { DOMAIN } from "../../../App";
 import PantryAppBar from "../../PantryAppBar";
+import ScrollTopFab from "../../ScrollTopFab";
 import { Recipe } from "../recipe/mockEntries";
-import {
-  browseRecipes as importedBR,
-  likedRecipes as importedLR,
-} from "./mockEntries";
+import { likedRecipes as importedLR } from "./mockEntries";
 import RecipeEditDialog from "./RecipeEditDialog";
 import RecipeTab from "./RecipeTab";
 
@@ -104,6 +102,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   const setEditDialogOpen = editDialogOpenState[1];
 
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
+
   React.useEffect(() => {
     fetch(DOMAIN + "/api/getUserRecipes", {
       method: "GET",
@@ -180,8 +179,6 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
       .catch((e) => console.error(e));
   };
 
-  const topAnchorRef = React.useRef<HTMLDivElement | null>(null);
-
   return (
     <div className={classes.pageContainer} ref={scrollRef}>
       <InfiniteScroller
@@ -203,14 +200,17 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
           handleSortDirectionChange={handleSortDirectionChange}
           handleSortTypeChosen={handleSortTypeChosen}
         />
-        <Toolbar ref={topAnchorRef} />
+        <Toolbar />
 
         <Container disableGutters style={{ maxWidth: "none" }}>
           <Tabs
             value={activeTab}
             variant="fullWidth"
             onChange={handleTabChange}
-            classes={{ root: classes.tabBar, indicator: classes.tabIndicator }}
+            classes={{
+              root: classes.tabBar,
+              indicator: classes.tabIndicator,
+            }}
           >
             <Tab wrapped label="browse" value={0} icon={<ListIcon />} />
             <Tab wrapped label="favorites" value={1} icon={<Favorite />} />
@@ -260,6 +260,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
         <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
           <Add />
         </Fab>
+        <ScrollTopFab topRef={scrollRef} />
       </InfiniteScroller>
     </div>
   );
