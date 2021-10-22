@@ -39,6 +39,7 @@ interface EntryProps {
   category?: string;
   quantity?: string;
   itemID: string;
+  photo?: string;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -157,6 +158,7 @@ const InventoryEntry: React.FC<EntryProps> = ({
   name = "Human food item 1",
   category = "Human food",
   quantity = "1kg",
+  photo,
   itemID,
 }) => {
   const theme = useTheme();
@@ -237,12 +239,15 @@ const InventoryEntry: React.FC<EntryProps> = ({
                 variant="rounded"
                 style={{ width: "100%", height: "100%" }}
               >
-                <FoodIcon />
-                {/* <img
-                src="https://spoonacular.com/recipeImages/716429-556x370.jpg"
-                alt="recipe"
-                width={`${theme.spacing(16)}`}
-              ></img> */}
+                {photo ? (
+                  <img
+                    src={`https://shop.coles.com.au${photo}`}
+                    alt="recipe"
+                    width={`${theme.spacing(16)}`}
+                  />
+                ) : (
+                  <FoodIcon />
+                )}
               </Avatar>
             </ListItemAvatar>
             <ListItemText
@@ -373,7 +378,8 @@ const InventoryEntry: React.FC<EntryProps> = ({
               <LinearProgress
                 variant="determinate"
                 value={100 - earliestExpPc}
-                color={earliestExpPc < 50 ? "secondary" : "primary"}
+                color={earliestExpPc < 5 ? "secondary" : "primary"}
+                classes={{ bar1Determinate: colorClass }}
               />
             </Container>
           </Hidden>

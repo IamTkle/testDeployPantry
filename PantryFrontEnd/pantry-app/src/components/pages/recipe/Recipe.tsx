@@ -104,7 +104,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
-    fetch(DOMAIN + "/api/getUserRecipes", {
+    fetch(DOMAIN + "/api/browseRecipes", {
       method: "GET",
       credentials: "include",
       headers: {
@@ -140,9 +140,6 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   };
 
   const handleRemove = (recipe: Recipe) => {
-    setBrowseRecipes((recipes) =>
-      recipes.filter((cur) => cur.name !== recipe.name)
-    );
     setLikedRecipes((recipes) =>
       recipes.filter((cur) => cur.name !== recipe.name)
     );
@@ -156,7 +153,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   };
 
   const handleFetchNext = () => {
-    fetch(DOMAIN + "/api/getUserRecipes?index=" + browseRecipes.length, {
+    fetch(DOMAIN + "/api/browseRecipes?index=" + browseRecipes.length, {
       method: "GET",
       credentials: "include",
     })

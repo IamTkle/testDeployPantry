@@ -33,7 +33,12 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
     <>
       {activeTab === index && (
         <Container
-          style={{ maxWidth: "none", textAlign: "center", overflow: "hidden" }}
+          style={{
+            maxWidth: "none",
+            textAlign: "center",
+            overflow: "hidden",
+            marginBottom: "2rem",
+          }}
         >
           {propEntries.length > 0 ? (
             propEntries.map((r, i) => {
