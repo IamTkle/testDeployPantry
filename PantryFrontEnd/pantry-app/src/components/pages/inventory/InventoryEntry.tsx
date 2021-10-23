@@ -52,7 +52,6 @@ const useStyles = makeStyles((theme: Theme) =>
       justifyContent: "flex-start",
       alignItems: "center",
       padding: 0,
-      paddingLeft: theme.spacing(1),
       maxWidth: "none",
       width: "100%",
     },
@@ -76,7 +75,7 @@ const useStyles = makeStyles((theme: Theme) =>
       aspectRatio: "1 / 1",
       minWidth: theme.spacing(16),
       [theme.breakpoints.down("xs")]: {
-        minWidth: theme.spacing(10),
+        // minWidth: theme.spacing(10),
       },
     },
     h5Down: {
@@ -257,7 +256,6 @@ const InventoryEntry: React.FC<EntryProps> = ({
                   >
                     <Typography
                       variant="h6"
-                      // noWrap
                       classes={{ root: classes.h6Down }}
                       display="block"
                     >
@@ -313,13 +311,13 @@ const InventoryEntry: React.FC<EntryProps> = ({
                       style={{
                         width: "100%",
                         height: "100%",
-                        border: `2px solid ${theme.palette.text.secondary}`,
+                        outline: `3px solid ${theme.palette.text.secondary}`,
                       }}
                     >
                       {photo ? (
                         <img
                           src={`https://shop.coles.com.au${photo}`}
-                          alt="recipe"
+                          alt="Inventory item"
                           width={`${theme.spacing(16)}`}
                         />
                       ) : (
@@ -364,12 +362,11 @@ const InventoryEntry: React.FC<EntryProps> = ({
                         Earliest expiry:
                       </Typography>
                       <Typography
-                        // color={earliestExpPc < 50 ? "secondary" : "primary"}
                         display="inline"
                         style={{
                           backgroundColor: "transparent",
+                          whiteSpace: "nowrap",
                         }}
-                        // className={colorClass}
                         classes={{ root: colorClass }}
                       >
                         {earliestExpDate}
@@ -377,7 +374,6 @@ const InventoryEntry: React.FC<EntryProps> = ({
                       <Typography
                         color="textSecondary"
                         variant="body1"
-                        // style={{ marginLeft: theme.spacing(2) }}
                         className={classes.expiryRemainTyp}
                       >
                         {expRemainStr}

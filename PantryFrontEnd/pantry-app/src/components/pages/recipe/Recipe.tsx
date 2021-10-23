@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
     fab: {
       position: "fixed",
-      zIndex: 5,
+      zIndex: 15,
       bottom: theme.spacing(4),
       right: theme.spacing(4),
       color: theme.palette.background.default,
