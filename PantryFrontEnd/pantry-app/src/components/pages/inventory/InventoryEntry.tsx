@@ -53,6 +53,8 @@ const useStyles = makeStyles((theme: Theme) =>
       alignItems: "center",
       padding: 0,
       paddingLeft: theme.spacing(1),
+      maxWidth: "none",
+      width: "100%",
     },
     embeddedMainTextContainer: {
       padding: 0,
@@ -63,6 +65,11 @@ const useStyles = makeStyles((theme: Theme) =>
     secondaryTextContainer: {
       paddingRight: 0,
       paddingLeft: theme.spacing(1),
+      height: "auto",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-around",
+      alignItems: "space-around",
     },
     entryAvatarRoot: {
       height: "100%",
@@ -101,10 +108,11 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     infoExpandButtonGroup: {
       maginLeft: theme.spacing(2),
-      marginBottom: theme.spacing(9),
+      // marginBottom: theme.spacing(9),
       [theme.breakpoints.down("xs")]: {
-        marginLeft: "auto",
-        marginBottom: 0,
+        // marginLeft: "auto",
+        // marginBottom: 0,
+        height: "100%",
       },
     },
     collapseRoot: {
@@ -130,6 +138,15 @@ const useStyles = makeStyles((theme: Theme) =>
       [theme.breakpoints.down("xs")]: {
         marginLeft: 0,
         display: "block",
+      },
+    },
+
+    expiryDateLabel: {
+      marginRight: theme.spacing(1),
+      marginBlock: "auto",
+      [theme.breakpoints.down("xs")]: {
+        display: "block",
+        fontSize: theme.typography.body2.fontSize,
       },
     },
 
@@ -195,15 +212,16 @@ const InventoryEntry: React.FC<EntryProps> = ({
         let currGroup = newExpGroups[index];
 
         if (currGroup) {
-          currGroup.count--;
+          const deleteCount = earliestExpPc < 0 ? currGroup.count : 1;
+          currGroup.count -= deleteCount;
           fetch(DOMAIN + "/api/removeInventoryItem", {
             method: "DELETE",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               productID: itemID,
-              exp: currGroup.expDate.toLocaleDateString(),
-              count: 1,
+              exp: currGroup.expDate.toISOString(),
+              count: deleteCount,
             }),
           })
             .then((resp) => resp.json())
@@ -217,7 +235,7 @@ const InventoryEntry: React.FC<EntryProps> = ({
         return newExpGroups;
       });
     },
-    [enqueueSnackbar, itemID]
+    [enqueueSnackbar, itemID, earliestExpPc]
   );
   return (
     <>
@@ -230,26 +248,6 @@ const InventoryEntry: React.FC<EntryProps> = ({
           }}
         >
           <ListItem component="li">
-            <ListItemAvatar
-              classes={{
-                root: classes.entryAvatarRoot,
-              }}
-            >
-              <Avatar
-                variant="rounded"
-                style={{ width: "100%", height: "100%" }}
-              >
-                {photo ? (
-                  <img
-                    src={`https://shop.coles.com.au${photo}`}
-                    alt="recipe"
-                    width={`${theme.spacing(16)}`}
-                  />
-                ) : (
-                  <FoodIcon />
-                )}
-              </Avatar>
-            </ListItemAvatar>
             <ListItemText
               primary={
                 <Container classes={{ root: classes.mainTextContainer }}>
@@ -264,24 +262,6 @@ const InventoryEntry: React.FC<EntryProps> = ({
                       display="block"
                     >
                       {name}
-                    </Typography>
-                    <Typography
-                      paragraph={false}
-                      color="textSecondary"
-                      display="inline"
-                      classes={{ root: classes.body1Down }}
-                    >
-                      {category}
-                    </Typography>
-                    <Typography
-                      // noWrap
-                      variant="h5"
-                      display="block"
-                      color="textSecondary"
-                      // style={{ marginLeft: theme.spacing(1) }}
-                      classes={{ root: classes.h5Down }}
-                    >
-                      {quantity} x {count}
                     </Typography>
                   </Container>
                   <ButtonGroup
@@ -298,7 +278,7 @@ const InventoryEntry: React.FC<EntryProps> = ({
                         />
                       </IconButton>
                     </Hidden>
-                    <Hidden smUp>
+                    {/* <Hidden smUp>
                       <IconButton
                         onClick={() => setOpen((prevOpen) => !prevOpen)}
                         color="primary"
@@ -309,41 +289,101 @@ const InventoryEntry: React.FC<EntryProps> = ({
                           style={isOpen ? { transform: "rotate(180deg)" } : {}}
                         />
                       </IconButton>
-                    </Hidden>
+                    </Hidden> */}
                   </ButtonGroup>
                 </Container>
               }
               secondary={
-                <Container classes={{ root: classes.secondaryTextContainer }}>
-                  <Typography
-                    variant="body1"
-                    paragraph={false}
-                    display="inline"
-                    classes={{ root: classes.body1Down }}
-                    color="textPrimary"
-                  >
-                    Earliest expiry:
-                  </Typography>
-                  <Typography
-                    // color={earliestExpPc < 50 ? "secondary" : "primary"}
-                    display="inline"
-                    style={{
-                      marginLeft: theme.spacing(1),
-                      backgroundColor: "transparent",
+                <Container
+                  disableGutters
+                  style={{
+                    maxWidth: "none",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <ListItemAvatar
+                    classes={{
+                      root: classes.entryAvatarRoot,
                     }}
-                    // className={colorClass}
-                    classes={{ root: colorClass }}
                   >
-                    {earliestExpDate}
-                  </Typography>
-                  <Typography
-                    color="textSecondary"
-                    variant="body1"
-                    // style={{ marginLeft: theme.spacing(2) }}
-                    className={classes.expiryRemainTyp}
-                  >
-                    {expRemainStr}
-                  </Typography>
+                    <Avatar
+                      variant="rounded"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        border: `2px solid ${theme.palette.text.secondary}`,
+                      }}
+                    >
+                      {photo ? (
+                        <img
+                          src={`https://shop.coles.com.au${photo}`}
+                          alt="recipe"
+                          width={`${theme.spacing(16)}`}
+                        />
+                      ) : (
+                        <FoodIcon />
+                      )}
+                    </Avatar>
+                  </ListItemAvatar>
+                  <Container classes={{ root: classes.secondaryTextContainer }}>
+                    <Typography
+                      paragraph={false}
+                      color="textSecondary"
+                      display="inline"
+                      // classes={{ root: classes.body1Down }}
+                      className={classes.expiryDateLabel}
+                    >
+                      {category}
+                    </Typography>
+                    <Typography
+                      // noWrap
+                      variant="h5"
+                      display="block"
+                      color="textSecondary"
+                      // style={{ marginLeft: theme.spacing(1) }}
+                      classes={{ root: classes.h5Down }}
+                    >
+                      {quantity} x {count}
+                    </Typography>
+                    <div
+                    // style={{
+                    //   display: "flex",
+                    //   justifyContent: "flex-start",
+                    //   alignItems: "center",
+                    // }}
+                    >
+                      <Typography
+                        variant="body1"
+                        paragraph={false}
+                        display="inline"
+                        classes={{ root: classes.expiryDateLabel }}
+                        color="textPrimary"
+                      >
+                        Earliest expiry:
+                      </Typography>
+                      <Typography
+                        // color={earliestExpPc < 50 ? "secondary" : "primary"}
+                        display="inline"
+                        style={{
+                          backgroundColor: "transparent",
+                        }}
+                        // className={colorClass}
+                        classes={{ root: colorClass }}
+                      >
+                        {earliestExpDate}
+                      </Typography>
+                      <Typography
+                        color="textSecondary"
+                        variant="body1"
+                        // style={{ marginLeft: theme.spacing(2) }}
+                        className={classes.expiryRemainTyp}
+                      >
+                        {expRemainStr}
+                      </Typography>
+                    </div>
+                  </Container>
                 </Container>
               }
             />
@@ -358,20 +398,20 @@ const InventoryEntry: React.FC<EntryProps> = ({
                 />
               </Container>
             </Hidden>
-            <Hidden xsDown>
-              <ListItemIcon>
-                <IconButton
-                  onClick={() => setOpen((prevOpen) => !prevOpen)}
-                  color="primary"
-                >
-                  <KeyboardArrowDownOutlined
-                    fontSize="medium"
-                    classes={{ root: classes.expandEntryButton }}
-                    style={isOpen ? { transform: "rotate(180deg)" } : {}}
-                  />
-                </IconButton>
-              </ListItemIcon>
-            </Hidden>
+            {/* <Hidden xsDown> */}
+            <ListItemIcon>
+              <IconButton
+                onClick={() => setOpen((prevOpen) => !prevOpen)}
+                color="primary"
+              >
+                <KeyboardArrowDownOutlined
+                  fontSize="medium"
+                  classes={{ root: classes.expandEntryButton }}
+                  style={isOpen ? { transform: "rotate(180deg)" } : {}}
+                />
+              </IconButton>
+            </ListItemIcon>
+            {/* </Hidden> */}
           </ListItem>
           <Hidden lgUp>
             <Container disableGutters={true}>
