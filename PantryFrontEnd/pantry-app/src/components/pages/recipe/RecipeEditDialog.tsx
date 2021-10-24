@@ -12,31 +12,32 @@ import {
   MenuItem,
   TextField,
   Theme,
+  useMediaQuery,
   useTheme,
 } from "@material-ui/core";
 import { AddBox, Edit } from "@material-ui/icons";
 import React from "react";
 import { DOMAIN } from "../../../App";
-import { Recipe } from "./mockEntries";
+import { DetailedIngredient_id, DetailedRecipe, ingredient_id } from "./Recipe";
 import RecipeEditDialogEntries from "./RecipeEditDialogEntries";
 
 interface RecipeDialogProps {
   dialogOpenState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
-  dialogRecipeState: [Recipe, React.Dispatch<React.SetStateAction<Recipe>>];
-  // dialogRecipeState: [Recipe | null, React.Dispatch<React.SetStateAction<Recipe | null>>]
-  handleSave: (recipe: Recipe) => void;
+  dialogRecipeState: [
+    DetailedRecipe,
+    React.Dispatch<React.SetStateAction<DetailedRecipe>>
+  ];
+  resetDialogRecipe: () => void;
+  handleSave: (recipe: DetailedRecipe) => void;
 }
 
-export interface ingredient_id {
-  name: string;
-  id: number;
+interface CustomIngredient extends ingredient_id {
+  unitOfMeasure: string;
 }
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     saveEditButton: {
       color: theme.palette.background.default,
-      // backgroundColor: theme.palette.text.secondary,
       backgroundColor: theme.palette.primary.dark,
 
       margin: theme.spacing(2),
@@ -58,15 +59,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const getKey = (name: string) => {
-  var key = 0;
-  for (let i = 0; i < name.length; i++) {
-    key += name.charCodeAt(i) + i;
-  }
-
-  return key;
-};
-
 // const areEqual = (rA: Recipe, rB: Recipe) => {
 //   if (
 //     rA.name === rB.name &&
@@ -79,29 +71,40 @@ const getKey = (name: string) => {
 const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   dialogOpenState,
   dialogRecipeState,
+  resetDialogRecipe,
   handleSave,
 }) => {
+  //STYLES
   const theme = useTheme();
   const classes = useStyles(theme);
 
+  // STATES
   const [editDialogOpen, setEditDialog] = dialogOpenState;
 
   const [dialogRecipe, setDialogRecipe] = dialogRecipeState;
 
   const [titleEditable, setTitleEditable] = React.useState(false);
 
-  const [initialRecipe] = React.useState(() => {
-    return { ...dialogRecipe };
-  });
+  const [allIngredients, setAllIngredients] = React.useState<
+    DetailedIngredient_id[]
+  >([]);
 
-  const isValidRecipe = React.useMemo(() => {
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+
+  // NEED UPDATE FOR PRODUCTS
+  const isValidRecipe = React.useCallback(() => {
+    console.log(
+      dialogRecipe.ingredientsList.every((ingr) => ingr.ingredientId > 0),
+      dialogRecipe.ingredientsList
+    );
     if (
-      dialogRecipe.name &&
-      dialogRecipe.ingredients.every((ingr) => ingr.length > 0)
+      dialogRecipe.recipeName &&
+      dialogRecipe.ingredientsList.every((ingr) => ingr.ingredientId > 0)
     )
       return true;
+
     return false;
-  }, [dialogRecipe.ingredients, dialogRecipe.name]);
+  }, [dialogRecipe.ingredientsList, dialogRecipe.recipeName]);
 
   const handleTitleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -113,7 +116,12 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
 
   const handleAddItem = () => {
     setDialogRecipe((prev) => {
-      prev.ingredients[prev.ingredients.length] = "New ingredient";
+      prev.ingredientsList[prev.ingredientsList.length] = {
+        ingredientName: "",
+        ingredientId: 0,
+        unitOfMeasure: "kg",
+        amount: 0,
+      };
       return { ...prev };
     });
   };
@@ -121,29 +129,35 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   const handleSaveDialog = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
-    if (isValidRecipe) {
+    if (isValidRecipe()) {
       handleSave(dialogRecipe);
       setEditDialog(false);
     }
   };
 
-  const handleEntryEdited = (i: number, name: string) => {
-    setDialogRecipe((prev) => {
-      prev.ingredients[i] = name;
-      return { ...prev };
-    });
-  };
+  const handleEntryEdited = React.useCallback(
+    (i: number, ing: DetailedIngredient_id) => {
+      setDialogRecipe((prev) => {
+        prev.ingredientsList[i] = { ...ing };
+        console.log(prev.ingredientsList[i], "this is higher");
+        return { ...prev };
+      });
+    },
+    [setDialogRecipe]
+  );
 
   const handleRemoveEntry = (i: number) => {
     setDialogRecipe((prev) => {
-      prev.ingredients.splice(i, 1);
+      prev.ingredientsList.splice(i, 1);
       return { ...prev };
     });
   };
 
-  const [allIngredients, setAllIngredients] = React.useState<ingredient_id[]>(
-    []
-  );
+  const handleClose = () => {
+    setEditDialog(false);
+    setTitleEditable(false);
+    resetDialogRecipe();
+  };
 
   React.useEffect(() => {
     fetch(DOMAIN + "/api/AllIngedients", {
@@ -152,11 +166,27 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
       headers: { "Content-Type": "application/json" },
     })
       .then((resp) => resp.json())
-      .then((data: ingredient_id[]) => setAllIngredients(data))
+      .then((data) =>
+        setAllIngredients(
+          data.map((val: CustomIngredient) => {
+            return {
+              ingredientId: val.ids,
+              ingredientName: val.name,
+              unitOfMeasure: val.unitOfMeasure,
+              amount: 0,
+            };
+          })
+        )
+      )
       .catch((e) => {
         console.error(e);
         setAllIngredients([
-          { name: "Could not get ingredients, please refresh!", id: 123 },
+          {
+            ingredientName: "Could not get ingredients, please refresh!",
+            ingredientId: -1,
+            amount: 0,
+            unitOfMeasure: "kg",
+          },
         ]);
       });
   }, []);
@@ -164,27 +194,21 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   return (
     <Dialog
       open={editDialogOpen}
-      maxWidth="sm"
-      onClose={() => {
-        setEditDialog(false);
-        setDialogRecipe(initialRecipe);
-      }}
+      maxWidth="md"
+      fullScreen={fullScreen}
+      onClose={handleClose}
       fullWidth
     >
       <DialogTitle>
-        <ClickAwayListener
-          onClickAway={() =>
-            dialogRecipe.name ? setTitleEditable(false) : null
-          }
-        >
+        <ClickAwayListener onClickAway={fullScreen ? () => {} : handleClose}>
           <TextField
             required
-            value={dialogRecipe.name}
+            value={dialogRecipe.recipeName}
             disabled={!titleEditable}
-            //   onBlur={() => (dialogRecipe.name ? setTitleEditable(false) : null)}
+            fullWidth
             onChange={handleTitleChange}
-            error={!dialogRecipe.name}
-            helperText={!dialogRecipe.name ? "Title cannot be blank" : ""}
+            error={!dialogRecipe.recipeName}
+            helperText={!dialogRecipe.recipeName ? "Title cannot be blank" : ""}
             InputProps={{
               endAdornment: (
                 <IconButton
@@ -201,11 +225,11 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
 
       <DialogContent>
         <List>
-          {dialogRecipe.ingredients.map((ig, i) => {
+          {dialogRecipe.ingredientsList.map((ig, i) => {
             return (
               <RecipeEditDialogEntries
                 i={i}
-                key={getKey(ig)}
+                key={ig.ingredientId}
                 ig={ig}
                 allIngredients={allIngredients}
                 handleEdited={handleEntryEdited}
@@ -213,16 +237,22 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
               />
             );
           })}
-          <MenuItem
-            style={{}}
-            className={classes.addButton}
-            onClick={handleAddItem}
-          >
+          <MenuItem className={classes.addButton} onClick={handleAddItem}>
             <AddBox />
           </MenuItem>
         </List>
       </DialogContent>
       <DialogActions>
+        <Button
+          style={{
+            visibility: fullScreen ? "visible" : "hidden",
+            marginRight: "auto",
+          }}
+          color="secondary"
+          onClick={handleClose}
+        >
+          Cancel
+        </Button>
         <Button
           className={classes.saveEditButton}
           variant="contained"

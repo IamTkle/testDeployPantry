@@ -1,27 +1,28 @@
 import { CircularProgress, Container } from "@material-ui/core";
 import React from "react";
-import { Recipe } from "./mockEntries";
+import { APIRecipe } from "./Recipe";
 import RecipeEntry from "./RecipeEntry";
 
 interface RecipeTabProps {
   activeTab: number;
   index: number;
-  propEntries: Recipe[];
-  handleOpenEdit: (recipe: Recipe, i: number) => void;
-  handleRemove?: (recipe: Recipe) => void;
+  propEntries: APIRecipe[];
+  handleOpenEdit: (recipe: APIRecipe, i: number) => void;
+  handleRemove?: (recipe: APIRecipe) => void;
   handleLiked?: (i: number) => void;
+  handleDetails: (recipe: APIRecipe) => void;
   handleAdd: () => void;
   type: "api" | "fav";
 }
 
-const getKey = (name: string) => {
-  var key = 0;
-  for (let i = 0; i < name.length; i++) {
-    key += name.charCodeAt(i);
-  }
+// const getKey = (name: string) => {
+//   var key = 0;
+//   for (let i = 0; i < name.length; i++) {
+//     key += name.charCodeAt(i);
+//   }
 
-  return key;
-};
+//   return key;
+// };
 
 const RecipeTab: React.FC<RecipeTabProps> = ({
   activeTab,
@@ -31,6 +32,8 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
   handleRemove,
   handleAdd,
   handleLiked,
+
+  handleDetails,
   type,
 }) => {
   return (
@@ -49,13 +52,14 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
               return (
                 <RecipeEntry
                   type={type}
-                  key={getKey(r.name)}
+                  key={r.recipeId}
                   i={i}
                   recipe={r}
                   handleOpenEdit={handleOpenEdit}
                   handleRemove={handleRemove}
                   handleAdd={handleAdd}
                   handleLiked={handleLiked}
+                  handleDetails={handleDetails}
                 ></RecipeEntry>
               );
             })

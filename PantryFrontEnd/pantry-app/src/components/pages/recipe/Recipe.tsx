@@ -9,14 +9,14 @@ import {
 } from "@material-ui/core";
 import { Add, Favorite, List as ListIcon } from "@material-ui/icons";
 import { createStyles, makeStyles, useTheme } from "@material-ui/styles";
+import { useSnackbar } from "notistack";
 import React from "react";
 import InfiniteScroller from "react-infinite-scroll-component";
 import SwipeableViews from "react-swipeable-views";
 import { DOMAIN } from "../../../App";
 import PantryAppBar from "../../PantryAppBar";
 import ScrollTopFab from "../../ScrollTopFab";
-import { Recipe } from "../recipe/mockEntries";
-import { likedRecipes as importedLR } from "./mockEntries";
+import RecipeDetailsDialog from "./RecipeDetailsDialog";
 import RecipeEditDialog from "./RecipeEditDialog";
 import RecipeTab from "./RecipeTab";
 
@@ -24,11 +24,34 @@ interface RecipeProps {
   setNavOpen: () => void;
 }
 
-interface APIRecipe {
-  ingredientsList: string[];
+export interface APIRecipe {
+  ingredientsList: ingredient_id[];
   photoUrl: string;
   recipeName: string;
   recipeId: number;
+}
+
+export interface ingredient_id {
+  name: string;
+  ids: number;
+}
+
+export interface DetailedIngredient_id {
+  ingredientId: number;
+  ingredientName: string;
+  unitOfMeasure: string;
+  amount: number;
+}
+
+interface IngredientSteps {
+  recipeId: number;
+  instructions: string[];
+}
+
+export interface DetailedRecipe extends Omit<APIRecipe, "ingredientsList"> {
+  ingredientsList: DetailedIngredient_id[];
+  desc: string;
+  steps: IngredientSteps;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -78,7 +101,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
-  const theme = useTheme();
+  const theme: Theme = useTheme();
   const classes = useStyles(theme);
 
   const handleSortDirectionChange = (sortType: number, desc: boolean) => {};
@@ -87,21 +110,25 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
 
   const [activeTab, setActiveTab] = React.useState(0);
 
-  const [browseRecipes, setBrowseRecipes] = React.useState<Recipe[]>([]);
+  const [browseRecipes, setBrowseRecipes] = React.useState<APIRecipe[]>([]);
 
-  const [likedRecipes, setLikedRecipes] = React.useState(importedLR);
+  const [likedRecipes, setLikedRecipes] = React.useState<APIRecipe[]>([]);
 
   const editDialogOpenState = React.useState(false);
 
-  const dialogRecipeState = React.useState<Recipe | null>(null);
+  const dialogRecipeState = React.useState<DetailedRecipe | null>(null);
 
-  const [currRecipeIndex, setCurrRecipeIndex] = React.useState(0);
+  const detailsDialogOpenState = React.useState(false);
 
   const [currRecipe, setCurrRecipe] = dialogRecipeState;
+
+  const setDetailsDialogOpen = detailsDialogOpenState[1];
 
   const setEditDialogOpen = editDialogOpenState[1];
 
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
+
+  const { enqueueSnackbar } = useSnackbar();
 
   React.useEffect(() => {
     fetch(DOMAIN + "/api/getUserRecipes", {
@@ -112,20 +139,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
       },
     })
       .then((resp) => resp.json())
-      .then((recipes: APIRecipe[]) => {
-        setLikedRecipes(
-          recipes.map((r) => {
-            const recipe: Recipe = {
-              fav: false,
-              img: r.photoUrl,
-              ingredients: r.ingredientsList,
-              rid: r.recipeId,
-              name: r.recipeName,
-            };
-            return recipe;
-          })
-        );
-      })
+      .then((recipes: APIRecipe[]) => setLikedRecipes(() => recipes))
       .catch((e) => console.error(e));
 
     fetch(DOMAIN + "/api/browseRecipes", {
@@ -136,20 +150,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
       },
     })
       .then((resp) => resp.json())
-      .then((recipes: APIRecipe[]) => {
-        setBrowseRecipes(
-          recipes.map((r) => {
-            const recipe: Recipe = {
-              fav: false,
-              img: r.photoUrl,
-              ingredients: r.ingredientsList,
-              rid: r.recipeId,
-              name: r.recipeName,
-            };
-            return recipe;
-          })
-        );
-      })
+      .then((recipes: APIRecipe[]) => setBrowseRecipes(recipes))
       .catch((e) => console.error(e));
   }, []);
 
@@ -160,31 +161,81 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   };
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setActiveTab(newValue);
-
     if (browseRecipes.length > 20)
       setBrowseRecipes((prev) => {
         return [...prev].splice(0, 20);
       });
+    setActiveTab(newValue);
   };
 
-  const handleOpenEdit = (recipe: Recipe, i: number) => {
-    setCurrRecipe({ ...recipe });
-    setCurrRecipeIndex(i);
+  const handleFetchDetailedRecipe = React.useCallback(
+    (recipe: APIRecipe) => {
+      const params: RequestInit = {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      };
+
+      fetch(
+        DOMAIN + "/api/getFullDetailsRecipe?recipeId=" + recipe.recipeId,
+        params
+      )
+        .then((resp) =>
+          resp.json().then((data: DetailedRecipe) => {
+            if (resp.ok) {
+              setCurrRecipe(data);
+            } else
+              enqueueSnackbar("Could not get recipe details!", {
+                variant: "error",
+              });
+          })
+        )
+        .catch((e) => {
+          enqueueSnackbar("Error! " + e, { variant: "error" });
+          console.error(e);
+        });
+    },
+    [enqueueSnackbar, setCurrRecipe]
+  );
+
+  const handleOpenEdit = (recipe: APIRecipe, i: number) => {
+    // setCurrRecipe({ ...recipe });
+    handleFetchDetailedRecipe(recipe);
     setEditDialogOpen(true);
   };
 
-  const handleRemove = (recipe: Recipe) => {
-    setLikedRecipes((recipes) =>
-      recipes.filter((cur) => cur.name !== recipe.name)
-    );
+  const handleRemove = (recipe: APIRecipe) => {
+    fetch(DOMAIN + "/api/RemoveFave?RecipeId=" + recipe.recipeId, {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((resp) =>
+        resp.json().then((data) => {
+          if (resp.ok) {
+            enqueueSnackbar(data.message, { variant: "success" });
+            setLikedRecipes((recipes) =>
+              recipes.filter((cur) => cur.recipeName !== recipe.recipeName)
+            );
+          } else enqueueSnackbar(data.message, { variant: "error" });
+        })
+      )
+      .catch((e) => {
+        enqueueSnackbar("Failed to remove recipe!", { variant: "error" });
+        console.error(e);
+      });
   };
 
-  const handleSave = (recipe: Recipe) => {
-    setBrowseRecipes((prev) => {
-      prev[currRecipeIndex] = recipe;
-      return prev;
-    });
+  const handleSave = (recipe: DetailedRecipe) => {
+    // setBrowseRecipes((prev) => {
+    //   prev[currRecipeIndex] = recipe;
+    //   return prev;
+    // });
+  };
+
+  const handleDetails = (recipe: APIRecipe) => {
+    handleFetchDetailedRecipe(recipe);
+    setDetailsDialogOpen(true);
   };
 
   const handleFetchNext = () => {
@@ -194,19 +245,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
     })
       .then((resp) => resp.json())
       .then((recipes: APIRecipe[]) => {
-        setBrowseRecipes((prev) => [
-          ...prev,
-          ...recipes.map((r) => {
-            const recipe: Recipe = {
-              fav: false,
-              img: r.photoUrl,
-              ingredients: r.ingredientsList,
-              rid: r.recipeId,
-              name: r.recipeName,
-            };
-            return recipe;
-          }),
-        ]);
+        setBrowseRecipes((prev) => [...prev, ...recipes]);
       })
       .catch((e) => console.error(e));
   };
@@ -218,7 +257,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
         hasMore={activeTab === 0 ? true : false}
         loader={
           <Container className={classes.centerFlexContainer}>
-            <CircularProgress size={80} />
+            <CircularProgress size={theme.spacing(10)} />
           </Container>
         }
         next={activeTab === 0 ? handleFetchNext : () => {}}
@@ -249,14 +288,26 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
           </Tabs>
           {currRecipe && (
             <RecipeEditDialog
+              resetDialogRecipe={() => dialogRecipeState[1](null)}
               dialogOpenState={editDialogOpenState}
               dialogRecipeState={
                 dialogRecipeState as [
-                  Recipe,
-                  React.Dispatch<React.SetStateAction<Recipe>>
+                  DetailedRecipe,
+                  React.Dispatch<React.SetStateAction<DetailedRecipe>>
                 ]
               }
               handleSave={handleSave}
+            />
+          )}
+          {currRecipe && (
+            <RecipeDetailsDialog
+              dialogOpenState={detailsDialogOpenState}
+              dialogRecipeState={
+                dialogRecipeState as [
+                  DetailedRecipe,
+                  React.Dispatch<React.SetStateAction<DetailedRecipe>>
+                ]
+              }
             />
           )}
         </Container>
@@ -276,6 +327,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
               handleOpenEdit={handleOpenEdit}
               handleAdd={() => {}}
               handleLiked={handleLiked}
+              handleDetails={handleDetails}
               type="api"
             />
 
@@ -287,6 +339,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
               handleOpenEdit={handleOpenEdit}
               handleAdd={() => {}}
               handleRemove={handleRemove}
+              handleDetails={handleDetails}
               type="fav"
             />
           </SwipeableViews>

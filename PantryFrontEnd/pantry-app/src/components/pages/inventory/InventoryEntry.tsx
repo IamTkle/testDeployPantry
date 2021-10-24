@@ -192,17 +192,41 @@ const InventoryEntry: React.FC<EntryProps> = ({
     setCount(expiryGroups.reduce((prev, curr) => prev + curr.count, 0));
   }, [expiryGroups]);
 
-  const handleNewEarliestExpiry = (
-    expDate: string,
-    percentageDiff: number,
-    diffStr: string
-  ) => {
-    setEarliestExpDate(expDate);
-    setEarliestExpPc(percentageDiff);
-    setRemainStr(diffStr);
-    if (percentageDiff <= 0) setColorClass(classes.expired);
-    else if (percentageDiff < 5) setColorClass(classes.expiring);
-  };
+  const handleNewEarliestExpiry = React.useCallback(
+    (expDate: string, percentageDiff: number, diffStr: string) => {
+      setEarliestExpDate(expDate);
+      setEarliestExpPc(percentageDiff);
+      setRemainStr(diffStr);
+      if (percentageDiff <= 0) setColorClass(classes.expired);
+      else if (percentageDiff < 5) setColorClass(classes.expiring);
+    },
+    [classes.expired, classes.expiring]
+  );
+
+  React.useEffect(() => {
+    expiryGroups.forEach((eg) => {
+      eg.expDate = new Date(eg.expDate);
+      const diff = getMonthDifference(eg.expDate);
+      const localDateStr = eg.expDate.toLocaleDateString();
+
+      var percentageDiff;
+      var diffStr =
+        diff <= 1
+          ? "" + Math.floor(diff * 31) + " days"
+          : "" + Math.floor(diff) + " months";
+
+      if (diff > 12) {
+        percentageDiff = 100;
+        diffStr = "12+ months";
+      } else {
+        percentageDiff = (diff / 12) * 100;
+      }
+
+      if (percentageDiff < earliestExpPc) {
+        handleNewEarliestExpiry(localDateStr, percentageDiff, diffStr);
+      }
+    });
+  }, [earliestExpPc, expiryGroups, handleNewEarliestExpiry]);
 
   const handleDeleteItem = React.useCallback(
     (index: number) => {
@@ -319,6 +343,7 @@ const InventoryEntry: React.FC<EntryProps> = ({
                           src={`https://shop.coles.com.au${photo}`}
                           alt="Inventory item"
                           width={`${theme.spacing(16)}`}
+                          loading="lazy"
                         />
                       ) : (
                         <FoodIcon />
@@ -419,103 +444,115 @@ const InventoryEntry: React.FC<EntryProps> = ({
               />
             </Container>
           </Hidden>
-          <Collapse
-            in={isOpen}
-            className={classes.collapseRoot}
-            classes={{ hidden: classes.collapseRootHidden }}
-          >
-            <Grid
-              container
-              justifyContent="space-between"
-              alignItems="center"
-              spacing={1}
+          {isOpen && (
+            <Collapse
+              in={isOpen}
+              className={classes.collapseRoot}
+              classes={{ hidden: classes.collapseRootHidden }}
             >
-              {expiryGroups.map((eg, i) => {
-                eg.expDate = new Date(eg.expDate);
-                const diff = getMonthDifference(eg.expDate);
-                const localDateStr = eg.expDate.toLocaleDateString();
+              <Grid
+                container
+                justifyContent="space-between"
+                alignItems="center"
+                spacing={1}
+              >
+                {expiryGroups.map((eg, i) => {
+                  eg.expDate = new Date(eg.expDate);
+                  const diff = getMonthDifference(eg.expDate);
+                  const localDateStr = eg.expDate.toLocaleDateString();
 
-                var percentageDiff;
-                var color = classes.notExpiring;
-                var diffStr =
-                  diff <= 1
-                    ? "" + Math.floor(diff * 31) + " days"
-                    : "" + Math.floor(diff) + " months";
+                  var percentageDiff;
+                  var color = classes.notExpiring;
+                  var diffStr =
+                    diff <= 1
+                      ? "" + Math.floor(diff * 31) + " days"
+                      : "" + Math.floor(diff) + " months";
 
-                if (diff > 12) {
-                  percentageDiff = 100;
-                  diffStr = "12+ months";
-                } else {
-                  percentageDiff = (diff / 12) * 100;
-                }
+                  if (diff > 12) {
+                    percentageDiff = 100;
+                    diffStr = "12+ months";
+                  } else {
+                    percentageDiff = (diff / 12) * 100;
+                  }
 
-                if (percentageDiff < earliestExpPc) {
-                  handleNewEarliestExpiry(
-                    localDateStr,
-                    percentageDiff,
-                    diffStr
-                  );
-                }
+                  if (percentageDiff < earliestExpPc) {
+                    handleNewEarliestExpiry(
+                      localDateStr,
+                      percentageDiff,
+                      diffStr
+                    );
+                  }
 
-                if (percentageDiff < 0) color = classes.expired;
-                else if (percentageDiff < 5) color = classes.expiring;
+                  if (percentageDiff < 0) color = classes.expired;
+                  else if (percentageDiff < 5) color = classes.expiring;
 
-                return (
-                  <Grid item xs={12} lg={6} key={i}>
-                    <Container>
-                      <Card
-                        elevation={2}
-                        style={{ opacity: percentageDiff <= 0 ? 0.5 : 1 }}
-                      >
-                        <Container className={classes.expiryGroupContainer}>
-                          {/* {localDateStr} x {eg.count} ({diffStr}) */}
-                          <Box flex>
-                            <Typography variant="h6">{localDateStr}</Typography>
-                            <Typography variant="h6" color="textSecondary">
-                              ({diffStr})
+                  return (
+                    <Grid item xs={12} lg={6} key={i}>
+                      <Container>
+                        <Card
+                          elevation={2}
+                          style={{ opacity: percentageDiff <= 0 ? 0.5 : 1 }}
+                        >
+                          <Container className={classes.expiryGroupContainer}>
+                            {/* {localDateStr} x {eg.count} ({diffStr}) */}
+                            <Box flex>
+                              <Typography variant="h6">
+                                {localDateStr}
+                              </Typography>
+                              <Typography variant="h6" color="textSecondary">
+                                ({diffStr})
+                              </Typography>
+                            </Box>
+                            <Typography variant="h6" color="textPrimary">
+                              x {eg.count}
                             </Typography>
-                          </Box>
-                          <Typography variant="h6" color="textPrimary">
-                            x {eg.count}
-                          </Typography>
-                          <ButtonGroup
-                            variant="contained"
-                            size="large"
-                            disableElevation
-                          >
-                            <Button
-                              color="primary"
-                              onClick={() => handleDeleteItem(i)}
+                            <ButtonGroup
+                              variant="contained"
+                              size="large"
+                              disableElevation
                             >
-                              <CheckOutlined style={{ color: "white" }} />
-                            </Button>
-                            {/* <Button
+                              <Button
+                                color="primary"
+                                onClick={() => handleDeleteItem(i)}
+                                style={{
+                                  backgroundColor:
+                                    percentageDiff <= 0
+                                      ? theme.palette.error.main
+                                      : "",
+                                }}
+                              >
+                                <CheckOutlined style={{ color: "white" }} />
+                              </Button>
+                              {/* <Button
                             style={{
                               backgroundColor: theme.palette.error.main,
                             }}
                           >
                             <DeleteOutlined style={{ color: "white" }} />
                           </Button> */}
-                          </ButtonGroup>
-                        </Container>
-                        <LinearProgress
-                          variant="determinate"
-                          value={100 - percentageDiff}
-                          color={
-                            color === classes.expiring ? "secondary" : "primary"
-                          }
-                          // color={"error"}
-                          classes={{
-                            bar1Determinate: color,
-                          }}
-                        />
-                      </Card>
-                    </Container>
-                  </Grid>
-                );
-              })}
-            </Grid>
-          </Collapse>
+                            </ButtonGroup>
+                          </Container>
+                          <LinearProgress
+                            variant="determinate"
+                            value={100 - percentageDiff}
+                            color={
+                              color === classes.expiring
+                                ? "secondary"
+                                : "primary"
+                            }
+                            // color={"error"}
+                            classes={{
+                              bar1Determinate: color,
+                            }}
+                          />
+                        </Card>
+                      </Container>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            </Collapse>
+          )}
         </Card>
       )}
     </>

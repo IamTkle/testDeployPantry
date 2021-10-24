@@ -24,7 +24,7 @@ import {
 import { useSnackbar } from "notistack";
 import React from "react";
 import { DOMAIN } from "../../../App";
-import { Recipe } from "./mockEntries";
+import { ingredient_id, APIRecipe } from "./Recipe";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
 
@@ -132,11 +132,12 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface RecipeEntryProps {
-  recipe: Recipe;
-  handleOpenEdit: (recipe: Recipe, i: number) => void;
-  handleRemove?: (recipe: Recipe) => void;
+  recipe: APIRecipe;
+  handleOpenEdit: (recipe: APIRecipe, i: number) => void;
+  handleRemove?: (recipe: APIRecipe) => void;
   handleLiked?: (i: number) => void;
   handleAdd: () => void;
+  handleDetails: (recipe: APIRecipe) => void;
   i: number;
   type: "api" | "fav";
 }
@@ -147,13 +148,14 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
   handleRemove,
   handleAdd,
   handleLiked,
+  handleDetails,
   i,
   type,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const ingredientsString = getIngredientsString(recipe.ingredients);
+  const ingredientsString = getIngredientsString(recipe.ingredientsList);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -173,18 +175,25 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     };
-    fetch(DOMAIN + `/api/ApiRecipeToCustom?recipeID=${recipe.rid}`, params)
-      .then((resp) => (resp.ok ? resp.json() : null))
-      .then((data) => {
-        enqueueSnackbar(data.message, { variant: "success" });
-        if (handleLiked) handleLiked(i);
-      })
+    fetch(DOMAIN + `/api/ApiRecipeToCustom?recipeID=${recipe.recipeId}`, params)
+      .then((resp) =>
+        resp.json().then((data) => {
+          enqueueSnackbar(data.message, {
+            variant: resp.ok ? "success" : "error",
+          });
+          if (handleLiked) handleLiked(i);
+        })
+      )
       .catch((e) =>
         enqueueSnackbar("Failed to add recipe to favorites! " + e, {
           variant: "error",
         })
       )
       .finally(() => setIsLiking(false));
+  };
+
+  const handleDetailsClick = () => {
+    handleDetails(recipe);
   };
 
   return (
@@ -194,7 +203,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           <ListItemAvatar>
             <Avatar
               variant="rounded"
-              src={recipe.img}
+              src={recipe.photoUrl}
               classes={{ root: classes.entryAvatar }}
             />
           </ListItemAvatar>
@@ -207,7 +216,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
                   justifyContent: "flex-start",
                 }}
               >
-                {recipe.name}
+                {recipe.recipeName}
               </Container>
             }
             secondary={<Container>{ingredientsString}</Container>}
@@ -251,7 +260,10 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
               )}
             </StyledActionButton>
           )}
-          <StyledActionButton className={classes.openButton}>
+          <StyledActionButton
+            className={classes.openButton}
+            onClick={handleDetailsClick}
+          >
             <ImportContacts />
           </StyledActionButton>
         </ButtonGroup>
@@ -260,7 +272,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
   );
 };
 
-const getIngredientsString = (ingredients: string[]) => {
+const getIngredientsString = (ingredients: ingredient_id[]) => {
   var igstr = "";
 
   var itersCount = 5;
@@ -273,7 +285,7 @@ const getIngredientsString = (ingredients: string[]) => {
   }
 
   for (let i = 0; i < itersCount; i++) {
-    igstr += ingredients[i];
+    igstr += ingredients[i]?.name;
     if (i + 1 < itersCount) igstr += ", ";
   }
 
