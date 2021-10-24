@@ -104,6 +104,30 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
+    fetch(DOMAIN + "/api/getUserRecipes", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((resp) => resp.json())
+      .then((recipes: APIRecipe[]) => {
+        setLikedRecipes(
+          recipes.map((r) => {
+            const recipe: Recipe = {
+              fav: false,
+              img: r.photoUrl,
+              ingredients: r.ingredientsList,
+              rid: r.recipeId,
+              name: r.recipeName,
+            };
+            return recipe;
+          })
+        );
+      })
+      .catch((e) => console.error(e));
+
     fetch(DOMAIN + "/api/browseRecipes", {
       method: "GET",
       credentials: "include",
@@ -129,8 +153,19 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
       .catch((e) => console.error(e));
   }, []);
 
+  const handleLiked = (i: number) => {
+    const recipeToAdd = browseRecipes[i];
+
+    if (recipeToAdd) setLikedRecipes((prev) => [...prev, recipeToAdd]);
+  };
+
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setActiveTab(newValue);
+
+    if (browseRecipes.length > 20)
+      setBrowseRecipes((prev) => {
+        return [...prev].splice(0, 20);
+      });
   };
 
   const handleOpenEdit = (recipe: Recipe, i: number) => {
@@ -180,13 +215,13 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
     <div className={classes.pageContainer} ref={scrollRef}>
       <InfiniteScroller
         dataLength={browseRecipes.length}
-        hasMore={true}
+        hasMore={activeTab === 0 ? true : false}
         loader={
           <Container className={classes.centerFlexContainer}>
             <CircularProgress size={80} />
           </Container>
         }
-        next={handleFetchNext}
+        next={activeTab === 0 ? handleFetchNext : () => {}}
         style={{ overflow: "unset" }}
         // scrollableTarget={document.body}
       >
@@ -240,7 +275,8 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
               key={0}
               handleOpenEdit={handleOpenEdit}
               handleAdd={() => {}}
-              handleRemove={handleRemove}
+              handleLiked={handleLiked}
+              type="api"
             />
 
             <RecipeTab
@@ -251,6 +287,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
               handleOpenEdit={handleOpenEdit}
               handleAdd={() => {}}
               handleRemove={handleRemove}
+              type="fav"
             />
           </SwipeableViews>
         </Container>

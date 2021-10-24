@@ -8,8 +8,10 @@ interface RecipeTabProps {
   index: number;
   propEntries: Recipe[];
   handleOpenEdit: (recipe: Recipe, i: number) => void;
-  handleRemove: (recipe: Recipe) => void;
+  handleRemove?: (recipe: Recipe) => void;
+  handleLiked?: (i: number) => void;
   handleAdd: () => void;
+  type: "api" | "fav";
 }
 
 const getKey = (name: string) => {
@@ -28,6 +30,8 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
   handleOpenEdit,
   handleRemove,
   handleAdd,
+  handleLiked,
+  type,
 }) => {
   return (
     <>
@@ -44,12 +48,14 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
             propEntries.map((r, i) => {
               return (
                 <RecipeEntry
+                  type={type}
                   key={getKey(r.name)}
                   i={i}
                   recipe={r}
                   handleOpenEdit={handleOpenEdit}
                   handleRemove={handleRemove}
                   handleAdd={handleAdd}
+                  handleLiked={handleLiked}
                 ></RecipeEntry>
               );
             })

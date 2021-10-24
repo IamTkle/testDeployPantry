@@ -16,6 +16,7 @@ import {
 } from "@material-ui/core";
 import { AddBox, Edit } from "@material-ui/icons";
 import React from "react";
+import { DOMAIN } from "../../../App";
 import { Recipe } from "./mockEntries";
 import RecipeEditDialogEntries from "./RecipeEditDialogEntries";
 
@@ -24,6 +25,11 @@ interface RecipeDialogProps {
   dialogRecipeState: [Recipe, React.Dispatch<React.SetStateAction<Recipe>>];
   // dialogRecipeState: [Recipe | null, React.Dispatch<React.SetStateAction<Recipe | null>>]
   handleSave: (recipe: Recipe) => void;
+}
+
+export interface ingredient_id {
+  name: string;
+  id: number;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -135,6 +141,26 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     });
   };
 
+  const [allIngredients, setAllIngredients] = React.useState<ingredient_id[]>(
+    []
+  );
+
+  React.useEffect(() => {
+    fetch(DOMAIN + "/api/AllIngedients", {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((resp) => resp.json())
+      .then((data: ingredient_id[]) => setAllIngredients(data))
+      .catch((e) => {
+        console.error(e);
+        setAllIngredients([
+          { name: "Could not get ingredients, please refresh!", id: 123 },
+        ]);
+      });
+  }, []);
+
   return (
     <Dialog
       open={editDialogOpen}
@@ -181,6 +207,7 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
                 i={i}
                 key={getKey(ig)}
                 ig={ig}
+                allIngredients={allIngredients}
                 handleEdited={handleEntryEdited}
                 handleRemove={handleRemoveEntry}
               />
