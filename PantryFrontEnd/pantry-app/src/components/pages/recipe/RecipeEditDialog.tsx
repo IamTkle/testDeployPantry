@@ -85,6 +85,8 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
 
   const [titleEditable, setTitleEditable] = React.useState(false);
 
+  const [title, setTitle] = React.useState(dialogRecipe.recipeName);
+
   const [allIngredients, setAllIngredients] = React.useState<
     DetailedIngredient_id[]
   >([]);
@@ -106,13 +108,12 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     return false;
   }, [dialogRecipe.ingredientsList, dialogRecipe.recipeName]);
 
-  const handleTitleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setDialogRecipe((prev) => {
-      return { ...prev, name: e.target.value };
-    });
-  };
+  const handleTitleChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      setTitle(e.target.value);
+    },
+    [setTitle]
+  );
 
   const handleAddItem = () => {
     setDialogRecipe((prev) => {
@@ -200,15 +201,17 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
       fullWidth
     >
       <DialogTitle>
-        <ClickAwayListener onClickAway={fullScreen ? () => {} : handleClose}>
+        <ClickAwayListener
+          onClickAway={() => (title ? setTitleEditable(false) : null)}
+        >
           <TextField
             required
-            value={dialogRecipe.recipeName}
+            value={title}
             disabled={!titleEditable}
             fullWidth
             onChange={handleTitleChange}
-            error={!dialogRecipe.recipeName}
-            helperText={!dialogRecipe.recipeName ? "Title cannot be blank" : ""}
+            error={!title}
+            helperText={!title ? "Title cannot be blank" : ""}
             InputProps={{
               endAdornment: (
                 <IconButton
