@@ -17,21 +17,23 @@ import {
 import { AddBox, Edit } from "@material-ui/icons";
 import React from "react";
 import { DOMAIN } from "../../../App";
-import { ingredient_id, Recipe } from "./mockEntries";
+import { DetailedIngredient_id, DetailedRecipe } from "./Recipe";
 import RecipeEditDialogEntries from "./RecipeEditDialogEntries";
 
 interface RecipeDialogProps {
   dialogOpenState: [boolean, React.Dispatch<React.SetStateAction<boolean>>];
-  dialogRecipeState: [Recipe, React.Dispatch<React.SetStateAction<Recipe>>];
-  // dialogRecipeState: [Recipe | null, React.Dispatch<React.SetStateAction<Recipe | null>>]
-  handleSave: (recipe: Recipe) => void;
+  dialogRecipeState: [
+    DetailedRecipe,
+    React.Dispatch<React.SetStateAction<DetailedRecipe>>
+  ];
+  resetDialogRecipe: () => void;
+  handleSave: (recipe: DetailedRecipe) => void;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     saveEditButton: {
       color: theme.palette.background.default,
-      // backgroundColor: theme.palette.text.secondary,
       backgroundColor: theme.palette.primary.dark,
 
       margin: theme.spacing(2),
@@ -65,6 +67,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   dialogOpenState,
   dialogRecipeState,
+  resetDialogRecipe,
   handleSave,
 }) => {
   const theme = useTheme();
@@ -76,24 +79,28 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
 
   const [titleEditable, setTitleEditable] = React.useState(false);
 
-  const [initialRecipe] = React.useState(() => {
-    return { ...dialogRecipe };
-  });
+  const [allIngredients, setAllIngredients] = React.useState<
+    DetailedIngredient_id[]
+  >([]);
+
+  // const [initialRecipe] = React.useState(() => {
+  //   return { ...dialogRecipe };
+  // });
 
   // NEED UPDATE FOR PRODUCTS
   const isValidRecipe = React.useCallback(() => {
     console.log(
-      dialogRecipe.ingredients.every((ingr) => ingr.id > 0),
-      dialogRecipe.ingredients
+      dialogRecipe.ingredientsList.every((ingr) => ingr.ingredientId > 0),
+      dialogRecipe.ingredientsList
     );
     if (
-      dialogRecipe.name &&
-      dialogRecipe.ingredients.every((ingr) => ingr.id > 0)
+      dialogRecipe.recipeName &&
+      dialogRecipe.ingredientsList.every((ingr) => ingr.ingredientId > 0)
     )
       return true;
 
     return false;
-  }, [dialogRecipe.ingredients, dialogRecipe.name]);
+  }, [dialogRecipe.ingredientsList, dialogRecipe.recipeName]);
 
   const handleTitleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -105,7 +112,12 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
 
   const handleAddItem = () => {
     setDialogRecipe((prev) => {
-      prev.ingredients[prev.ingredients.length] = { name: "", id: 0 };
+      prev.ingredientsList[prev.ingredientsList.length] = {
+        ingredientName: "",
+        ingredientId: 0,
+        unitOfMeasure: "kg",
+        amount: 0,
+      };
       return { ...prev };
     });
   };
@@ -119,23 +131,22 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     }
   };
 
-  const handleEntryEdited = (i: number, ing: ingredient_id) => {
-    setDialogRecipe((prev) => {
-      prev.ingredients[i] = ing;
-      return { ...prev };
-    });
-  };
+  const handleEntryEdited = React.useCallback(
+    (i: number, ing: DetailedIngredient_id) => {
+      setDialogRecipe((prev) => {
+        prev.ingredientsList[i] = ing;
+        return { ...prev };
+      });
+    },
+    [setDialogRecipe]
+  );
 
   const handleRemoveEntry = (i: number) => {
     setDialogRecipe((prev) => {
-      prev.ingredients.splice(i, 1);
+      prev.ingredientsList.splice(i, 1);
       return { ...prev };
     });
   };
-
-  const [allIngredients, setAllIngredients] = React.useState<ingredient_id[]>(
-    []
-  );
 
   React.useEffect(() => {
     fetch(DOMAIN + "/api/AllIngedients", {
@@ -146,15 +157,25 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
       .then((resp) => resp.json())
       .then((data) =>
         setAllIngredients(
-          data.map((val: any) => {
-            return { name: val.name, id: val.ingredientId };
+          data.map((val: DetailedIngredient_id) => {
+            return {
+              ingredientId: val.ingredientId,
+              ingredientName: val.ingredientName,
+              unitOfMeasure: "kg",
+              amount: 0,
+            };
           })
         )
       )
       .catch((e) => {
         console.error(e);
         setAllIngredients([
-          { name: "Could not get ingredients, please refresh!", id: 123 },
+          {
+            ingredientName: "Could not get ingredients, please refresh!",
+            ingredientId: -1,
+            amount: 0,
+            unitOfMeasure: "kg",
+          },
         ]);
       });
   }, []);
@@ -162,28 +183,28 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   return (
     <Dialog
       open={editDialogOpen}
-      maxWidth="lg"
+      maxWidth="md"
       onClose={() => {
         setEditDialog(false);
-        setDialogRecipe(initialRecipe);
+        setTitleEditable(false);
+        resetDialogRecipe();
       }}
       fullWidth
     >
       <DialogTitle>
         <ClickAwayListener
           onClickAway={() =>
-            dialogRecipe.name ? setTitleEditable(false) : null
+            dialogRecipe.recipeName ? setTitleEditable(false) : null
           }
         >
           <TextField
             required
-            value={dialogRecipe.name}
+            value={dialogRecipe.recipeName}
             disabled={!titleEditable}
-            //   onBlur={() => (dialogRecipe.name ? setTitleEditable(false) : null)}
             fullWidth
             onChange={handleTitleChange}
-            error={!dialogRecipe.name}
-            helperText={!dialogRecipe.name ? "Title cannot be blank" : ""}
+            error={!dialogRecipe.recipeName}
+            helperText={!dialogRecipe.recipeName ? "Title cannot be blank" : ""}
             InputProps={{
               endAdornment: (
                 <IconButton
@@ -200,11 +221,11 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
 
       <DialogContent>
         <List>
-          {dialogRecipe.ingredients.map((ig, i) => {
+          {dialogRecipe.ingredientsList.map((ig, i) => {
             return (
               <RecipeEditDialogEntries
                 i={i}
-                key={ig.id}
+                key={ig.ingredientId}
                 ig={ig}
                 allIngredients={allIngredients}
                 handleEdited={handleEntryEdited}
@@ -212,11 +233,7 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
               />
             );
           })}
-          <MenuItem
-            style={{}}
-            className={classes.addButton}
-            onClick={handleAddItem}
-          >
+          <MenuItem className={classes.addButton} onClick={handleAddItem}>
             <AddBox />
           </MenuItem>
         </List>

@@ -24,7 +24,7 @@ import {
 import { useSnackbar } from "notistack";
 import React from "react";
 import { DOMAIN } from "../../../App";
-import { ingredient_id, Recipe } from "./mockEntries";
+import { ingredient_id, APIRecipe } from "./Recipe";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
 
@@ -132,12 +132,12 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface RecipeEntryProps {
-  recipe: Recipe;
-  handleOpenEdit: (recipe: Recipe, i: number) => void;
-  handleRemove?: (recipe: Recipe) => void;
+  recipe: APIRecipe;
+  handleOpenEdit: (recipe: APIRecipe, i: number) => void;
+  handleRemove?: (recipe: APIRecipe) => void;
   handleLiked?: (i: number) => void;
   handleAdd: () => void;
-  handleDetails: (recipe: Recipe) => void;
+  handleDetails: (recipe: APIRecipe) => void;
   i: number;
   type: "api" | "fav";
 }
@@ -155,7 +155,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const ingredientsString = getIngredientsString(recipe.ingredients);
+  const ingredientsString = getIngredientsString(recipe.ingredientsList);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -175,7 +175,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
       credentials: "include",
       headers: { "Content-Type": "application/json" },
     };
-    fetch(DOMAIN + `/api/ApiRecipeToCustom?recipeID=${recipe.rid}`, params)
+    fetch(DOMAIN + `/api/ApiRecipeToCustom?recipeID=${recipe.recipeId}`, params)
       .then((resp) =>
         resp.json().then((data) => {
           enqueueSnackbar(data.message, {
@@ -203,7 +203,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           <ListItemAvatar>
             <Avatar
               variant="rounded"
-              src={recipe.img}
+              src={recipe.photoUrl}
               classes={{ root: classes.entryAvatar }}
             />
           </ListItemAvatar>
@@ -216,7 +216,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
                   justifyContent: "flex-start",
                 }}
               >
-                {recipe.name}
+                {recipe.recipeName}
               </Container>
             }
             secondary={<Container>{ingredientsString}</Container>}

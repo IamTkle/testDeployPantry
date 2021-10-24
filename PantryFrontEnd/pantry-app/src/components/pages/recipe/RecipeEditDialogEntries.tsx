@@ -6,18 +6,18 @@ import {
   TextField,
   Theme,
 } from "@material-ui/core";
-import { Block, Edit } from "@material-ui/icons";
+import { Block, Check, Edit } from "@material-ui/icons";
 import { createStyles, useTheme } from "@material-ui/styles";
 import React from "react";
-import { ingredient_id } from "./mockEntries";
+import { DetailedIngredient_id } from "./Recipe";
 import { StyledActionButton } from "./RecipeEntry";
 
 interface EntryProps {
   i: number;
-  ig: ingredient_id;
-  handleEdited: (i: number, ing: ingredient_id) => void;
+  ig: DetailedIngredient_id;
+  handleEdited: (i: number, ing: DetailedIngredient_id) => void;
   handleRemove: (i: number) => void;
-  allIngredients: ingredient_id[];
+  allIngredients: DetailedIngredient_id[];
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -33,6 +33,13 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: theme.palette.error.main,
       "&:hover": {
         backgroundColor: theme.palette.error.light,
+      },
+    },
+
+    confirmButton: {
+      backgroundColor: theme.palette.primary.main,
+      "&:hover": {
+        backgroundColor: theme.palette.primary.light,
       },
     },
 
@@ -59,27 +66,41 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
 
   const [value, setValue] = React.useState(ig);
 
-  const handleEdit = () => {
-    setEditable(true);
-  };
+  const handleEdit = React.useCallback(() => {
+    if (!editable) setEditable(true);
+    else {
+      if (value.ingredientId > 0) {
+        handleEdited(i, value);
+        setEditable(false);
+      }
+    }
+  }, [editable, handleEdited, i, value]);
 
   const handleNameChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    const ing = allIngredients.find((ing) => ing.name === e.target.value);
+    const ing = allIngredients.find(
+      (ing) => ing.ingredientName === e.target.value
+    );
 
     if (ing) setValue(ing);
-    else setValue({ name: e.target.value, id: -1 });
+    else
+      setValue({
+        ingredientName: e.target.value,
+        ingredientId: -1,
+        amount: 0,
+        unitOfMeasure: "kg",
+      });
   };
 
-  const handleNameEdited = (
-    e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    if (value) {
-      setEditable(false);
-      handleEdited(i, value);
-    }
-  };
+  // const handleNameEdited = (
+  //   e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>
+  // ) => {
+  //   if (value) {
+  //     setEditable(false);
+  //     handleEdited(i, value);
+  //   }
+  // };
 
   const handleSelfDestruct = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -88,11 +109,19 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
   };
 
   React.useEffect(() => {
-    const ingWithId = allIngredients.find((ing) => ing.name === ig.name);
+    const ingWithId = allIngredients.find(
+      (ing) => ing.ingredientName === ig.ingredientName
+    );
 
-    if (ingWithId) setValue(ingWithId);
-    else setValue({ name: "", id: -1 });
-  }, [allIngredients, ig]);
+    if (ingWithId) {
+      setValue(ingWithId);
+      handleEdited(i, ingWithId);
+    }
+  }, [allIngredients, handleEdited, i, ig.ingredientName]);
+
+  // React.useEffect(() => {
+  //   handleEdited(i, value);
+  // }, [value, i, handleEdited]);
 
   return (
     <ListItem disableGutters>
@@ -104,10 +133,9 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
               required
               InputProps={{ className: classes.textFieldRoot }}
               disabled={!editable}
-              value={value.name}
+              value={value.ingredientName}
               maxRows={1}
               onChange={handleNameChange}
-              onBlur={handleNameEdited}
               // error={!value.name}
               // helperText={!value.name ? "Field cannot be left empty" : ""}
               inputProps={{ list: "alloptions" }}
@@ -120,8 +148,8 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
               </option> */}
               {allIngredients.map((val) => {
                 return (
-                  <option key={val.id} value={val.name}>
-                    {val.name}
+                  <option key={val.ingredientId} value={val.ingredientName}>
+                    {val.ingredientName}
                   </option>
                 );
               })}
@@ -136,10 +164,10 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
         style={{ width: "40%" }}
       >
         <StyledActionButton
-          classes={{ root: classes.editButton }}
+          className={editable ? classes.confirmButton : classes.editButton}
           onClick={handleEdit}
         >
-          <Edit />
+          {!editable ? <Edit /> : <Check />}
         </StyledActionButton>
         <StyledActionButton
           classes={{ root: classes.removeButton }}

@@ -16,9 +16,7 @@ import SwipeableViews from "react-swipeable-views";
 import { DOMAIN } from "../../../App";
 import PantryAppBar from "../../PantryAppBar";
 import ScrollTopFab from "../../ScrollTopFab";
-import { Recipe } from "../recipe/mockEntries";
 import RecipeDetailsDialog from "./RecipeDetailsDialog";
-// import { likedRecipes as importedLR } from "./mockEntries";
 import RecipeEditDialog from "./RecipeEditDialog";
 import RecipeTab from "./RecipeTab";
 
@@ -26,11 +24,34 @@ interface RecipeProps {
   setNavOpen: () => void;
 }
 
-interface APIRecipe {
-  ingredientsList: string[];
+export interface APIRecipe {
+  ingredientsList: ingredient_id[];
   photoUrl: string;
   recipeName: string;
   recipeId: number;
+}
+
+export interface ingredient_id {
+  name: string;
+  ids: number;
+}
+
+export interface DetailedIngredient_id {
+  ingredientId: number;
+  ingredientName: string;
+  unitOfMeasure: string;
+  amount: number;
+}
+
+interface IngredientSteps {
+  recipeId: number;
+  instructions: string[];
+}
+
+export interface DetailedRecipe extends Omit<APIRecipe, "ingredientsList"> {
+  ingredientsList: DetailedIngredient_id[];
+  desc: string;
+  steps: IngredientSteps;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -89,17 +110,15 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
 
   const [activeTab, setActiveTab] = React.useState(0);
 
-  const [browseRecipes, setBrowseRecipes] = React.useState<Recipe[]>([]);
+  const [browseRecipes, setBrowseRecipes] = React.useState<APIRecipe[]>([]);
 
-  const [likedRecipes, setLikedRecipes] = React.useState<Recipe[]>([]);
+  const [likedRecipes, setLikedRecipes] = React.useState<APIRecipe[]>([]);
 
   const editDialogOpenState = React.useState(false);
 
-  const dialogRecipeState = React.useState<Recipe | null>(null);
+  const dialogRecipeState = React.useState<DetailedRecipe | null>(null);
 
   const detailsDialogOpenState = React.useState(false);
-
-  const [currRecipeIndex, setCurrRecipeIndex] = React.useState(0);
 
   const [currRecipe, setCurrRecipe] = dialogRecipeState;
 
@@ -120,21 +139,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
       },
     })
       .then((resp) => resp.json())
-      .then((recipes: APIRecipe[]) => {
-        setLikedRecipes(
-          recipes.map((r) => {
-            const recipe: Recipe = {
-              img: r.photoUrl,
-              ingredients: r.ingredientsList.map((value, i) => {
-                return { name: value, id: i };
-              }),
-              rid: r.recipeId,
-              name: r.recipeName,
-            };
-            return recipe;
-          })
-        );
-      })
+      .then((recipes: APIRecipe[]) => setLikedRecipes(() => recipes))
       .catch((e) => console.error(e));
 
     fetch(DOMAIN + "/api/browseRecipes", {
@@ -145,21 +150,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
       },
     })
       .then((resp) => resp.json())
-      .then((recipes: APIRecipe[]) => {
-        setBrowseRecipes(
-          recipes.map((r) => {
-            const recipe: Recipe = {
-              img: r.photoUrl,
-              ingredients: r.ingredientsList.map((value, i) => {
-                return { name: value, id: i };
-              }),
-              rid: r.recipeId,
-              name: r.recipeName,
-            };
-            return recipe;
-          })
-        );
-      })
+      .then((recipes: APIRecipe[]) => setBrowseRecipes(recipes))
       .catch((e) => console.error(e));
   }, []);
 
@@ -170,22 +161,51 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   };
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setActiveTab(newValue);
-
     if (browseRecipes.length > 20)
       setBrowseRecipes((prev) => {
         return [...prev].splice(0, 20);
       });
+    setActiveTab(newValue);
   };
 
-  const handleOpenEdit = (recipe: Recipe, i: number) => {
-    setCurrRecipe({ ...recipe });
-    setCurrRecipeIndex(i);
+  const handleFetchDetailedRecipe = React.useCallback(
+    (recipe: APIRecipe) => {
+      const params: RequestInit = {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      };
+
+      fetch(
+        DOMAIN + "/api/getFullDetailsRecipe?recipeId=" + recipe.recipeId,
+        params
+      )
+        .then((resp) =>
+          resp.json().then((data: DetailedRecipe) => {
+            if (resp.ok) {
+              setCurrRecipe(data);
+            } else
+              enqueueSnackbar("Could not get recipe details!", {
+                variant: "error",
+              });
+          })
+        )
+        .catch((e) => {
+          enqueueSnackbar("Error! " + e, { variant: "error" });
+          console.error(e);
+        });
+    },
+    [enqueueSnackbar, setCurrRecipe]
+  );
+
+  const handleOpenEdit = (recipe: APIRecipe, i: number) => {
+    // setCurrRecipe({ ...recipe });
+    handleFetchDetailedRecipe(recipe);
     setEditDialogOpen(true);
   };
 
-  const handleRemove = (recipe: Recipe) => {
-    fetch(DOMAIN + "/api/RemoveFave?RecipeId=" + recipe.rid, {
+  const handleRemove = (recipe: APIRecipe) => {
+    fetch(DOMAIN + "/api/RemoveFave?RecipeId=" + recipe.recipeId, {
       method: "GET",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -195,7 +215,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
           if (resp.ok) {
             enqueueSnackbar(data.message, { variant: "success" });
             setLikedRecipes((recipes) =>
-              recipes.filter((cur) => cur.name !== recipe.name)
+              recipes.filter((cur) => cur.recipeName !== recipe.recipeName)
             );
           } else enqueueSnackbar(data.message, { variant: "error" });
         })
@@ -206,15 +226,15 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
       });
   };
 
-  const handleSave = (recipe: Recipe) => {
-    setBrowseRecipes((prev) => {
-      prev[currRecipeIndex] = recipe;
-      return prev;
-    });
+  const handleSave = (recipe: DetailedRecipe) => {
+    // setBrowseRecipes((prev) => {
+    //   prev[currRecipeIndex] = recipe;
+    //   return prev;
+    // });
   };
 
-  const handleDetails = (recipe: Recipe) => {
-    setCurrRecipe({ ...recipe });
+  const handleDetails = (recipe: APIRecipe) => {
+    handleFetchDetailedRecipe(recipe);
     setDetailsDialogOpen(true);
   };
 
@@ -225,20 +245,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
     })
       .then((resp) => resp.json())
       .then((recipes: APIRecipe[]) => {
-        setBrowseRecipes((prev) => [
-          ...prev,
-          ...recipes.map((r) => {
-            const recipe: Recipe = {
-              img: r.photoUrl,
-              ingredients: r.ingredientsList.map((value, i) => {
-                return { name: value, id: i };
-              }),
-              rid: r.recipeId,
-              name: r.recipeName,
-            };
-            return recipe;
-          }),
-        ]);
+        setBrowseRecipes((prev) => [...prev, ...recipes]);
       })
       .catch((e) => console.error(e));
   };
@@ -281,11 +288,12 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
           </Tabs>
           {currRecipe && (
             <RecipeEditDialog
+              resetDialogRecipe={() => dialogRecipeState[1](null)}
               dialogOpenState={editDialogOpenState}
               dialogRecipeState={
                 dialogRecipeState as [
-                  Recipe,
-                  React.Dispatch<React.SetStateAction<Recipe>>
+                  DetailedRecipe,
+                  React.Dispatch<React.SetStateAction<DetailedRecipe>>
                 ]
               }
               handleSave={handleSave}
@@ -296,8 +304,8 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
               dialogOpenState={detailsDialogOpenState}
               dialogRecipeState={
                 dialogRecipeState as [
-                  Recipe,
-                  React.Dispatch<React.SetStateAction<Recipe>>
+                  DetailedRecipe,
+                  React.Dispatch<React.SetStateAction<DetailedRecipe>>
                 ]
               }
             />
