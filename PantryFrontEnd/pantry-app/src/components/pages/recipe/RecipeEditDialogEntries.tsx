@@ -9,6 +9,7 @@ import {
 import { Block, Edit } from "@material-ui/icons";
 import { createStyles, useTheme } from "@material-ui/styles";
 import React from "react";
+import { ingredient_id } from "./RecipeEditDialog";
 import { StyledActionButton } from "./RecipeEntry";
 
 interface EntryProps {
@@ -16,6 +17,7 @@ interface EntryProps {
   ig: string;
   handleEdited: (i: number, name: string) => void;
   handleRemove: (i: number) => void;
+  allIngredients: ingredient_id[];
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -48,6 +50,7 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
   ig,
   handleEdited,
   handleRemove,
+  allIngredients,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
@@ -55,6 +58,10 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
   const [editable, setEditable] = React.useState(false);
 
   const [value, setValue] = React.useState(ig);
+
+  const handleEdit = () => {
+    setEditable(true);
+  };
 
   const handleNameChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -92,21 +99,16 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
             onBlur={handleNameEdited}
             error={!value}
             helperText={!value ? "Field cannot be left empty" : ""}
-          />
-          //   <FormControl required disabled error variant="outlined">
-          //     <Input
-          //       // InputProps={{ className: classes.textFieldRoot }}
-          //       className={classes.textFieldRoot}
-          //       disabled={!editable}
-          //       value={value}
-          //       maxRows={1}
-          //       onChange={handleNameChange}
-          //       onBlur={handleNameEdited}
-          //       error={!value}
-          //       required
-          //       // helperText={!value ? "Field cannot be left empty" : ""}
-          //     />
-          //   </FormControl>
+            select
+          >
+            {allIngredients.map((val) => {
+              return (
+                <option key={val.id} value={val.name}>
+                  {val.name}
+                </option>
+              );
+            })}
+          </TextField>
         }
       />
       <ButtonGroup
@@ -117,7 +119,7 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
       >
         <StyledActionButton
           classes={{ root: classes.editButton }}
-          onClick={() => setEditable(true)}
+          onClick={handleEdit}
         >
           <Edit />
         </StyledActionButton>

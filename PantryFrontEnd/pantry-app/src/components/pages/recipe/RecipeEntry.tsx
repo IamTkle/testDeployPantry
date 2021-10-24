@@ -3,9 +3,9 @@ import {
   Button,
   ButtonGroup,
   Card,
+  CircularProgress,
   Container,
   createStyles,
-  IconButton,
   ListItem,
   ListItemAvatar,
   ListItemText,
@@ -19,10 +19,11 @@ import {
   Block,
   Edit,
   Favorite,
-  FavoriteBorderOutlined,
   ImportContacts,
 } from "@material-ui/icons";
+import { useSnackbar } from "notistack";
 import React from "react";
+import { DOMAIN } from "../../../App";
 import { Recipe } from "./mockEntries";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
@@ -114,6 +115,13 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
 
+    favoriteButton: {
+      backgroundColor: "#ee868b",
+      "&:hover": {
+        backgroundColor: "#ee868b",
+      },
+    },
+
     openButton: {
       backgroundColor: theme.palette.text.primary,
       [theme.breakpoints.down("xs")]: {
@@ -126,9 +134,11 @@ const useStyles = makeStyles((theme: Theme) =>
 interface RecipeEntryProps {
   recipe: Recipe;
   handleOpenEdit: (recipe: Recipe, i: number) => void;
-  handleRemove: (recipe: Recipe) => void;
+  handleRemove?: (recipe: Recipe) => void;
+  handleLiked?: (i: number) => void;
   handleAdd: () => void;
   i: number;
+  type: "api" | "fav";
 }
 
 const RecipeEntry: React.FC<RecipeEntryProps> = ({
@@ -136,21 +146,45 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
   handleOpenEdit,
   handleRemove,
   handleAdd,
+  handleLiked,
   i,
+  type,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
   const ingredientsString = getIngredientsString(recipe.ingredients);
 
-  const [isFavorite, setIsFavorite] = React.useState(recipe.fav);
+  const { enqueueSnackbar } = useSnackbar();
 
+  const [isLiking, setIsLiking] = React.useState(false);
   const handleEditButtonClick = () => {
     handleOpenEdit(recipe, i);
   };
 
   const handleRemoveButtonClick = () => {
-    handleRemove(recipe);
+    if (handleRemove) handleRemove(recipe);
+  };
+
+  const handleRecipeLikeClick = () => {
+    setIsLiking(true);
+    const params: RequestInit = {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    };
+    fetch(DOMAIN + `/api/ApiRecipeToCustom?recipeID=${recipe.rid}`, params)
+      .then((resp) => (resp.ok ? resp.json() : null))
+      .then((data) => {
+        enqueueSnackbar(data.message, { variant: "success" });
+        if (handleLiked) handleLiked(i);
+      })
+      .catch((e) =>
+        enqueueSnackbar("Failed to add recipe to favorites! " + e, {
+          variant: "error",
+        })
+      )
+      .finally(() => setIsLiking(false));
   };
 
   return (
@@ -174,18 +208,6 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
                 }}
               >
                 {recipe.name}
-                <IconButton
-                  onClick={() => setIsFavorite((prev) => !prev)}
-                  size="small"
-                >
-                  {isFavorite ? (
-                    <Favorite className={classes.favoritedButton} />
-                  ) : (
-                    <FavoriteBorderOutlined
-                      style={{ color: theme.palette.text.secondary }}
-                    />
-                  )}
-                </IconButton>
               </Container>
             }
             secondary={<Container>{ingredientsString}</Container>}
@@ -207,12 +229,28 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           <StyledActionButton className={classes.addButton}>
             <AddShoppingCart />
           </StyledActionButton>
-          <StyledActionButton
-            className={classes.removeButton}
-            onClick={handleRemoveButtonClick}
-          >
-            <Block />
-          </StyledActionButton>
+          {type === "fav" ? (
+            <StyledActionButton
+              className={classes.removeButton}
+              onClick={handleRemoveButtonClick}
+            >
+              <Block />
+            </StyledActionButton>
+          ) : (
+            <StyledActionButton
+              className={classes.favoriteButton}
+              onClick={handleRecipeLikeClick}
+            >
+              {isLiking ? (
+                <CircularProgress
+                  style={{ color: theme.palette.background.default }}
+                  size={theme.spacing(3)}
+                />
+              ) : (
+                <Favorite />
+              )}
+            </StyledActionButton>
+          )}
           <StyledActionButton className={classes.openButton}>
             <ImportContacts />
           </StyledActionButton>
