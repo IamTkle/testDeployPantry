@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core";
 import { Add, Favorite, List as ListIcon } from "@material-ui/icons";
 import { createStyles, makeStyles, useTheme } from "@material-ui/styles";
+import { useSnackbar } from "notistack";
 import React from "react";
 import InfiniteScroller from "react-infinite-scroll-component";
 import SwipeableViews from "react-swipeable-views";
@@ -16,7 +17,8 @@ import { DOMAIN } from "../../../App";
 import PantryAppBar from "../../PantryAppBar";
 import ScrollTopFab from "../../ScrollTopFab";
 import { Recipe } from "../recipe/mockEntries";
-import { likedRecipes as importedLR } from "./mockEntries";
+import RecipeDetailsDialog from "./RecipeDetailsDialog";
+// import { likedRecipes as importedLR } from "./mockEntries";
 import RecipeEditDialog from "./RecipeEditDialog";
 import RecipeTab from "./RecipeTab";
 
@@ -78,7 +80,7 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
-  const theme = useTheme();
+  const theme: Theme = useTheme();
   const classes = useStyles(theme);
 
   const handleSortDirectionChange = (sortType: number, desc: boolean) => {};
@@ -89,19 +91,25 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
 
   const [browseRecipes, setBrowseRecipes] = React.useState<Recipe[]>([]);
 
-  const [likedRecipes, setLikedRecipes] = React.useState(importedLR);
+  const [likedRecipes, setLikedRecipes] = React.useState<Recipe[]>([]);
 
   const editDialogOpenState = React.useState(false);
 
   const dialogRecipeState = React.useState<Recipe | null>(null);
 
+  const detailsDialogOpenState = React.useState(false);
+
   const [currRecipeIndex, setCurrRecipeIndex] = React.useState(0);
 
   const [currRecipe, setCurrRecipe] = dialogRecipeState;
 
+  const setDetailsDialogOpen = detailsDialogOpenState[1];
+
   const setEditDialogOpen = editDialogOpenState[1];
 
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
+
+  const { enqueueSnackbar } = useSnackbar();
 
   React.useEffect(() => {
     fetch(DOMAIN + "/api/getUserRecipes", {
@@ -116,9 +124,10 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
         setLikedRecipes(
           recipes.map((r) => {
             const recipe: Recipe = {
-              fav: false,
               img: r.photoUrl,
-              ingredients: r.ingredientsList,
+              ingredients: r.ingredientsList.map((value, i) => {
+                return { name: value, id: i };
+              }),
               rid: r.recipeId,
               name: r.recipeName,
             };
@@ -140,9 +149,10 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
         setBrowseRecipes(
           recipes.map((r) => {
             const recipe: Recipe = {
-              fav: false,
               img: r.photoUrl,
-              ingredients: r.ingredientsList,
+              ingredients: r.ingredientsList.map((value, i) => {
+                return { name: value, id: i };
+              }),
               rid: r.recipeId,
               name: r.recipeName,
             };
@@ -175,9 +185,25 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   };
 
   const handleRemove = (recipe: Recipe) => {
-    setLikedRecipes((recipes) =>
-      recipes.filter((cur) => cur.name !== recipe.name)
-    );
+    fetch(DOMAIN + "/api/RemoveFave?RecipeId=" + recipe.rid, {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((resp) =>
+        resp.json().then((data) => {
+          if (resp.ok) {
+            enqueueSnackbar(data.message, { variant: "success" });
+            setLikedRecipes((recipes) =>
+              recipes.filter((cur) => cur.name !== recipe.name)
+            );
+          } else enqueueSnackbar(data.message, { variant: "error" });
+        })
+      )
+      .catch((e) => {
+        enqueueSnackbar("Failed to remove recipe!", { variant: "error" });
+        console.error(e);
+      });
   };
 
   const handleSave = (recipe: Recipe) => {
@@ -185,6 +211,11 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
       prev[currRecipeIndex] = recipe;
       return prev;
     });
+  };
+
+  const handleDetails = (recipe: Recipe) => {
+    setCurrRecipe({ ...recipe });
+    setDetailsDialogOpen(true);
   };
 
   const handleFetchNext = () => {
@@ -198,9 +229,10 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
           ...prev,
           ...recipes.map((r) => {
             const recipe: Recipe = {
-              fav: false,
               img: r.photoUrl,
-              ingredients: r.ingredientsList,
+              ingredients: r.ingredientsList.map((value, i) => {
+                return { name: value, id: i };
+              }),
               rid: r.recipeId,
               name: r.recipeName,
             };
@@ -218,7 +250,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
         hasMore={activeTab === 0 ? true : false}
         loader={
           <Container className={classes.centerFlexContainer}>
-            <CircularProgress size={80} />
+            <CircularProgress size={theme.spacing(10)} />
           </Container>
         }
         next={activeTab === 0 ? handleFetchNext : () => {}}
@@ -259,6 +291,17 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
               handleSave={handleSave}
             />
           )}
+          {currRecipe && (
+            <RecipeDetailsDialog
+              dialogOpenState={detailsDialogOpenState}
+              dialogRecipeState={
+                dialogRecipeState as [
+                  Recipe,
+                  React.Dispatch<React.SetStateAction<Recipe>>
+                ]
+              }
+            />
+          )}
         </Container>
         <Container
           disableGutters
@@ -276,6 +319,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
               handleOpenEdit={handleOpenEdit}
               handleAdd={() => {}}
               handleLiked={handleLiked}
+              handleDetails={handleDetails}
               type="api"
             />
 
@@ -287,6 +331,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
               handleOpenEdit={handleOpenEdit}
               handleAdd={() => {}}
               handleRemove={handleRemove}
+              handleDetails={handleDetails}
               type="fav"
             />
           </SwipeableViews>

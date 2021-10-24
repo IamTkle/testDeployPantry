@@ -17,7 +17,7 @@ import {
 import { AddBox, Edit } from "@material-ui/icons";
 import React from "react";
 import { DOMAIN } from "../../../App";
-import { Recipe } from "./mockEntries";
+import { ingredient_id, Recipe } from "./mockEntries";
 import RecipeEditDialogEntries from "./RecipeEditDialogEntries";
 
 interface RecipeDialogProps {
@@ -25,11 +25,6 @@ interface RecipeDialogProps {
   dialogRecipeState: [Recipe, React.Dispatch<React.SetStateAction<Recipe>>];
   // dialogRecipeState: [Recipe | null, React.Dispatch<React.SetStateAction<Recipe | null>>]
   handleSave: (recipe: Recipe) => void;
-}
-
-export interface ingredient_id {
-  name: string;
-  id: number;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -58,15 +53,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const getKey = (name: string) => {
-  var key = 0;
-  for (let i = 0; i < name.length; i++) {
-    key += name.charCodeAt(i) + i;
-  }
-
-  return key;
-};
-
 // const areEqual = (rA: Recipe, rB: Recipe) => {
 //   if (
 //     rA.name === rB.name &&
@@ -94,12 +80,18 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     return { ...dialogRecipe };
   });
 
-  const isValidRecipe = React.useMemo(() => {
+  // NEED UPDATE FOR PRODUCTS
+  const isValidRecipe = React.useCallback(() => {
+    console.log(
+      dialogRecipe.ingredients.every((ingr) => ingr.id > 0),
+      dialogRecipe.ingredients
+    );
     if (
       dialogRecipe.name &&
-      dialogRecipe.ingredients.every((ingr) => ingr.length > 0)
+      dialogRecipe.ingredients.every((ingr) => ingr.id > 0)
     )
       return true;
+
     return false;
   }, [dialogRecipe.ingredients, dialogRecipe.name]);
 
@@ -113,7 +105,7 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
 
   const handleAddItem = () => {
     setDialogRecipe((prev) => {
-      prev.ingredients[prev.ingredients.length] = "New ingredient";
+      prev.ingredients[prev.ingredients.length] = { name: "", id: 0 };
       return { ...prev };
     });
   };
@@ -121,15 +113,15 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   const handleSaveDialog = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
-    if (isValidRecipe) {
+    if (isValidRecipe()) {
       handleSave(dialogRecipe);
       setEditDialog(false);
     }
   };
 
-  const handleEntryEdited = (i: number, name: string) => {
+  const handleEntryEdited = (i: number, ing: ingredient_id) => {
     setDialogRecipe((prev) => {
-      prev.ingredients[i] = name;
+      prev.ingredients[i] = ing;
       return { ...prev };
     });
   };
@@ -152,7 +144,13 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
       headers: { "Content-Type": "application/json" },
     })
       .then((resp) => resp.json())
-      .then((data: ingredient_id[]) => setAllIngredients(data))
+      .then((data) =>
+        setAllIngredients(
+          data.map((val: any) => {
+            return { name: val.name, id: val.ingredientId };
+          })
+        )
+      )
       .catch((e) => {
         console.error(e);
         setAllIngredients([
@@ -164,7 +162,7 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   return (
     <Dialog
       open={editDialogOpen}
-      maxWidth="sm"
+      maxWidth="lg"
       onClose={() => {
         setEditDialog(false);
         setDialogRecipe(initialRecipe);
@@ -182,6 +180,7 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
             value={dialogRecipe.name}
             disabled={!titleEditable}
             //   onBlur={() => (dialogRecipe.name ? setTitleEditable(false) : null)}
+            fullWidth
             onChange={handleTitleChange}
             error={!dialogRecipe.name}
             helperText={!dialogRecipe.name ? "Title cannot be blank" : ""}
@@ -205,7 +204,7 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
             return (
               <RecipeEditDialogEntries
                 i={i}
-                key={getKey(ig)}
+                key={ig.id}
                 ig={ig}
                 allIngredients={allIngredients}
                 handleEdited={handleEntryEdited}

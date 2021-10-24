@@ -9,13 +9,13 @@ import {
 import { Block, Edit } from "@material-ui/icons";
 import { createStyles, useTheme } from "@material-ui/styles";
 import React from "react";
-import { ingredient_id } from "./RecipeEditDialog";
+import { ingredient_id } from "./mockEntries";
 import { StyledActionButton } from "./RecipeEntry";
 
 interface EntryProps {
   i: number;
-  ig: string;
-  handleEdited: (i: number, name: string) => void;
+  ig: ingredient_id;
+  handleEdited: (i: number, ing: ingredient_id) => void;
   handleRemove: (i: number) => void;
   allIngredients: ingredient_id[];
 }
@@ -64,9 +64,12 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
   };
 
   const handleNameChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
   ) => {
-    setValue(e.target.value);
+    const ing = allIngredients.find((ing) => ing.name === e.target.value);
+
+    if (ing) setValue(ing);
+    else setValue({ name: e.target.value, id: -1 });
   };
 
   const handleNameEdited = (
@@ -84,31 +87,46 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
     handleRemove(i);
   };
 
+  React.useEffect(() => {
+    const ingWithId = allIngredients.find((ing) => ing.name === ig.name);
+
+    if (ingWithId) setValue(ingWithId);
+    else setValue({ name: "", id: -1 });
+  }, [allIngredients, ig]);
+
   return (
     <ListItem disableGutters>
       <ListItemText
         primary={
-          <TextField
-            // inputProps={{ className: classes.textFieldRoot }}
-            required
-            InputProps={{ className: classes.textFieldRoot }}
-            disabled={!editable}
-            value={value}
-            maxRows={1}
-            onChange={handleNameChange}
-            onBlur={handleNameEdited}
-            error={!value}
-            helperText={!value ? "Field cannot be left empty" : ""}
-            select
-          >
-            {allIngredients.map((val) => {
-              return (
-                <option key={val.id} value={val.name}>
-                  {val.name}
-                </option>
-              );
-            })}
-          </TextField>
+          <>
+            <TextField
+              // inputProps={{ className: classes.textFieldRoot }}
+              required
+              InputProps={{ className: classes.textFieldRoot }}
+              disabled={!editable}
+              value={value.name}
+              maxRows={1}
+              onChange={handleNameChange}
+              onBlur={handleNameEdited}
+              // error={!value.name}
+              // helperText={!value.name ? "Field cannot be left empty" : ""}
+              inputProps={{ list: "alloptions" }}
+              type="text"
+              // select
+            />
+            <datalist id="alloptions">
+              {/* <option key={value.id} value={value.name}>
+                {value.name}
+              </option> */}
+              {allIngredients.map((val) => {
+                return (
+                  <option key={val.id} value={val.name}>
+                    {val.name}
+                  </option>
+                );
+              })}
+            </datalist>
+          </>
         }
       />
       <ButtonGroup

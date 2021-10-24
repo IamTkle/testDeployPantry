@@ -10,6 +10,7 @@ interface RecipeTabProps {
   handleOpenEdit: (recipe: Recipe, i: number) => void;
   handleRemove?: (recipe: Recipe) => void;
   handleLiked?: (i: number) => void;
+  handleDetails: (recipe: Recipe) => void;
   handleAdd: () => void;
   type: "api" | "fav";
 }
@@ -31,6 +32,8 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
   handleRemove,
   handleAdd,
   handleLiked,
+
+  handleDetails,
   type,
 }) => {
   return (
@@ -56,6 +59,7 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
                   handleRemove={handleRemove}
                   handleAdd={handleAdd}
                   handleLiked={handleLiked}
+                  handleDetails={handleDetails}
                 ></RecipeEntry>
               );
             })
