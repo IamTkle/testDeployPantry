@@ -12,12 +12,13 @@ import {
   MenuItem,
   TextField,
   Theme,
+  useMediaQuery,
   useTheme,
 } from "@material-ui/core";
 import { AddBox, Edit } from "@material-ui/icons";
 import React from "react";
 import { DOMAIN } from "../../../App";
-import { DetailedIngredient_id, DetailedRecipe } from "./Recipe";
+import { DetailedIngredient_id, DetailedRecipe, ingredient_id } from "./Recipe";
 import RecipeEditDialogEntries from "./RecipeEditDialogEntries";
 
 interface RecipeDialogProps {
@@ -30,6 +31,9 @@ interface RecipeDialogProps {
   handleSave: (recipe: DetailedRecipe) => void;
 }
 
+interface CustomIngredient extends ingredient_id {
+  unitOfMeasure: string;
+}
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     saveEditButton: {
@@ -70,9 +74,11 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   resetDialogRecipe,
   handleSave,
 }) => {
+  //STYLES
   const theme = useTheme();
   const classes = useStyles(theme);
 
+  // STATES
   const [editDialogOpen, setEditDialog] = dialogOpenState;
 
   const [dialogRecipe, setDialogRecipe] = dialogRecipeState;
@@ -83,9 +89,7 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     DetailedIngredient_id[]
   >([]);
 
-  // const [initialRecipe] = React.useState(() => {
-  //   return { ...dialogRecipe };
-  // });
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
   // NEED UPDATE FOR PRODUCTS
   const isValidRecipe = React.useCallback(() => {
@@ -134,7 +138,8 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
   const handleEntryEdited = React.useCallback(
     (i: number, ing: DetailedIngredient_id) => {
       setDialogRecipe((prev) => {
-        prev.ingredientsList[i] = ing;
+        prev.ingredientsList[i] = { ...ing };
+        console.log(prev.ingredientsList[i], "this is higher");
         return { ...prev };
       });
     },
@@ -148,6 +153,12 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     });
   };
 
+  const handleClose = () => {
+    setEditDialog(false);
+    setTitleEditable(false);
+    resetDialogRecipe();
+  };
+
   React.useEffect(() => {
     fetch(DOMAIN + "/api/AllIngedients", {
       method: "GET",
@@ -157,11 +168,11 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
       .then((resp) => resp.json())
       .then((data) =>
         setAllIngredients(
-          data.map((val: DetailedIngredient_id) => {
+          data.map((val: CustomIngredient) => {
             return {
-              ingredientId: val.ingredientId,
-              ingredientName: val.ingredientName,
-              unitOfMeasure: "kg",
+              ingredientId: val.ids,
+              ingredientName: val.name,
+              unitOfMeasure: val.unitOfMeasure,
               amount: 0,
             };
           })
@@ -184,19 +195,12 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     <Dialog
       open={editDialogOpen}
       maxWidth="md"
-      onClose={() => {
-        setEditDialog(false);
-        setTitleEditable(false);
-        resetDialogRecipe();
-      }}
+      fullScreen={fullScreen}
+      onClose={handleClose}
       fullWidth
     >
       <DialogTitle>
-        <ClickAwayListener
-          onClickAway={() =>
-            dialogRecipe.recipeName ? setTitleEditable(false) : null
-          }
-        >
+        <ClickAwayListener onClickAway={fullScreen ? () => {} : handleClose}>
           <TextField
             required
             value={dialogRecipe.recipeName}
@@ -239,6 +243,16 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
         </List>
       </DialogContent>
       <DialogActions>
+        <Button
+          style={{
+            visibility: fullScreen ? "visible" : "hidden",
+            marginRight: "auto",
+          }}
+          color="secondary"
+          onClick={handleClose}
+        >
+          Cancel
+        </Button>
         <Button
           className={classes.saveEditButton}
           variant="contained"

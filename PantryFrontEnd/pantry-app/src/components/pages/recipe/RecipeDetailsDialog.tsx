@@ -1,27 +1,23 @@
 import {
-  Button,
   ButtonGroup,
   Container,
+  createStyles,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   makeStyles,
-  createStyles,
-  Theme,
-  useTheme,
-  Stepper,
+  MobileStepper,
   Step,
   StepLabel,
-  MobileStepper,
-  Checkbox,
-  IconButton,
+  Stepper,
+  Theme,
   useMediaQuery,
+  useTheme,
 } from "@material-ui/core";
 import React from "react";
 import SwipeableViews from "react-swipeable-views";
-import { DOMAIN } from "../../../App";
-import { APIRecipe, DetailedRecipe } from "./Recipe";
+import { DetailedRecipe } from "./Recipe";
 import { StyledActionButton } from "./RecipeEntry";
 
 interface RecipeDetailProps {
@@ -30,11 +26,6 @@ interface RecipeDetailProps {
     DetailedRecipe,
     React.Dispatch<React.SetStateAction<DetailedRecipe>>
   ];
-}
-
-interface RecipeClick {
-  basicInfo: APIRecipe;
-  desc: string;
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -97,9 +88,11 @@ const RecipeDetailsDialog: React.FC<RecipeDetailProps> = ({
   dialogOpenState,
   dialogRecipeState,
 }) => {
+  //THEME
   const theme = useTheme();
   const classes = useStyles(theme);
 
+  //STATES
   const [isOpen, setIsOpen] = dialogOpenState;
 
   const [recipe] = dialogRecipeState;
@@ -108,28 +101,8 @@ const RecipeDetailsDialog: React.FC<RecipeDetailProps> = ({
 
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // React.useEffect(() => {
-  //   fetch(DOMAIN + "/api/OnClickRecipe?recipeID=" + recipe.recipeId, {
-  //     method: "GET",
-  //     credentials: "include",
-  //     headers: { "Content-Type": "application/json" },
-  //   }).then((resp) =>
-  //     resp.json().then((data: RecipeClick) => {
-  //       if (resp.ok) {
-  //         setDesc(data.desc);
-  //       } else
-  //         enqueueSnackbar("Could not get recipe description!", {
-  //           variant: "error",
-  //         });
-  //     })
-  //   );
-  // }, [enqueueSnackbar, recipe.recipeId]);
-
   // HANDLERS
-  const handleStart = () => {
-    //   fetch(DOMAIN + "/api/get")
-    setActiveStep(0);
-  };
+  const handleStart = () => setActiveStep(0);
 
   const handleExit = () => setActiveStep(-1);
 
@@ -141,6 +114,8 @@ const RecipeDetailsDialog: React.FC<RecipeDetailProps> = ({
     setIsOpen(false);
     setActiveStep(-1);
   };
+
+  //COMPONENT
   return (
     <Dialog
       open={isOpen}

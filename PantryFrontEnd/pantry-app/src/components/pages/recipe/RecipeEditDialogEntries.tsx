@@ -3,12 +3,14 @@ import {
   ListItem,
   ListItemText,
   makeStyles,
+  MenuItem,
   TextField,
   Theme,
 } from "@material-ui/core";
 import { Block, Check, Edit } from "@material-ui/icons";
 import { createStyles, useTheme } from "@material-ui/styles";
 import React from "react";
+import { DOMAIN } from "../../../App";
 import { DetailedIngredient_id } from "./Recipe";
 import { StyledActionButton } from "./RecipeEntry";
 
@@ -18,6 +20,15 @@ interface EntryProps {
   handleEdited: (i: number, ing: DetailedIngredient_id) => void;
   handleRemove: (i: number) => void;
   allIngredients: DetailedIngredient_id[];
+}
+
+interface APIRecipeItem {
+  itemId: string;
+  name: string;
+  quantity: string;
+}
+interface RecipeProducts {
+  products: APIRecipeItem[];
 }
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -59,48 +70,49 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
   handleRemove,
   allIngredients,
 }) => {
-  const theme = useTheme();
+  const theme: Theme = useTheme();
   const classes = useStyles(theme);
 
   const [editable, setEditable] = React.useState(false);
 
   const [value, setValue] = React.useState(ig);
 
+  const [products, setProducts] = React.useState<APIRecipeItem[]>([]);
+
+  const [product, setProduct] = React.useState("None");
+
   const handleEdit = React.useCallback(() => {
     if (!editable) setEditable(true);
     else {
       if (value.ingredientId > 0) {
+        console.log(value);
         handleEdited(i, value);
         setEditable(false);
       }
     }
   }, [editable, handleEdited, i, value]);
 
-  const handleNameChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    const ing = allIngredients.find(
-      (ing) => ing.ingredientName === e.target.value
-    );
+  const handleNameChange = React.useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+      const ing = allIngredients.find(
+        (ing) => ing.ingredientName === e.target.value
+      );
 
-    if (ing) setValue(ing);
-    else
-      setValue({
-        ingredientName: e.target.value,
-        ingredientId: -1,
-        amount: 0,
-        unitOfMeasure: "kg",
-      });
-  };
-
-  // const handleNameEdited = (
-  //   e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>
-  // ) => {
-  //   if (value) {
-  //     setEditable(false);
-  //     handleEdited(i, value);
-  //   }
-  // };
+      if (ing)
+        setValue((prev) => {
+          return { ...ing, amount: prev.amount };
+        });
+      else
+        setValue((prev) => {
+          return {
+            ...prev,
+            ingredientName: e.target.value,
+            ingredientId: -1,
+          };
+        });
+    },
+    [allIngredients]
+  );
 
   const handleSelfDestruct = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>
@@ -108,20 +120,31 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
     handleRemove(i);
   };
 
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue((prev) => {
+      return { ...prev, amount: parseFloat(e.target.value) };
+    });
+  };
+
   React.useEffect(() => {
-    const ingWithId = allIngredients.find(
-      (ing) => ing.ingredientName === ig.ingredientName
-    );
-
-    if (ingWithId) {
-      setValue(ingWithId);
-      handleEdited(i, ingWithId);
-    }
-  }, [allIngredients, handleEdited, i, ig.ingredientName]);
-
-  // React.useEffect(() => {
-  //   handleEdited(i, value);
-  // }, [value, i, handleEdited]);
+    if (value.ingredientId <= 0) return;
+    const params: RequestInit = {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    };
+    fetch(
+      DOMAIN + "/api/getAllProductsForIng?ingId=" + value.ingredientId,
+      params
+    )
+      .then((resp) =>
+        resp.json().then((data: RecipeProducts) => {
+          console.log(data);
+          setProducts(data.products);
+        })
+      )
+      .catch((e) => console.error(e));
+  }, [value.ingredientId]);
 
   return (
     <ListItem disableGutters>
@@ -129,26 +152,19 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
         primary={
           <>
             <TextField
-              // inputProps={{ className: classes.textFieldRoot }}
               required
               InputProps={{ className: classes.textFieldRoot }}
               disabled={!editable}
               value={value.ingredientName}
               maxRows={1}
               onChange={handleNameChange}
-              // error={!value.name}
-              // helperText={!value.name ? "Field cannot be left empty" : ""}
               inputProps={{ list: "alloptions" }}
               type="text"
-              // select
             />
             <datalist id="alloptions">
-              {/* <option key={value.id} value={value.name}>
-                {value.name}
-              </option> */}
-              {allIngredients.map((val) => {
+              {allIngredients.map((val, i) => {
                 return (
-                  <option key={val.ingredientId} value={val.ingredientName}>
+                  <option key={i} value={val.ingredientName}>
                     {val.ingredientName}
                   </option>
                 );
@@ -156,12 +172,63 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
             </datalist>
           </>
         }
+        secondary={
+          <>
+            <ButtonGroup fullWidth={false} disabled={!editable}>
+              <TextField
+                type="number"
+                inputProps={{
+                  style: { display: "inline" },
+                  min: "0",
+                  step: "0.25",
+                }}
+                style={{ width: "30%" }}
+                value={value.amount}
+                onChange={handleAmountChange}
+                fullWidth={false}
+              />
+              <StyledActionButton
+                fullWidth={false}
+                disabled
+                size="small"
+                style={{
+                  backgroundColor: theme.palette.background.default,
+                  width: "50%",
+                }}
+              >
+                {value.unitOfMeasure ? value.unitOfMeasure : "unit"}(s)
+              </StyledActionButton>
+            </ButtonGroup>
+            <>
+              <TextField
+                type="text"
+                value={product}
+                disabled={!editable}
+                onFocus={() => console.log(products)}
+                onChange={(e) => setProduct(e.target.value)}
+                required
+                select
+              >
+                {products.map((val) => {
+                  return (
+                    <MenuItem key={val.itemId} value={val.name}>
+                      {val.name} {val.quantity}
+                    </MenuItem>
+                  );
+                })}
+                <MenuItem key={products.length} value="None">
+                  None
+                </MenuItem>
+              </TextField>
+            </>
+          </>
+        }
       />
       <ButtonGroup
         variant="contained"
         fullWidth
         size="large"
-        style={{ width: "40%" }}
+        style={{ width: "30%" }}
       >
         <StyledActionButton
           className={editable ? classes.confirmButton : classes.editButton}
