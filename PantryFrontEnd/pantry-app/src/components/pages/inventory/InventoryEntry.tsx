@@ -235,7 +235,10 @@ const InventoryEntry: React.FC<EntryProps> = ({
         let currGroup = newExpGroups[index];
 
         if (currGroup) {
-          const deleteCount = earliestExpPc < 0 ? currGroup.count : 1;
+          const deleteCount =
+            currGroup.expDate.getTime() - today.getTime() < 0
+              ? currGroup.count
+              : 1;
           currGroup.count -= deleteCount;
           fetch(DOMAIN + "/api/removeInventoryItem", {
             method: "DELETE",
@@ -260,7 +263,7 @@ const InventoryEntry: React.FC<EntryProps> = ({
         return newExpGroups;
       });
     },
-    [enqueueSnackbar, itemID, earliestExpPc]
+    [enqueueSnackbar, itemID]
   );
   return (
     <>
@@ -302,18 +305,6 @@ const InventoryEntry: React.FC<EntryProps> = ({
                         />
                       </IconButton>
                     </Hidden>
-                    {/* <Hidden smUp>
-                      <IconButton
-                        onClick={() => setOpen((prevOpen) => !prevOpen)}
-                        color="primary"
-                      >
-                        <KeyboardArrowDownOutlined
-                          fontSize="medium"
-                          classes={{ root: classes.expandEntryButton }}
-                          style={isOpen ? { transform: "rotate(180deg)" } : {}}
-                        />
-                      </IconButton>
-                    </Hidden> */}
                   </ButtonGroup>
                 </Container>
               }

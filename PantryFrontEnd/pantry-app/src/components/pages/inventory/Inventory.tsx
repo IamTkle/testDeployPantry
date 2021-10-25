@@ -1,14 +1,19 @@
 import {
   Container,
+  Dialog,
+  DialogContent,
   Divider,
+  Fab,
   makeStyles,
   Tab,
   Tabs,
+  TextField,
   Theme,
   Toolbar,
   useTheme,
 } from "@material-ui/core";
 import { createStyles } from "@material-ui/core/styles";
+import { Add } from "@material-ui/icons";
 import InfoIcon from "@material-ui/icons/Info";
 import React, { ReactNode } from "react";
 import { GiFruitBowl as FruitsIcon } from "react-icons/gi";
@@ -92,11 +97,29 @@ const useStyles = makeStyles((theme: Theme) =>
     ascendingTrack: {
       backgroundColor: theme.palette.secondary.main,
     },
+
+    fab: {
+      position: "fixed",
+      zIndex: 15,
+      bottom: theme.spacing(4),
+      right: theme.spacing(4),
+      color: theme.palette.background.default,
+      "&:hover": {
+        backgroundColor: theme.palette.secondary.main,
+      },
+    },
   })
 );
 
 interface InventoryProps {
   setNavOpen: () => void;
+}
+
+interface APIShoppingListItem {
+  category: string;
+  itemId: string;
+  name: string;
+  quantity: string;
 }
 
 const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
@@ -154,6 +177,8 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
 
   const [searchEntries, setSearchEntries] = React.useState<Item[]>([]);
 
+  const [addDialogOpen, setAddDialogOpen] = React.useState(false);
+
   const tabCategories = React.useMemo(getTabCategories, [entries]);
 
   const topEleRef = React.useRef<HTMLDivElement | null>(null);
@@ -206,7 +231,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   };
 
   const handleSortTypeChosen = React.useCallback(
-    (sortBy: number, desc: boolean) => {
+    (sortBy: SORT_TYPES, desc: boolean) => {
       switch (sortBy) {
         case SORT_TYPES.byExpiryDate:
           setEntries((prevEntries) => [...sortByExpiry(prevEntries, desc)]);
@@ -305,6 +330,24 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
           />
         </SwipeableViews>
       </Container>
+      <Dialog open={addDialogOpen} fullWidth maxWidth="md">
+        <DialogContent>
+          <TextField inputProps={{ list: "productslist" }} />
+        </DialogContent>
+        <datalist>
+          <option key={0} value="hello">
+            hello
+          </option>
+        </datalist>
+      </Dialog>
+      <Fab
+        size="large"
+        color="secondary"
+        classes={{ root: classes.fab }}
+        // onClick={}
+      >
+        <Add />
+      </Fab>
     </div>
   );
 };
