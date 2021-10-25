@@ -125,7 +125,7 @@ const Account: React.FC<AccountsProps> = () => {
 
         <Toolbar />
 
-        <Container>
+        {/* <Container>
           <Grid container spacing={1} item xs={10}>
             <Grid item xs={4} spacing={3} md={3}>
               <Card>
@@ -146,7 +146,7 @@ const Account: React.FC<AccountsProps> = () => {
               </Card>
             </Grid>
           </Grid>
-        </Container>
+        </Container> */}
       </React.Fragment>
     </div>
   );

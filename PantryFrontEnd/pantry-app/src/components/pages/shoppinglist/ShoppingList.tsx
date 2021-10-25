@@ -100,15 +100,10 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
 
   const [listInfo, setListInfo] = React.useState(importedList);
   const [activeTab, setActiveTab] = React.useState(0);
-  const [activeTabTwo, setActiveTabTwo] = React.useState(0);
 
-  const handleClick = () => {
-    console.info('You clicked the Chip.');
-  };
-
-  const handleClearAll = () => {
+  const handleClearAll = (shoppingList: SL) => {
     if( window.confirm("Are you sure you want to clear the list?")){
-
+    
     }
   };
 
@@ -165,7 +160,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           size="medium"
           clickable
           label={tab}
-          onChange={() => handleTabChange}
+          onChange={(e) => handleTabChange}
           variant="outlined"
           color="primary"
         />
@@ -201,10 +196,20 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           label="All"
           clickable
           color="primary"
-          onChange={() => handleTabChange}
+          onClick={() => handleTabChange}
           />
           {tabs}
         </Tabs>
+
+        {/* <Chip
+        component="test"
+        clickable
+        size="medium"
+        label="All"
+        variant="outlined"
+        color="primary"
+        onChange={() => handleTabChange}>
+        </Chip> */}
       </Container>
 
       <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
@@ -232,7 +237,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
       </Fab>
       
       <Fab size="large" classes={{ root: classes.fab3 }} >
-        <DoneAll onClick={handleClearAll}/>
+        <DoneAll onClick={() => handleClearAll}/>
       </Fab>
 
       <Fab size="large" classes={{ root: classes.fab4 }} >
