@@ -9,7 +9,7 @@ interface RecipeTabProps {
   propEntries: APIRecipe[];
   handleOpenEdit: (recipe: APIRecipe, i: number) => void;
   handleRemove?: (recipe: APIRecipe) => void;
-  handleLiked?: (i: number, newId: number) => void;
+  handleLiked?: (recipe: APIRecipe, newId: number) => void;
   handleDetails: (recipe: APIRecipe) => void;
   handleAdd: () => void;
   isFetching: boolean;
