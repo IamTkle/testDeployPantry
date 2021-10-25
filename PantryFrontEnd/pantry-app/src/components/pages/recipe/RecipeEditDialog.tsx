@@ -16,6 +16,7 @@ import {
   useTheme,
 } from "@material-ui/core";
 import { AddBox, Edit } from "@material-ui/icons";
+import { useSnackbar } from "notistack";
 import React from "react";
 import { DOMAIN } from "../../../App";
 import { DetailedIngredient_id, DetailedRecipe, ingredient_id } from "./Recipe";
@@ -85,19 +86,19 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
 
   const [titleEditable, setTitleEditable] = React.useState(false);
 
-  const [title, setTitle] = React.useState(dialogRecipe.recipeName);
-
   const [allIngredients, setAllIngredients] = React.useState<
     DetailedIngredient_id[]
   >([]);
 
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const { enqueueSnackbar } = useSnackbar();
+
   // NEED UPDATE FOR PRODUCTS
   const isValidRecipe = React.useCallback(() => {
     console.log(
       dialogRecipe.ingredientsList.every((ingr) => ingr.ingredientId > 0),
-      dialogRecipe.ingredientsList
+      dialogRecipe
     );
     if (
       dialogRecipe.recipeName &&
@@ -106,13 +107,15 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
       return true;
 
     return false;
-  }, [dialogRecipe.ingredientsList, dialogRecipe.recipeName]);
+  }, [dialogRecipe]);
 
   const handleTitleChange = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setTitle(e.target.value);
+      setDialogRecipe((prev) => {
+        return { ...prev, recipeName: e.target.value };
+      });
     },
-    [setTitle]
+    [setDialogRecipe]
   );
 
   const handleAddItem = () => {
@@ -133,6 +136,8 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     if (isValidRecipe()) {
       handleSave(dialogRecipe);
       setEditDialog(false);
+    } else {
+      enqueueSnackbar("Recipe is not valid!", { variant: "error" });
     }
   };
 
@@ -140,7 +145,6 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     (i: number, ing: DetailedIngredient_id) => {
       setDialogRecipe((prev) => {
         prev.ingredientsList[i] = { ...ing };
-        console.log(prev.ingredientsList[i], "this is higher");
         return { ...prev };
       });
     },
@@ -202,16 +206,18 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
     >
       <DialogTitle>
         <ClickAwayListener
-          onClickAway={() => (title ? setTitleEditable(false) : null)}
+          onClickAway={() =>
+            dialogRecipe.recipeName ? setTitleEditable(false) : null
+          }
         >
           <TextField
             required
-            value={title}
+            value={dialogRecipe.recipeName}
             disabled={!titleEditable}
             fullWidth
             onChange={handleTitleChange}
-            error={!title}
-            helperText={!title ? "Title cannot be blank" : ""}
+            error={!dialogRecipe.recipeName}
+            helperText={!dialogRecipe.recipeName ? "Title cannot be blank" : ""}
             InputProps={{
               endAdornment: (
                 <IconButton
@@ -244,6 +250,18 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
             <AddBox />
           </MenuItem>
         </List>
+        <TextField
+          label="Description"
+          multiline
+          fullWidth
+          variant="outlined"
+          value={dialogRecipe.desc}
+          onChange={(e) =>
+            setDialogRecipe((prev) => {
+              return { ...prev, desc: e.target.value };
+            })
+          }
+        ></TextField>
       </DialogContent>
       <DialogActions>
         <Button

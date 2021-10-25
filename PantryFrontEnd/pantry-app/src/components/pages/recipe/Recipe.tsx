@@ -41,6 +41,7 @@ export interface DetailedIngredient_id {
   ingredientName: string;
   unitOfMeasure: string;
   amount: number;
+  linkProduct?: string;
 }
 
 interface IngredientSteps {
@@ -183,6 +184,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
         .then((resp) =>
           resp.json().then((data: DetailedRecipe) => {
             if (resp.ok) {
+              console.log(data);
               setCurrRecipe(data);
             } else
               enqueueSnackbar("Could not get recipe details!", {
@@ -201,6 +203,20 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   const handleOpenEdit = (recipe: APIRecipe, i: number) => {
     // setCurrRecipe({ ...recipe });
     handleFetchDetailedRecipe(recipe);
+    setEditDialogOpen(true);
+  };
+
+  const handleAddCustomRecipe = () => {
+    setActiveTab(1);
+    const newRecipe: DetailedRecipe = {
+      desc: "",
+      ingredientsList: [],
+      recipeName: "",
+      photoUrl: "",
+      recipeId: 0,
+      steps: { recipeId: 0, instructions: [] },
+    };
+    setCurrRecipe(newRecipe);
     setEditDialogOpen(true);
   };
 
@@ -227,10 +243,42 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
   };
 
   const handleSave = (recipe: DetailedRecipe) => {
-    // setBrowseRecipes((prev) => {
-    //   prev[currRecipeIndex] = recipe;
-    //   return prev;
-    // });
+    const params: RequestInit = {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(recipe),
+    };
+
+    fetch(DOMAIN + "/api/addCustomRecipe", params)
+      .then((resp) =>
+        resp.json().then((data) => {
+          if (resp.ok) {
+            enqueueSnackbar("Custom recipe created successfully!", {
+              variant: "success",
+            });
+            console.log("New recipe:", data);
+            setLikedRecipes((prev) => [
+              ...prev,
+              {
+                recipeName: recipe.recipeName,
+                ingredientsList: recipe.ingredientsList.map((val) => {
+                  return { name: val.ingredientName, ids: val.ingredientId };
+                }),
+                photoUrl: recipe.photoUrl,
+                recipeId: recipe.recipeId,
+              },
+            ]);
+            setActiveTab(1);
+          } else
+            enqueueSnackbar("Could not create custom recipe!", {
+              variant: "error",
+            });
+        })
+      )
+      .catch((e) => enqueueSnackbar("Error! " + e));
   };
 
   const handleDetails = (recipe: APIRecipe) => {
@@ -344,7 +392,12 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
             />
           </SwipeableViews>
         </Container>
-        <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
+        <Fab
+          size="large"
+          color="secondary"
+          classes={{ root: classes.fab }}
+          onClick={handleAddCustomRecipe}
+        >
           <Add />
         </Fab>
         <ScrollTopFab topRef={scrollRef} />

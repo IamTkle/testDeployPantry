@@ -79,14 +79,12 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
 
   const [products, setProducts] = React.useState<APIRecipeItem[]>([]);
 
-  const [product, setProduct] = React.useState("None");
-
   const handleEdit = React.useCallback(() => {
     if (!editable) setEditable(true);
     else {
       if (value.ingredientId > 0) {
         console.log(value);
-        handleEdited(i, value);
+        handleEdited(i, { ...value });
         setEditable(false);
       }
     }
@@ -202,10 +200,14 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
             <>
               <TextField
                 type="text"
-                value={product}
+                value={value.linkProduct}
                 disabled={!editable}
                 onFocus={() => console.log(products)}
-                onChange={(e) => setProduct(e.target.value)}
+                onChange={(e) =>
+                  setValue((prev) => {
+                    return { ...prev, linkProduct: e.target.value };
+                  })
+                }
                 required
                 select
               >
@@ -216,9 +218,6 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
                     </MenuItem>
                   );
                 })}
-                <MenuItem key={products.length} value="None">
-                  None
-                </MenuItem>
               </TextField>
             </>
           </>
