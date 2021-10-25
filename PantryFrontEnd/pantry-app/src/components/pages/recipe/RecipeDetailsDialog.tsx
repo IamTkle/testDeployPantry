@@ -186,7 +186,11 @@ const RecipeDetailsDialog: React.FC<RecipeDetailProps> = ({
                 );
               })}
             </Stepper>
-            <SwipeableViews index={activeStep} className={classes.recipeSteps}>
+            <SwipeableViews
+              index={activeStep}
+              className={classes.recipeSteps}
+              onChangeIndex={(newIndex) => setActiveStep(newIndex)}
+            >
               {recipe.steps.instructions.map((instr, i) => {
                 return (
                   <Step key={i} style={{ marginBottom: 0 }}>

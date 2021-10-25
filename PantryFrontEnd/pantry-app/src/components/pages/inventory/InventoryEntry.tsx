@@ -243,7 +243,9 @@ const InventoryEntry: React.FC<EntryProps> = ({
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               productID: itemID,
-              exp: currGroup.expDate.toISOString(),
+              exp: `${currGroup.expDate.getFullYear()}-${
+                currGroup.expDate.getMonth() + 1
+              }-${currGroup.expDate.getDate()}`,
               count: deleteCount,
             }),
           })
