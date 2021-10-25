@@ -135,7 +135,7 @@ interface RecipeEntryProps {
   recipe: APIRecipe;
   handleOpenEdit: (recipe: APIRecipe, i: number) => void;
   handleRemove?: (recipe: APIRecipe) => void;
-  handleLiked?: (i: number, newId: number) => void;
+  handleLiked?: (recipe: APIRecipe, newId: number) => void;
   handleAdd: () => void;
   handleDetails: (recipe: APIRecipe) => void;
   i: number;
@@ -186,7 +186,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
               variant: resp.ok ? "success" : "error",
             }
           );
-          if (resp.ok && handleLiked) handleLiked(i, data.message);
+          if (resp.ok && handleLiked) handleLiked(recipe, data.message);
         })
       )
       .catch((e) =>

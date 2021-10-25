@@ -236,10 +236,10 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
     }
   };
 
-  const handleLiked = (i: number, newId: number) => {
-    let recipeToAdd = { ...browseRecipes[i] };
+  const handleLiked = (recipeToAdd: APIRecipe, newId: number) => {
+    // let recipeToAdd = { ...browseRecipes[i] };
 
-    if (recipeToAdd && newId) {
+    if (parseInt("" + newId)) {
       recipeToAdd.recipeId = newId;
       setLikedRecipes((prev) => [...prev, recipeToAdd as APIRecipe]);
     }
@@ -355,15 +355,14 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
             if (resp.ok) {
               setLikedRecipes((prev) => {
                 const index = prev.findIndex(
-                  (val) => val.recipeId === recipe.recipeId
+                  (val) => "" + val.recipeId === "" + recipe.recipeId
                 );
 
-                if (prev[index]) {
-                  (prev[index] as APIRecipe).recipeId = data.message;
-                  enqueueSnackbar("Successfully edited recipe!", {
-                    variant: "success",
-                  });
-                }
+                (prev[index] as APIRecipe).recipeId = data.message;
+                enqueueSnackbar("Successfully edited recipe!", {
+                  variant: "success",
+                });
+
                 return [...prev];
               });
             } else {
@@ -598,7 +597,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
                 type="api"
                 propEntries={recomRecipes}
                 handleOpenEdit={handleOpenEdit}
-                handleLiked={handleRecomLiked}
+                handleLiked={handleLiked}
                 handleAdd={() => {}}
                 handleDetails={handleDetails}
               />
