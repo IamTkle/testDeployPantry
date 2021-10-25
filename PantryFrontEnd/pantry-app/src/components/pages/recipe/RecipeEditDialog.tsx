@@ -15,7 +15,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@material-ui/core";
-import { AddBox, Edit } from "@material-ui/icons";
+import { AddBox, Edit, RemoveFromQueue } from "@material-ui/icons";
 import { useSnackbar } from "notistack";
 import React from "react";
 import { DOMAIN } from "../../../App";
@@ -56,6 +56,21 @@ const useStyles = makeStyles((theme: Theme) =>
       width: "auto",
       marginBlock: theme.spacing(5),
       marginInline: theme.spacing(5),
+    },
+
+    removeButton: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      color: theme.palette.error.dark,
+      backgroundColor: theme.palette.error.light,
+      width: "auto",
+      marginBlock: theme.spacing(5),
+      marginInline: theme.spacing(5),
+    },
+
+    stepsList: {
+      listStyleType: "decimal",
     },
   })
 );
@@ -214,6 +229,8 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
             required
             value={dialogRecipe.recipeName}
             disabled={!titleEditable}
+            // label="Title"
+            placeholder="Title"
             fullWidth
             onChange={handleTitleChange}
             error={!dialogRecipe.recipeName}
@@ -262,6 +279,59 @@ const RecipeEditDialog: React.FC<RecipeDialogProps> = ({
             })
           }
         ></TextField>
+        <List classes={{ root: classes.stepsList }}>
+          <label>Steps</label>
+          {dialogRecipe.steps.instructions.map((val, i) => {
+            return (
+              <li
+                style={{
+                  marginBlock: theme.spacing(3),
+                  //   display: "flex",
+                  //   flexDirection: "column",
+                  //   justifyContent: "center",
+                  //   alignItems: "center",
+                }}
+              >
+                <TextField
+                  fullWidth
+                  multiline
+                  variant="filled"
+                  key={i}
+                  value={val}
+                  inputProps={{ style: { display: "block" } }}
+                  onChange={(e) =>
+                    setDialogRecipe((prev) => {
+                      prev.steps.instructions[i] = e.target.value;
+                      return { ...prev };
+                    })
+                  }
+                />
+              </li>
+            );
+          })}
+          <MenuItem
+            className={classes.addButton}
+            onClick={() =>
+              setDialogRecipe((prev) => {
+                prev.steps.instructions.push("New step");
+                return { ...prev };
+              })
+            }
+          >
+            <AddBox />
+          </MenuItem>
+          <MenuItem
+            className={classes.removeButton}
+            onClick={() =>
+              setDialogRecipe((prev) => {
+                prev.steps.instructions.pop();
+                return { ...prev };
+              })
+            }
+          >
+            <RemoveFromQueue />
+          </MenuItem>
+        </List>
       </DialogContent>
       <DialogActions>
         <Button

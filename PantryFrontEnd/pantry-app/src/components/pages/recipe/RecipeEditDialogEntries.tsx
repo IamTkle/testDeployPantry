@@ -201,6 +201,8 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
               <TextField
                 type="text"
                 value={value.linkProduct}
+                label="No product"
+                style={{ marginBlock: theme.spacing(3) }}
                 disabled={!editable}
                 onFocus={() => console.log(products)}
                 onChange={(e) =>
@@ -208,7 +210,7 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
                     return { ...prev, linkProduct: e.target.value };
                   })
                 }
-                required
+                fullWidth
                 select
               >
                 {products.map((val) => {

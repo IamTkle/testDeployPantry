@@ -9,9 +9,10 @@ interface RecipeTabProps {
   propEntries: APIRecipe[];
   handleOpenEdit: (recipe: APIRecipe, i: number) => void;
   handleRemove?: (recipe: APIRecipe) => void;
-  handleLiked?: (i: number) => void;
+  handleLiked?: (i: number, newId: number) => void;
   handleDetails: (recipe: APIRecipe) => void;
   handleAdd: () => void;
+  isFetching: boolean;
   type: "api" | "fav";
 }
 
@@ -32,7 +33,7 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
   handleRemove,
   handleAdd,
   handleLiked,
-
+  isFetching,
   handleDetails,
   type,
 }) => {
@@ -47,7 +48,7 @@ const RecipeTab: React.FC<RecipeTabProps> = ({
             marginBottom: "2rem",
           }}
         >
-          {propEntries.length > 0 ? (
+          {!isFetching ? (
             propEntries.map((r, i) => {
               return (
                 <RecipeEntry

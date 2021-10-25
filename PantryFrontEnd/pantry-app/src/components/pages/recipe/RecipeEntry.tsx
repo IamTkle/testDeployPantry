@@ -135,7 +135,7 @@ interface RecipeEntryProps {
   recipe: APIRecipe;
   handleOpenEdit: (recipe: APIRecipe, i: number) => void;
   handleRemove?: (recipe: APIRecipe) => void;
-  handleLiked?: (i: number) => void;
+  handleLiked?: (i: number, newId: number) => void;
   handleAdd: () => void;
   handleDetails: (recipe: APIRecipe) => void;
   i: number;
@@ -178,10 +178,13 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
     fetch(DOMAIN + `/api/ApiRecipeToCustom?recipeID=${recipe.recipeId}`, params)
       .then((resp) =>
         resp.json().then((data) => {
-          enqueueSnackbar(data.message, {
-            variant: resp.ok ? "success" : "error",
-          });
-          if (handleLiked) handleLiked(i);
+          enqueueSnackbar(
+            resp.ok ? "Recipe added successfully!" : "Failed to like reciped!",
+            {
+              variant: resp.ok ? "success" : "error",
+            }
+          );
+          if (handleLiked) handleLiked(i, data.message);
         })
       )
       .catch((e) =>
@@ -205,7 +208,12 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
               variant="rounded"
               src={recipe.photoUrl}
               classes={{ root: classes.entryAvatar }}
-            />
+            >
+              {recipe.recipeName
+                .split(" ")
+                .splice(0, 2)
+                .map((val) => val.charAt(0).toUpperCase())}
+            </Avatar>
           </ListItemAvatar>
           <ListItemText
             primary={

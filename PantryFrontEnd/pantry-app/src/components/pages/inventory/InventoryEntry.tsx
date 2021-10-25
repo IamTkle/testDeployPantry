@@ -246,12 +246,6 @@ const InventoryEntry: React.FC<EntryProps> = ({
               exp: `${currGroup.expDate.getFullYear()}-${
                 currGroup.expDate.getMonth() + 1
               }-${currGroup.expDate.getDate()}`,
-              // exp: new Date(
-              //   currGroup.expDate.setTime(
-              //     currGroup.expDate.getTime() +
-              //       currGroup.expDate.getTimezoneOffset() * 60000
-              //   )
-              // ).toISOString(),
               count: deleteCount,
             }),
           })
