@@ -64,6 +64,7 @@ export interface APIItem {
   name: string;
   price: number;
   expiry_Count: ExpiryGroup[];
+  photo?: string;
 }
 
 export interface Item extends APIItem {

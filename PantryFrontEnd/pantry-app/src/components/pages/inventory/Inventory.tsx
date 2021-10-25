@@ -368,7 +368,7 @@ const sortByQuantity = (entries: Item[], desc: boolean) => {
 
     const diff = totalCountA - totalCountB;
 
-    return desc ? diff : diff * -1;
+    return desc ? diff * -1 : diff;
   });
 
   return sorted;

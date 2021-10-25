@@ -3,9 +3,9 @@ import {
   Button,
   ButtonGroup,
   Card,
+  CircularProgress,
   Container,
   createStyles,
-  IconButton,
   ListItem,
   ListItemAvatar,
   ListItemText,
@@ -19,11 +19,12 @@ import {
   Block,
   Edit,
   Favorite,
-  FavoriteBorderOutlined,
   ImportContacts,
 } from "@material-ui/icons";
+import { useSnackbar } from "notistack";
 import React from "react";
-import { Recipe } from "./mockEntries";
+import { DOMAIN } from "../../../App";
+import { ingredient_id, APIRecipe } from "./Recipe";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
 
@@ -114,6 +115,13 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
 
+    favoriteButton: {
+      backgroundColor: "#ee868b",
+      "&:hover": {
+        backgroundColor: "#ee868b",
+      },
+    },
+
     openButton: {
       backgroundColor: theme.palette.text.primary,
       [theme.breakpoints.down("xs")]: {
@@ -124,11 +132,14 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 interface RecipeEntryProps {
-  recipe: Recipe;
-  handleOpenEdit: (recipe: Recipe, i: number) => void;
-  handleRemove: (recipe: Recipe) => void;
+  recipe: APIRecipe;
+  handleOpenEdit: (recipe: APIRecipe, i: number) => void;
+  handleRemove?: (recipe: APIRecipe) => void;
+  handleLiked?: (i: number, newId: number) => void;
   handleAdd: () => void;
+  handleDetails: (recipe: APIRecipe) => void;
   i: number;
+  type: "api" | "fav";
 }
 
 const RecipeEntry: React.FC<RecipeEntryProps> = ({
@@ -136,21 +147,56 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
   handleOpenEdit,
   handleRemove,
   handleAdd,
+  handleLiked,
+  handleDetails,
   i,
+  type,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const ingredientsString = getIngredientsString(recipe.ingredients);
+  const ingredientsString = getIngredientsString(recipe.ingredientsList);
 
-  const [isFavorite, setIsFavorite] = React.useState(recipe.fav);
+  const { enqueueSnackbar } = useSnackbar();
 
+  const [isLiking, setIsLiking] = React.useState(false);
   const handleEditButtonClick = () => {
     handleOpenEdit(recipe, i);
   };
 
   const handleRemoveButtonClick = () => {
-    handleRemove(recipe);
+    if (handleRemove) handleRemove(recipe);
+  };
+
+  const handleRecipeLikeClick = () => {
+    setIsLiking(true);
+    const params: RequestInit = {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    };
+    fetch(DOMAIN + `/api/ApiRecipeToCustom?recipeID=${recipe.recipeId}`, params)
+      .then((resp) =>
+        resp.json().then((data) => {
+          enqueueSnackbar(
+            resp.ok ? "Recipe added successfully!" : "Failed to like reciped!",
+            {
+              variant: resp.ok ? "success" : "error",
+            }
+          );
+          if (handleLiked) handleLiked(i, data.message);
+        })
+      )
+      .catch((e) =>
+        enqueueSnackbar("Failed to add recipe to favorites! " + e, {
+          variant: "error",
+        })
+      )
+      .finally(() => setIsLiking(false));
+  };
+
+  const handleDetailsClick = () => {
+    handleDetails(recipe);
   };
 
   return (
@@ -160,9 +206,14 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           <ListItemAvatar>
             <Avatar
               variant="rounded"
-              src={recipe.img}
+              src={recipe.photoUrl}
               classes={{ root: classes.entryAvatar }}
-            />
+            >
+              {recipe.recipeName
+                .split(" ")
+                .splice(0, 2)
+                .map((val) => val.charAt(0).toUpperCase())}
+            </Avatar>
           </ListItemAvatar>
           <ListItemText
             primary={
@@ -173,19 +224,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
                   justifyContent: "flex-start",
                 }}
               >
-                {recipe.name}
-                <IconButton
-                  onClick={() => setIsFavorite((prev) => !prev)}
-                  size="small"
-                >
-                  {isFavorite ? (
-                    <Favorite className={classes.favoritedButton} />
-                  ) : (
-                    <FavoriteBorderOutlined
-                      style={{ color: theme.palette.text.secondary }}
-                    />
-                  )}
-                </IconButton>
+                {recipe.recipeName}
               </Container>
             }
             secondary={<Container>{ingredientsString}</Container>}
@@ -207,13 +246,32 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           <StyledActionButton className={classes.addButton}>
             <AddShoppingCart />
           </StyledActionButton>
+          {type === "fav" ? (
+            <StyledActionButton
+              className={classes.removeButton}
+              onClick={handleRemoveButtonClick}
+            >
+              <Block />
+            </StyledActionButton>
+          ) : (
+            <StyledActionButton
+              className={classes.favoriteButton}
+              onClick={handleRecipeLikeClick}
+            >
+              {isLiking ? (
+                <CircularProgress
+                  style={{ color: theme.palette.background.default }}
+                  size={theme.spacing(3)}
+                />
+              ) : (
+                <Favorite />
+              )}
+            </StyledActionButton>
+          )}
           <StyledActionButton
-            className={classes.removeButton}
-            onClick={handleRemoveButtonClick}
+            className={classes.openButton}
+            onClick={handleDetailsClick}
           >
-            <Block />
-          </StyledActionButton>
-          <StyledActionButton className={classes.openButton}>
             <ImportContacts />
           </StyledActionButton>
         </ButtonGroup>
@@ -222,7 +280,7 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
   );
 };
 
-const getIngredientsString = (ingredients: string[]) => {
+const getIngredientsString = (ingredients: ingredient_id[]) => {
   var igstr = "";
 
   var itersCount = 5;
@@ -235,12 +293,12 @@ const getIngredientsString = (ingredients: string[]) => {
   }
 
   for (let i = 0; i < itersCount; i++) {
-    igstr += ingredients[i];
+    igstr += ingredients[i]?.name;
     if (i + 1 < itersCount) igstr += ", ";
   }
 
   if (plusOthers) {
-    igstr += `+ ${ingredients.length - 5} more`;
+    igstr += ` + ${ingredients.length - 5} more`;
   }
 
   return igstr;

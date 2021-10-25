@@ -1,4 +1,4 @@
-import { Container } from "@material-ui/core";
+import { CircularProgress, Container } from "@material-ui/core";
 import { Item } from "./mockEntries";
 import React from "react";
 import InventoryEntry from "./InventoryEntry";
@@ -19,18 +19,31 @@ const InventoryTab: React.FC<InventoryTabProps> = ({
   return (
     <>
       {activeTab === index && (
-        <Container style={{ maxWidth: "none" }}>
-          {propEntries.map((item) => {
-            return (
-              <InventoryEntry
-                key={item.itemID}
-                name={item.name}
-                expiryGroups={item.expiry_Count}
-                quantity={item.quantity}
-                category={item.category}
-              />
-            );
-          })}
+        <Container
+          style={{
+            maxWidth: "none",
+            textAlign: "center",
+            overflow: "hidden",
+            marginBottom: "2rem",
+          }}
+        >
+          {propEntries.length > 0 ? (
+            propEntries.map((item) => {
+              return (
+                <InventoryEntry
+                  key={item.itemID}
+                  name={item.name}
+                  inExpiryGroups={item.expiry_Count}
+                  quantity={item.quantity}
+                  category={item.category}
+                  itemID={item.itemID}
+                  photo={item.photo}
+                />
+              );
+            })
+          ) : (
+            <CircularProgress color="primary" size={100} />
+          )}
         </Container>
       )}
     </>
