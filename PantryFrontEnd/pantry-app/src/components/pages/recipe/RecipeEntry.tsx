@@ -24,7 +24,7 @@ import {
 import { useSnackbar } from "notistack";
 import React from "react";
 import { DOMAIN } from "../../../App";
-import { ingredient_id, APIRecipe } from "./Recipe";
+import { ingredient_id, APIRecipe, DetailedRecipe } from "./Recipe";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
 
@@ -179,12 +179,14 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
       .then((resp) =>
         resp.json().then((data) => {
           enqueueSnackbar(
-            resp.ok ? "Recipe added successfully!" : "Failed to like reciped!",
+            resp.ok
+              ? "Recipe added successfully!"
+              : "Failed to like reciped! Already exists",
             {
               variant: resp.ok ? "success" : "error",
             }
           );
-          if (handleLiked) handleLiked(i, data.message);
+          if (resp.ok && handleLiked) handleLiked(i, data.message);
         })
       )
       .catch((e) =>
@@ -193,6 +195,72 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
         })
       )
       .finally(() => setIsLiking(false));
+  };
+
+  const handleAddClick = () => {
+    const params: RequestInit = {
+      method: "GET",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+    };
+
+    fetch(
+      DOMAIN + "/api/getFullDetailsRecipe?recipeId=" + recipe.recipeId,
+      params
+    )
+      .then((resp) =>
+        resp.json().then((data: DetailedRecipe) => {
+          if (resp.ok) {
+            let products: { itemId: string; count: number }[] = [];
+
+            data.ingredientsList.forEach((ingr) => {
+              if (ingr.linkProduct)
+                products.push({ itemId: ingr.linkProduct, count: 1 });
+            });
+
+            if (products.length > 0)
+              fetch(DOMAIN + "/api/AddShoppingItemList", {
+                ...params,
+                method: "POST",
+                body: JSON.stringify(products),
+              }).then((addResp) =>
+                addResp
+                  .json()
+                  .then((result) => {
+                    if (addResp.ok) {
+                      enqueueSnackbar(
+                        `${result.message}! Added ${products.length} items to shopping list!`,
+                        { variant: "success" }
+                      );
+                    } else {
+                      enqueueSnackbar(
+                        "Could not add products to shopping list!",
+                        { variant: "error" }
+                      );
+                    }
+                  })
+                  .catch((e) =>
+                    enqueueSnackbar(
+                      "Could not add products to shopping list!" + e,
+                      { variant: "error" }
+                    )
+                  )
+              );
+            else
+              enqueueSnackbar(
+                "No links between items and ingredients were found! No items were added",
+                { variant: "warning" }
+              );
+          } else
+            enqueueSnackbar("Could not get recipe details!", {
+              variant: "error",
+            });
+        })
+      )
+      .catch((e) => {
+        enqueueSnackbar("Error! " + e, { variant: "error" });
+        console.error(e);
+      });
   };
 
   const handleDetailsClick = () => {
@@ -243,7 +311,10 @@ const RecipeEntry: React.FC<RecipeEntryProps> = ({
           >
             <Edit />
           </StyledActionButton>
-          <StyledActionButton className={classes.addButton}>
+          <StyledActionButton
+            className={classes.addButton}
+            onClick={handleAddClick}
+          >
             <AddShoppingCart />
           </StyledActionButton>
           {type === "fav" ? (
