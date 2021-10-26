@@ -23,7 +23,7 @@ import {
 } from "@material-ui/icons";
 import React from "react";
 import { createEmitAndSemanticDiagnosticsBuilderProgram } from "typescript";
-import { ShoppingListEntry as shopListEntry, shoppingListAPIitem,} from "./mockEntries";
+import { shoppingListAPIitem,} from "./mockEntries";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
 
