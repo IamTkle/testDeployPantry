@@ -14,10 +14,12 @@ import {
   Theme,
   useTheme,
   Box,
+  ListItemSecondaryAction,
 } from "@material-ui/core";
 import {
+  AddCircle,
   Clear,
-  Done, Info, MenuBook
+  Done, Info, MenuBook, RemoveCircle
 } from "@material-ui/icons";
 import React from "react";
 import { createEmitAndSemanticDiagnosticsBuilderProgram } from "typescript";
@@ -101,6 +103,23 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
 
+    disabledDec: {
+      "&.Mui-disabled": {
+        backgroundColor: theme.palette.text.secondary,
+      },
+    },
+
+    incDecGroup: {
+      backgroundColor: theme.palette.primary.light,
+    },
+
+    buttonCounter: {
+      fontSize: "1.25rem",
+      fontWeight: 600,
+      color: theme.palette.text.primary,
+      opacity: 1,
+    },
+
     removeButton: {
       backgroundColor: theme.palette.error.main,
 
@@ -149,10 +168,11 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const itemQuantity = "x1"
+  const itemQuantity = "x" + item.count;
   //const infoString = item.;
   const itemPrice = "$" + item.price;
-  const totalPrice = "$" + 1 * item.price
+  const priceCalc = item.count * item.price;
+  const totalPrice = "$" + priceCalc.toFixed(2);
   
   const [count, setCount] = React.useState(item.count)
   // const handleItemDone = () => {
@@ -226,9 +246,47 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                       width: '100%'
                     }}
                   >
-                    <Box sx={{ display: 'flex', justifyContent: 'row', p: 1, flexGrow: 1}}>{itemPrice}</Box>
-                    <Box sx={{ p: 1, flexGrow: 1}}>{count}</Box>
-                    <Box sx={{ p: 1, flexGrow: 1}}>{totalPrice}</Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'row', p: 2, flexGrow: 1}}>{itemPrice}</Box>
+                    {/* <Box sx={{ p: 1, flexGrow: 1}}>{itemQuantity}</Box> */}  
+                    
+                    <Box sx={{ p: 1, flexGrow: 1}}>
+                      <ButtonGroup
+                        variant="outlined"
+                        classes={{ groupedOutlinedHorizontal: classes.incDecGroup }}
+                        color={"default"}
+                      >
+
+                      <IconButton
+                        color="primary"
+                        disabled={count === 1}
+                        onClick={() => setCount((prevCount) => prevCount - 1)}
+                        classes={{ disabled: classes.disabledDec }}
+                      >
+                        <RemoveCircle />
+                        </IconButton>
+                  
+                      <Button
+                        disabled
+                        variant="text"
+                        classes={{
+                          text: classes.buttonCounter,
+                        }}
+                      >
+
+                    {count}
+
+                      </Button>
+                      <IconButton
+                        color="primary"
+                        onClick={() => setCount((prevCount) => prevCount + 1)}
+                      >
+                        <AddCircle />
+                      </IconButton>
+                    </ButtonGroup>
+
+                    </Box>
+
+                    <Box sx={{ p: 2, flexGrow: 1}}>{totalPrice}</Box>
                   </Box>
                 {/* </div> */}
               </Container>

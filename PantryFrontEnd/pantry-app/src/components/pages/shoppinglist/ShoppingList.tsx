@@ -110,11 +110,9 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   React.useEffect(() => {
     fetch(DOMAIN + "/api/GetShoppingItems", 
     {method: "GET", credentials: "include", headers: {"Content-Type": "application/json"}} )
-    .then((response) => {return response.json()
-    .then((result: shoppingListAPIitem[]) => {setListInf(result); console.log(result)})});
-
-    fetch(DOMAIN + "/api/AddShopping")
-
+    .then((response) => {return response.json()})
+    .then((result: shoppingListAPIitem[]) => {setListInf(result); console.log(result)})
+    .catch((e) => console.error(e))
 
   }, []);
 
@@ -226,10 +224,10 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
       </Container>
 
       <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
-        <SwipeableViews
+        {/* <SwipeableViews
           index={activeTab}
           onChangeIndex={(index) => setActiveTab(index)}
-        >
+        > */}
           {listInf.map((listInf,i) => { return(
             <ShoppingListEntry 
               i={i}
@@ -247,7 +245,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
             handleAdd={handleAdd}
             handleRemove={handleRemove}
           /> */}
-        </SwipeableViews>
+        {/* </SwipeableViews> */}
       </Container>
 
       <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
