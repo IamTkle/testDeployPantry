@@ -6,7 +6,7 @@ import { Add, DeleteSweep, DoneAll, PlaylistAdd } from "@material-ui/icons";
 import React from "react";
 import PantryAppBar from "../../PantryAppBar";
 import {
-  DOMAIN, listInfo as importedList, shoppingListAPIitem, shoppingListAPIProducts
+  DOMAIN, shoppingListAPIitem,
 } from "./mockEntries";
 import ShoppingListEntry from "./ShoppingListEntry";
 
@@ -98,25 +98,27 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   const handleSortDirectionChange = (sortType: number, desc: boolean) => {};
   const handleSortTypeChosen = (sortType: number, desc: boolean) => {};
 
-  const [listInfo, setListInfo] = React.useState(importedList);
-  const [listInf, setListInf] = React.useState<shoppingListAPIitem[]>([]);
-  const [listProd, setListProd] = React.useState<shoppingListAPIProducts[]>([]);
-  const [activeTab, setActiveTab] = React.useState(0);
+  const [listInfo, setListInfo] = React.useState<shoppingListAPIitem[]>([]);
   
-  // const [isFetching, setIsFetching] = React
-  // 1015863P
+  const [activeTab, setActiveTab] = React.useState(0);
+
+   // const getListInfoForCategory = React.useCallback(
+  //   (category: string | undefined) => {
+  //     if (category) {
+  //       return listInfo.filter((item) => {
+  //         return item.category === category ? true : false;
+  //       });
+  //     }
+  //     return listInfo;
+  //   },
+  //   [listInfo]
+  // );
 
   React.useEffect(() => {
     fetch(DOMAIN + "/api/GetShoppingItems", 
     {method: "GET", credentials: "include", headers: {"Content-Type": "application/json"}} )
     .then((response) => {return response.json()})
-    .then((result: shoppingListAPIitem[]) => {setListInf(result); console.log(result)})
-    .catch((e) => console.error(e))
-
-    fetch(DOMAIN + "/api/GetShoppingProducts", 
-    {method: "GET", credentials: "include", headers: {"Content-Type": "application/json"}} )
-    .then((response) => {return response.json()})
-    .then((result: shoppingListAPIProducts[]) => {setListProd(result); console.log(result)})
+    .then((result: shoppingListAPIitem[]) => {setListInfo(result); console.log(result)})
     .catch((e) => console.error(e))
   }, []);
 
@@ -126,22 +128,18 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     };
   }
 
-  const handleManualAdd = () => {
-
-  };
-
   const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
     setActiveTab(newTab);
   };
   
   const handleRemove = (shopListAPI: shoppingListAPIitem) => {
-    setListInf((shoppingLists) =>
+    setListInfo((shoppingLists) =>
       shoppingLists.filter((cur) => cur.name !== shopListAPI.name)
       );
     };
 
     const handleAdd = (shopListAPI: shoppingListAPIitem) => {
-    setListInf((shoppingLists) =>
+    setListInfo((shoppingLists) =>
       shoppingLists.filter((cur) => cur.name !== shopListAPI.name)
       );
     };
@@ -152,7 +150,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     console.log("categories checked");
     let allCategories: string[] = [];
 
-    listInf.forEach((item) => {
+    listInfo.forEach((item) => {
       if (!allCategories.includes(item.category)) {
         allCategories.push(item.category);
       }
@@ -161,19 +159,9 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     return allCategories;
   };
 
-  const tabCategories = React.useMemo(getTabCategories, [listInf]);
+  const tabCategories = React.useMemo(getTabCategories, [listInfo]);
 
-  const getListInfoForCategory = React.useCallback(
-    (category: string | undefined) => {
-      if (category) {
-        return listInfo.filter((item) => {
-          return item.category === category ? true : false;
-        });
-      }
-      return listInfo;
-    },
-    [listInfo]
-  );
+ 
 
   const getTabs = () => {
     console.log("tab categories checked");
@@ -229,10 +217,10 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
 
       <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
   
-          {listInf.map((listInf,i) => { return(
+          {listInfo.map((listInfo,i) => { return(
             <ShoppingListEntry 
               i={i}
-              item={listInf}
+              item={listInfo}
               handleAdd={handleAdd}
               handleRemove={handleRemove}
             />);
@@ -243,7 +231,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
       </Container>
 
       <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
-        <Add onClick={handleManualAdd}/>
+        <Add />
       </Fab>
 
       <Fab size="large" classes={{ root: classes.fab2 }} >

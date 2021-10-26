@@ -214,17 +214,6 @@ export interface shoppingListAPIitem {
   category: string;
 };
 
-export interface shoppingListAPIProducts {
-  itemId: string;
-  quantity: string;
-  category: string;
-  name: string;
-  price: number;
-  searchtag: string;
-  ingredientId: number;
-  photoUrl: string;
-};
-
 export type ShoppingListEntry = {
   rid: string;
   name: string;
