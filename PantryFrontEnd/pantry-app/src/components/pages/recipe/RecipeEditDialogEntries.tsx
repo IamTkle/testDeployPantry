@@ -201,7 +201,8 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
               <TextField
                 type="text"
                 value={value.linkProduct}
-                label="No product"
+                SelectProps={{ value: value.linkProduct }}
+                // label="No product"
                 style={{ marginBlock: theme.spacing(3) }}
                 disabled={!editable}
                 onFocus={() => console.log(products)}
@@ -213,9 +214,16 @@ const RecipeEditDialogEntries: React.FC<EntryProps> = ({
                 fullWidth
                 select
               >
+                {
+                  <MenuItem
+                    selected
+                    value={value.linkProduct}
+                    key={0}
+                  ></MenuItem>
+                }
                 {products.map((val) => {
                   return (
-                    <MenuItem key={val.itemId} value={val.name}>
+                    <MenuItem key={val.itemId} value={val.itemId}>
                       {val.name} {val.quantity}
                     </MenuItem>
                   );
