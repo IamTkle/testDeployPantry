@@ -227,15 +227,6 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
       );
   }, []);
 
-  const handleRecomLiked = (i: number, newId: number) => {
-    let recipeToAdd = { ...recomRecipes[i] };
-
-    if (recipeToAdd && newId) {
-      recipeToAdd.recipeId = newId;
-      setLikedRecipes((prev) => [...prev, recipeToAdd as APIRecipe]);
-    }
-  };
-
   const handleLiked = (recipeToAdd: APIRecipe, newId: number) => {
     // let recipeToAdd = { ...browseRecipes[i] };
 
@@ -523,7 +514,7 @@ const RecipePage: React.FC<RecipeProps> = ({ setNavOpen }) => {
             <Tab wrapped label="browse" value={0} icon={<ListIcon />} />
             <Tab wrapped label="favorites" value={1} icon={<Favorite />} />
             <Tab wrapped label="recommended" value={2} icon={<Assistant />} />
-            <Tab wrapped label="search" value={3} icon={<SearchOutlined />} />
+            {/* <Tab wrapped label="search" value={3} icon={<SearchOutlined />} /> */}
           </Tabs>
           {currRecipe && (
             <RecipeEditDialog

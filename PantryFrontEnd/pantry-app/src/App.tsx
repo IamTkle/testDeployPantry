@@ -63,7 +63,9 @@ interface SetLoggedIn {
 export type MyLocationDesc = LocationDescriptor<any> & SetLoggedIn;
 
 function App() {
-  const [navTab, setNavTab] = React.useState(0);
+  const [navTab, setNavTab] = React.useState(
+    pageToIndex(window.location.pathname)
+  );
 
   const loggedInState = React.useState(() => false);
 
@@ -314,20 +316,20 @@ function App() {
           )}
           <Switch>
             {isLoggedIn && (
-              <>
+              <Switch>
                 {navPageRoutes}
-                <Redirect exact from="/login" to="/inventory" />
-              </>
+                <Route path="/" render={() => <Redirect to="/inventory" />} />
+              </Switch>
             )}
             {!isFetching ? (
-              <>
+              <Switch>
                 <Route
                   path="/login"
                   render={() => <Login setLoggedIn={setLoggedIn} />}
                 />
                 <Route path="/signup" component={SignUp} />
-                <Redirect to="/login" />
-              </>
+                <Route path="/" render={() => <Redirect to="/login" />} />
+              </Switch>
             ) : (
               <div
                 style={{
