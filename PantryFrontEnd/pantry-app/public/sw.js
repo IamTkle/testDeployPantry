@@ -14,18 +14,17 @@ const cacheVer = "static-v2";
 
 self.addEventListener("install", (event) => {
   console.log("Service worker installing…");
-  // delete when in prod
   self.skipWaiting();
   event.waitUntil(caches.open(cacheVer).then((cache) => cache.addAll(assets)));
 });
 
 self.addEventListener("activate", (e) => {
-  // e.waitUntil(console.log("Activated!", e));
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
           if (key === cacheVer) {
+            // eslint-disable-next-line array-callback-return
             return;
           }
           return caches.delete(key);
@@ -63,9 +62,25 @@ self.addEventListener("fetch", (e) => {
 });
 
 self.addEventListener("push", (e) => {
-  e.waitUntil(
-    self.registration.showNotification("Expiring items", {
-      body: e.data.text(),
-    })
-  );
+  // e.waitUntil(
+  //   self.registration.showNotification(e.data.title, {
+  //     body: e.data.,
+  //   })
+  // );
+  if (!self.Notification || !self.Notification.permission === "granted") {
+    return;
+  }
+
+  let pushData = { title: "", body: "", expiry: "" };
+  if (e.data) pushData = e.data.json();
+  else {
+    console.log("Unexpected notification data! Aborting...");
+    return;
+  }
+
+  self.registration.showNotification(pushData.title, {
+    body: pushData.body,
+    timestamp: new Date(pushData.expiry),
+    icon: "manifest-icon-192.maskable.png",
+  });
 });
