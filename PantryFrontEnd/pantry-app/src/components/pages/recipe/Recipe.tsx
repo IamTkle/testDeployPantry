@@ -7,13 +7,7 @@ import {
   Theme,
   Toolbar,
 } from "@material-ui/core";
-import {
-  Add,
-  Assistant,
-  Favorite,
-  List as ListIcon,
-  SearchOutlined,
-} from "@material-ui/icons";
+import { Add, Assistant, Favorite, List as ListIcon } from "@material-ui/icons";
 import { createStyles, makeStyles, useTheme } from "@material-ui/styles";
 import { useSnackbar } from "notistack";
 import React from "react";

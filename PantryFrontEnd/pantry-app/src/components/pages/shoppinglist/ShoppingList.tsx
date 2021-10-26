@@ -1,23 +1,14 @@
 import {
-  Box, Chip, Container, createStyles, Fab, makeStyles, Theme,
-  Toolbar, useTheme, Tabs, Tab, Divider
+  Chip, Container, createStyles, Fab, makeStyles, Tabs, Theme,
+  Toolbar, useTheme
 } from "@material-ui/core";
-import { Add, DeleteSweep, DoneAll, PlaylistAdd,  } from "@material-ui/icons";
-import InfoIcon from "@material-ui/icons/Info";
+import { Add, DeleteSweep, DoneAll, PlaylistAdd } from "@material-ui/icons";
 import React from "react";
-import SwipeableViews from "react-swipeable-views";
-import { createUnzip } from "zlib";
 import PantryAppBar from "../../PantryAppBar";
-import { 
-  listInfo as importedList, 
-  ShoppingListEntry as SL, 
-  listInfo as mockEntries, 
-  shoppingListAPIitem, 
-  DOMAIN,
-  shoppingListAPIProducts 
+import {
+  DOMAIN, shoppingListAPIitem,
 } from "./mockEntries";
 import ShoppingListEntry from "./ShoppingListEntry";
-import ShoppingListTab from "./ShoppingListTab";
 
 interface ShoppingListProps {
   setNavOpen: () => void;
@@ -107,27 +98,42 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   const handleSortDirectionChange = (sortType: number, desc: boolean) => {};
   const handleSortTypeChosen = (sortType: number, desc: boolean) => {};
 
-  const [listInfo, setListInfo] = React.useState(importedList);
-  const [listInf, setListInf] = React.useState<shoppingListAPIitem[]>([]);
-  const [listProd, setListProd] = React.useState<shoppingListAPIProducts[]>([]);
-  const [activeTab, setActiveTab] = React.useState(0);
+  const [listInfo, setListInfo] = React.useState<shoppingListAPIitem[]>([]);
   
-  // const [isFetching, setIsFetching] = React
-  // 1015863P
+  const [activeTab, setActiveTab] = React.useState(0);
+
+  //  const getListInfoForCategory = React.useCallback(
+  //   (category: string | undefined) => {
+  //     if (category) {
+  //       return listInfo.filter((item) => {
+  //         return item.category === category ? true : false;
+  //       });
+  //     }
+  //     return listInfo;
+  //   },
+  //   [listInfo]
+  // );
+
+  // React.useEffect(() => {
+  //   fetch(DOMAIN + "/api/GetShoppingItems", 
+  //   {method: "GET", credentials: "include", headers: {"Content-Type": "application/json"}} )
+  //   .then((response) => {return response.json()})
+  //   .then((result: shoppingListAPIitem[]) => {setListInfo(result); console.log(result)})
+  //   .catch((e) => console.error(e))
+  // }, []);
 
   React.useEffect(() => {
-    fetch(DOMAIN + "/api/GetShoppingItems", 
-    {method: "GET", credentials: "include", headers: {"Content-Type": "application/json"}} )
-    .then((response) => {return response.json()})
-    .then((result: shoppingListAPIitem[]) => {setListInf(result); console.log(result)})
-    .catch((e) => console.error(e))
-
-    fetch(DOMAIN + "/api/GetShoppingProducts", 
-    {method: "GET", credentials: "include", headers: {"Content-Type": "application/json"}} )
-    .then((response) => {return response.json()})
-    .then((result: shoppingListAPIProducts[]) => {setListProd(result); console.log(result)})
-    .catch((e) => console.error(e))
-  }, []);
+    fetch(DOMAIN + "/api/GetShoppingItems", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type" : "application/json",
+      }
+    })
+      .then((resp) => {return resp.json()})
+      .then((result: shoppingListAPIitem[]) => {setListInfo(result); console.log(result)})
+      .catch((e) => console.error(e))
+  },[]);
 
   const handleClearAll = () => {
     if( window.confirm("Are you sure you want to add everything in inventory?")){
@@ -135,33 +141,28 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     };
   }
 
-  const handleManualAdd = () => {
-
-  };
-
   const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
     setActiveTab(newTab);
   };
   
   const handleRemove = (shopListAPI: shoppingListAPIitem) => {
-    setListInf((shoppingLists) =>
+    setListInfo((shoppingLists) =>
       shoppingLists.filter((cur) => cur.name !== shopListAPI.name)
       );
     };
 
     const handleAdd = (shopListAPI: shoppingListAPIitem) => {
-    setListInf((shoppingLists) =>
+    setListInfo((shoppingLists) =>
       shoppingLists.filter((cur) => cur.name !== shopListAPI.name)
       );
     };
 
     const getTabCategories: () => string[] = () => {
-    //need to fetch first in reality
 
     console.log("categories checked");
     let allCategories: string[] = [];
 
-    listInf.forEach((item) => {
+    listInfo.forEach((item) => {
       if (!allCategories.includes(item.category)) {
         allCategories.push(item.category);
       }
@@ -170,19 +171,9 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     return allCategories;
   };
 
-  const tabCategories = React.useMemo(getTabCategories, [listInf]);
+  const tabCategories = React.useMemo(getTabCategories, [listInfo]);
 
-  const getListInfoForCategory = React.useCallback(
-    (category: string | undefined) => {
-      if (category) {
-        return listInfo.filter((item) => {
-          return item.category === category ? true : false;
-        });
-      }
-      return listInfo;
-    },
-    [listInfo]
-  );
+ 
 
   const getTabs = () => {
     console.log("tab categories checked");
@@ -204,70 +195,71 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   
   return (
     <div className={classes.pageContainer}>
-      <PantryAppBar
-        title={"Shopping List"}
-        handleOpenMenu={setNavOpen}
-        handleSearchClick={(searchTerm) => console.log(searchTerm)}
-        handleSortDirectionChange={handleSortDirectionChange}
-        handleSortTypeChosen={handleSortTypeChosen}
-      />
-      <Toolbar />
+       <PantryAppBar
+         title={"Shopping List"}
+         handleOpenMenu={setNavOpen}
+         handleSearchClick={(searchTerm) => console.log(searchTerm)}
+         handleSortDirectionChange={handleSortDirectionChange}
+         handleSortTypeChosen={handleSortTypeChosen}
+       />
+       <Toolbar />
 
-      <Container disableGutters style={{ maxWidth: "none"  }}>
+       <Container disableGutters style={{ maxWidth: "none"  }}>
 
-        <Tabs
-          value={activeTab}
-          variant="scrollable"
-          scrollButtons="on"
-          onChange={handleTabChange}
-          classes={{ root: classes.tabBar }}
-        >
+         <Tabs
+           value={activeTab}
+           variant="scrollable"
+           scrollButtons="on"
+           onChange={handleTabChange}
+           classes={{ root: classes.tabBar }}
+         >
           
-          <Chip
-          variant="outlined"
-          size="medium"
-          label="All"
+           <Chip
+           variant="outlined"
+           size="medium"
+           label="All"
           clickable
-          color="primary"
-          onClick={() => handleTabChange}
-          />
-          {tabs}
-        </Tabs>
+           color="primary"
+           onClick={() => handleTabChange}
+           />
+           {tabs}
+         </Tabs>
 
-      </Container>
+       </Container>
 
-      <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
+       <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
   
-          {listInf.map((listInf,i) => { return(
-            <ShoppingListEntry 
-              i={i}
-              item={listInf}
-              handleAdd={handleAdd}
+           {listInfo.map((listInfo,i) => { return(
+             <ShoppingListEntry 
+               i={i}
+               item={listInfo}
+               handleAdd={handleAdd}
               handleRemove={handleRemove}
-            />);
+           />);
             }
-            )
-          };
+             )
+           };
           
-      </Container>
+       </Container>
 
-      <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
-        <Add onClick={handleManualAdd}/>
-      </Fab>
+       <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
+         <Add />
+       </Fab>
 
-      <Fab size="large" classes={{ root: classes.fab2 }} >
-        <DeleteSweep />
-      </Fab>
+       <Fab size="large" classes={{ root: classes.fab2 }} >
+         <DeleteSweep />
+       </Fab>
       
-      <Fab size="large" classes={{ root: classes.fab3 }} >
-        <DoneAll onClick={handleClearAll}/>
-      </Fab>
+       <Fab size="large" classes={{ root: classes.fab3 }} >
+         <DoneAll onClick={handleClearAll}/>
+       </Fab>
 
-      <Fab size="large" classes={{ root: classes.fab4 }} >
-        <PlaylistAdd />
-      </Fab>
+       <Fab size="large" classes={{ root: classes.fab4 }} >
+         <PlaylistAdd />
+       </Fab>
 
     </div>
+    
   );
 };
 

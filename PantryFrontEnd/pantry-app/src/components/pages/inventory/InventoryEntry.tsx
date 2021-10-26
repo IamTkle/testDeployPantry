@@ -254,9 +254,16 @@ const InventoryEntry: React.FC<EntryProps> = ({
           })
             .then((resp) => resp.json())
             .then((data) => {
-              enqueueSnackbar(data.message, { variant: "success" });
+              enqueueSnackbar(`Successfully removed ${deleteCount} items`, {
+                variant: "success",
+              });
             })
-            .catch((e) => enqueueSnackbar("Error! " + e, { variant: "error" }));
+            .catch((e) =>
+              enqueueSnackbar(
+                "Error! Something went wrong when trying to remove item" + e,
+                { variant: "error" }
+              )
+            );
         }
         if (currGroup && currGroup.count <= 0) newExpGroups.splice(index, 1);
 

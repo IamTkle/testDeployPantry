@@ -1,21 +1,17 @@
 import {
   Container,
-  Dialog,
-  DialogContent,
   Divider,
-  Fab,
   makeStyles,
   Tab,
   Tabs,
-  TextField,
   Theme,
   Toolbar,
   useTheme,
 } from "@material-ui/core";
 import { createStyles } from "@material-ui/core/styles";
-import { Add } from "@material-ui/icons";
 import InfoIcon from "@material-ui/icons/Info";
-import React, { ReactNode } from "react";
+import { useSnackbar } from "notistack";
+import React from "react";
 import { GiFruitBowl as FruitsIcon } from "react-icons/gi";
 import SwipeableViews from "react-swipeable-views";
 import { DOMAIN } from "../../../App";
@@ -126,7 +122,10 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const getInitialEntries: () => void = () => {
+  const { enqueueSnackbar } = useSnackbar();
+
+  React.useEffect(() => {
+    setIsFetching(true);
     const params: RequestInit = {
       method: "GET",
       credentials: "include",
@@ -138,7 +137,6 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
     fetch(DOMAIN + "/api/GetInventoryList", params)
       .then((resp) => resp.json())
       .then((data) => {
-        console.log(data);
         let entries: Item[] = [];
 
         Object.keys(data).forEach((category) => {
@@ -150,11 +148,15 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         });
         console.log(entries);
         setEntries(sortByExpiry(entries, true));
-      });
-  };
-
-  React.useEffect(() => {
-    getInitialEntries();
+      })
+      .catch((e) => {
+        enqueueSnackbar(
+          "Error! Something went wrong while getting inventory items!",
+          { variant: "error" }
+        );
+      })
+      .finally(() => setIsFetching(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getTabCategories: () => string[] = () => {
@@ -177,7 +179,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
 
   const [searchEntries, setSearchEntries] = React.useState<Item[]>([]);
 
-  const [addDialogOpen, setAddDialogOpen] = React.useState(false);
+  const [isFetching, setIsFetching] = React.useState(true);
 
   const tabCategories = React.useMemo(getTabCategories, [entries]);
 
@@ -251,10 +253,6 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
     []
   );
 
-  const handleManualAddClick = () => {
-    setAddDialogOpen(true);
-  };
-
   const getTabs = () => {
     return tabCategories.map((tab, i) => {
       return (
@@ -276,6 +274,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
       const filteredEntries = getEntriesForCategory(category);
       return (
         <InventoryTab
+          isFetching={isFetching}
           key={index + 1}
           activeTab={activeTab}
           index={index + 1}
@@ -284,7 +283,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         />
       );
     });
-  }, [activeTab, tabCategories, getEntriesForCategory]);
+  }, [activeTab, tabCategories, getEntriesForCategory, isFetching]);
 
   return (
     <div className={classes.container}>
@@ -312,12 +311,12 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         >
           <Tab wrapped label={"All"} value={0} icon={<InfoIcon />} />
           {tabs}
-          <Tab
+          {/* <Tab
             wrapped
             label={"Search"}
             value={tabCategories.length + 1}
             icon={<InfoIcon />}
-          />
+          /> */}
         </Tabs>
 
         <Divider color="primary" />
@@ -325,12 +324,18 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
           index={activeTab}
           onChangeIndex={(index) => setActiveTab(index)}
         >
-          <InventoryTab activeTab={activeTab} index={0} propEntries={entries} />
+          <InventoryTab
+            activeTab={activeTab}
+            index={0}
+            propEntries={entries}
+            isFetching={isFetching}
+          />
           {memoizedTabs}
           <InventoryTab
             activeTab={activeTab}
             index={tabCategories.length + 1}
             propEntries={searchEntries}
+            isFetching={isFetching}
           />
         </SwipeableViews>
       </Container>

@@ -23,7 +23,7 @@ import {
 } from "@material-ui/icons";
 import React from "react";
 import { createEmitAndSemanticDiagnosticsBuilderProgram } from "typescript";
-import { ShoppingListEntry as shopListEntry, shoppingListAPIitem, shoppingListAPIProducts } from "./mockEntries";
+import { ShoppingListEntry as shopListEntry, shoppingListAPIitem,} from "./mockEntries";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
 
@@ -168,8 +168,7 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const itemPrice = "$" + item.price;
-  const infoString = item.category + "\n" + item.quantity 
+  const itemPrice = "$" + item.price; 
   const [count, setCount] = React.useState(item.count)
 
   const handleItemDone = () => {
@@ -187,7 +186,7 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
           <ListItemAvatar>
             <Avatar
               variant="rounded"
-              // src={}
+              // src={item}
               classes={{ root: classes.entryAvatar }}
             />
           </ListItemAvatar>
@@ -233,8 +232,7 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                     }}
                   >
                     <Box sx={{ display: 'flex', justifyContent: 'row', p: 2, flexGrow: 1}}>{itemPrice}</Box>
-                    {/* <Box sx={{ p: 1, flexGrow: 1}}>{itemQuantity}</Box> */}  
-                    
+      
                     <Box sx={{ p: 1, flexGrow: 1}}>
                       <ButtonGroup
                         variant="outlined"
