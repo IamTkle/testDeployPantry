@@ -168,12 +168,9 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const itemQuantity = "x" + item.count;
-  //const infoString = item.;
   const itemPrice = "$" + item.price;
   const priceCalc = item.count * item.price;
-  const totalPrice = "$" + priceCalc.toFixed(2);
-  
+  const totalPrice = "$" + priceCalc.toFixed(2); 
   const [count, setCount] = React.useState(item.count)
   // const handleItemDone = () => {
   //   handleAdd(item);
@@ -285,8 +282,11 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                     </ButtonGroup>
 
                     </Box>
-
-                    <Box sx={{ p: 2, flexGrow: 1}}>{totalPrice}</Box>
+                    
+                    <Box sx={{ p: 2, flexGrow: 1}}>
+                      {"$" + (count * item.price).toFixed(2)} 
+                    </Box>   
+                    {/* <Box sx={{ p: 2, flexGrow: 1}}>{totalPrice}</Box> */}
                   </Box>
                 {/* </div> */}
               </Container>
