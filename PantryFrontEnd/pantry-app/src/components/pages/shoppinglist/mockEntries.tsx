@@ -210,6 +210,19 @@ export interface shoppingListAPIitem {
   count: number;
   price: number;
   name: string;
+  quantity: string;
+  category: string;
+};
+
+export interface shoppingListAPIProducts {
+  itemId: string;
+  quantity: string;
+  category: string;
+  name: string;
+  price: number;
+  searchtag: string;
+  ingredientId: number;
+  photoUrl: string;
 };
 
 export type ShoppingListEntry = {
@@ -244,7 +257,7 @@ export const listInfo: ShoppingListEntry[] = [
   {
     rid: "123456E",
     name: "Chicken 65",
-    category: "Meat",
+    category: "Dairy",
     intake: "1Kg",
     price: 20,
     quantity: 3,

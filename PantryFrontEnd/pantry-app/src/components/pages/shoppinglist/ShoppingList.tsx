@@ -8,7 +8,14 @@ import React from "react";
 import SwipeableViews from "react-swipeable-views";
 import { createUnzip } from "zlib";
 import PantryAppBar from "../../PantryAppBar";
-import { listInfo as importedList, ShoppingListEntry as SL, listInfo as mockEntries, shoppingListAPIitem, DOMAIN } from "./mockEntries";
+import { 
+  listInfo as importedList, 
+  ShoppingListEntry as SL, 
+  listInfo as mockEntries, 
+  shoppingListAPIitem, 
+  DOMAIN,
+  shoppingListAPIProducts 
+} from "./mockEntries";
 import ShoppingListEntry from "./ShoppingListEntry";
 import ShoppingListTab from "./ShoppingListTab";
 
@@ -102,6 +109,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
 
   const [listInfo, setListInfo] = React.useState(importedList);
   const [listInf, setListInf] = React.useState<shoppingListAPIitem[]>([]);
+  const [listProd, setListProd] = React.useState<shoppingListAPIProducts[]>([]);
   const [activeTab, setActiveTab] = React.useState(0);
   
   // const [isFetching, setIsFetching] = React
@@ -114,10 +122,15 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     .then((result: shoppingListAPIitem[]) => {setListInf(result); console.log(result)})
     .catch((e) => console.error(e))
 
+    fetch(DOMAIN + "/api/GetShoppingProducts", 
+    {method: "GET", credentials: "include", headers: {"Content-Type": "application/json"}} )
+    .then((response) => {return response.json()})
+    .then((result: shoppingListAPIProducts[]) => {setListProd(result); console.log(result)})
+    .catch((e) => console.error(e))
   }, []);
 
-  const handleClearAll = (shoppingList: SL) => {
-    if( window.confirm("Are you sure you want to clear the list?")){
+  const handleClearAll = () => {
+    if( window.confirm("Are you sure you want to add everything in inventory?")){
         
     };
   }
@@ -130,17 +143,17 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     setActiveTab(newTab);
   };
   
-  // const handleRemove = (shoppingListAPIitem: SL) => {
-  //   setListInfo((shoppingLists) =>
-  //     shoppingLists.filter((cur) => cur.name !== shoppingList.name)
-  //     );
-  //   };
+  const handleRemove = (shopListAPI: shoppingListAPIitem) => {
+    setListInf((shoppingLists) =>
+      shoppingLists.filter((cur) => cur.name !== shopListAPI.name)
+      );
+    };
 
-  //   const handleAdd = (shoppingListAPIitem: SL) => {
-  //   setListInfo((shoppingLists) =>
-  //     shoppingLists.filter((cur) => cur.name !== shoppingList.name)
-  //     );
-  //   };
+    const handleAdd = (shopListAPI: shoppingListAPIitem) => {
+    setListInf((shoppingLists) =>
+      shoppingLists.filter((cur) => cur.name !== shopListAPI.name)
+      );
+    };
 
     const getTabCategories: () => string[] = () => {
     //need to fetch first in reality
@@ -148,7 +161,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     console.log("categories checked");
     let allCategories: string[] = [];
 
-    listInfo.forEach((item) => {
+    listInf.forEach((item) => {
       if (!allCategories.includes(item.category)) {
         allCategories.push(item.category);
       }
@@ -157,7 +170,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     return allCategories;
   };
 
-  const tabCategories = React.useMemo(getTabCategories, [listInfo]);
+  const tabCategories = React.useMemo(getTabCategories, [listInf]);
 
   const getListInfoForCategory = React.useCallback(
     (category: string | undefined) => {
@@ -224,28 +237,18 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
       </Container>
 
       <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
-        {/* <SwipeableViews
-          index={activeTab}
-          onChangeIndex={(index) => setActiveTab(index)}
-        > */}
+  
           {listInf.map((listInf,i) => { return(
             <ShoppingListEntry 
               i={i}
               item={listInf}
+              handleAdd={handleAdd}
+              handleRemove={handleRemove}
             />);
             }
             )
           };
-
-          {/* <ShoppingListTab
-            activeTab={activeTab}
-            index={0}
-            propEntries={listInfo}
-            key={0}
-            handleAdd={handleAdd}
-            handleRemove={handleRemove}
-          /> */}
-        {/* </SwipeableViews> */}
+          
       </Container>
 
       <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
@@ -257,7 +260,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
       </Fab>
       
       <Fab size="large" classes={{ root: classes.fab3 }} >
-        <DoneAll onClick={() => handleClearAll}/>
+        <DoneAll onClick={handleClearAll}/>
       </Fab>
 
       <Fab size="large" classes={{ root: classes.fab4 }} >
