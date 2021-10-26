@@ -10,11 +10,11 @@ const assets = [
 ];
 /* eslint-disable no-restricted-globals */
 
-const cacheVer = "static-v2";
+const cacheVer = "static-v3";
 
 self.addEventListener("install", (event) => {
   console.log("Service worker installing…");
-  self.skipWaiting();
+  // self.skipWaiting();
   event.waitUntil(caches.open(cacheVer).then((cache) => cache.addAll(assets)));
 });
 
