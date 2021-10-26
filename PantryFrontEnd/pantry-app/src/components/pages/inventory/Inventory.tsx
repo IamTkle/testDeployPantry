@@ -311,12 +311,6 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         >
           <Tab wrapped label={"All"} value={0} icon={<InfoIcon />} />
           {tabs}
-          {/* <Tab
-            wrapped
-            label={"Search"}
-            value={tabCategories.length + 1}
-            icon={<InfoIcon />}
-          /> */}
         </Tabs>
 
         <Divider color="primary" />
