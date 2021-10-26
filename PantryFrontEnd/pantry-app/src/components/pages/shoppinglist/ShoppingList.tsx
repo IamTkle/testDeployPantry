@@ -6,8 +6,10 @@ import { Add, DeleteSweep, DoneAll, PlaylistAdd,  } from "@material-ui/icons";
 import InfoIcon from "@material-ui/icons/Info";
 import React from "react";
 import SwipeableViews from "react-swipeable-views";
+import { createUnzip } from "zlib";
 import PantryAppBar from "../../PantryAppBar";
-import { listInfo as importedList, ShoppingList as SL, listInfo as mockEntries } from "./mockEntries";
+import { listInfo as importedList, ShoppingListEntry as SL, listInfo as mockEntries, shoppingListAPIitem, DOMAIN } from "./mockEntries";
+import ShoppingListEntry from "./ShoppingListEntry";
 import ShoppingListTab from "./ShoppingListTab";
 
 interface ShoppingListProps {
@@ -99,29 +101,48 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   const handleSortTypeChosen = (sortType: number, desc: boolean) => {};
 
   const [listInfo, setListInfo] = React.useState(importedList);
+  const [listInf, setListInf] = React.useState<shoppingListAPIitem[]>([]);
   const [activeTab, setActiveTab] = React.useState(0);
+  
+  // const [isFetching, setIsFetching] = React
+  // 1015863P
+
+  React.useEffect(() => {
+    fetch(DOMAIN + "/api/GetShoppingItems", 
+    {method: "GET", credentials: "include", headers: {"Content-Type": "application/json"}} )
+    .then((response) => {return response.json()
+    .then((result: shoppingListAPIitem[]) => {setListInf(result); console.log(result)})});
+
+    fetch(DOMAIN + "/api/AddShopping")
+
+
+  }, []);
 
   const handleClearAll = (shoppingList: SL) => {
     if( window.confirm("Are you sure you want to clear the list?")){
-    
-    }
+        
+    };
+  }
+
+  const handleManualAdd = () => {
+
   };
 
   const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
     setActiveTab(newTab);
   };
   
-  const handleRemove = (shoppingList: SL) => {
-    setListInfo((shoppingLists) =>
-      shoppingLists.filter((cur) => cur.name !== shoppingList.name)
-      );
-    };
+  // const handleRemove = (shoppingListAPIitem: SL) => {
+  //   setListInfo((shoppingLists) =>
+  //     shoppingLists.filter((cur) => cur.name !== shoppingList.name)
+  //     );
+  //   };
 
-    const handleAdd = (shoppingList: SL) => {
-    setListInfo((shoppingLists) =>
-      shoppingLists.filter((cur) => cur.name !== shoppingList.name)
-      );
-    };
+  //   const handleAdd = (shoppingListAPIitem: SL) => {
+  //   setListInfo((shoppingLists) =>
+  //     shoppingLists.filter((cur) => cur.name !== shoppingList.name)
+  //     );
+  //   };
 
     const getTabCategories: () => string[] = () => {
     //need to fetch first in reality
@@ -182,6 +203,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
       <Toolbar />
 
       <Container disableGutters style={{ maxWidth: "none"  }}>
+
         <Tabs
           value={activeTab}
           variant="scrollable"
@@ -201,15 +223,6 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           {tabs}
         </Tabs>
 
-        {/* <Chip
-        component="test"
-        clickable
-        size="medium"
-        label="All"
-        variant="outlined"
-        color="primary"
-        onChange={() => handleTabChange}>
-        </Chip> */}
       </Container>
 
       <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
@@ -217,19 +230,28 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
           index={activeTab}
           onChangeIndex={(index) => setActiveTab(index)}
         >
-          <ShoppingListTab
+          {listInf.map((listInf,i) => { return(
+            <ShoppingListEntry 
+              i={i}
+              item={listInf}
+            />);
+            }
+            )
+          };
+
+          {/* <ShoppingListTab
             activeTab={activeTab}
             index={0}
             propEntries={listInfo}
             key={0}
             handleAdd={handleAdd}
             handleRemove={handleRemove}
-          />
+          /> */}
         </SwipeableViews>
       </Container>
 
       <Fab size="large" color="secondary" classes={{ root: classes.fab }}>
-        <Add />
+        <Add onClick={handleManualAdd}/>
       </Fab>
 
       <Fab size="large" classes={{ root: classes.fab2 }} >
