@@ -23,7 +23,7 @@ import {
 } from "@material-ui/icons";
 import React from "react";
 import { createEmitAndSemanticDiagnosticsBuilderProgram } from "typescript";
-import { ShoppingListEntry as shopListEntry, shoppingListAPIitem } from "./mockEntries";
+import { ShoppingListEntry as shopListEntry, shoppingListAPIitem,} from "./mockEntries";
 
 // const useStyles = makeStyles((theme:Theme) => createStyles({
 
@@ -150,8 +150,8 @@ interface ShoppingListEntryProps {
   //name: string;
   // category: string;
   // shoppingList: shopListEntry;
-  // handleRemove: (shoppingList: shopListEntry) => void;
-  // handleAdd: (shoppingList: shopListEntry) => void;
+  handleRemove: (shopListAPI: shoppingListAPIitem) => void;
+  handleAdd: (shopListAPI: shoppingListAPIitem) => void;
   i: number;
   item: shoppingListAPIitem;
 }
@@ -160,39 +160,24 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
   // name,
   // category,
   // shoppingList,
-  // handleRemove,
-  // handleAdd,
+  handleRemove,
+  handleAdd,
   i,
-  item
+  item,
 }) => {
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  const itemQuantity = "x" + item.count;
-  //const infoString = item.;
-  const itemPrice = "$" + item.price;
-  const priceCalc = item.count * item.price;
-  const totalPrice = "$" + priceCalc.toFixed(2);
-  
+  const itemPrice = "$" + item.price; 
   const [count, setCount] = React.useState(item.count)
-  // const handleItemDone = () => {
-  //   handleAdd(item);
-  // }
 
-  // const handleItemDelete = () => {
-  //   handleRemove(item);
-  // }
-
-  const handleItemIncrement = () => {
-    setCount(count+1);
-    console.log(count);
+  const handleItemDone = () => {
+    handleAdd(item);
   }
 
-  const handleItemDecrement = () => {
-    setCount(count - 1);
-    console.log(count);
+  const handleItemDelete = () => {
+    handleRemove(item);
   }
-
 
   return (
     <Card elevation={3} classes={{ root: classes.cardContainer }}>
@@ -201,7 +186,7 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
           <ListItemAvatar>
             <Avatar
               variant="rounded"
-              //src={item.}
+              // src={item}
               classes={{ root: classes.entryAvatar }}
             />
           </ListItemAvatar>
@@ -221,7 +206,7 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                 </IconButton>
               </Container>
             }
-            // secondary={<Container>{infoString}</Container>}
+            secondary={<Container>{item.category} <br/> {item.quantity}</Container>}
           />
 
           <ListItemText 
@@ -247,8 +232,7 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                     }}
                   >
                     <Box sx={{ display: 'flex', justifyContent: 'row', p: 2, flexGrow: 1}}>{itemPrice}</Box>
-                    {/* <Box sx={{ p: 1, flexGrow: 1}}>{itemQuantity}</Box> */}  
-                    
+      
                     <Box sx={{ p: 1, flexGrow: 1}}>
                       <ButtonGroup
                         variant="outlined"
@@ -285,8 +269,11 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                     </ButtonGroup>
 
                     </Box>
-
-                    <Box sx={{ p: 2, flexGrow: 1}}>{totalPrice}</Box>
+                    
+                    <Box sx={{ p: 2, flexGrow: 1}}>
+                      {"$" + (count * item.price).toFixed(2)} 
+                    </Box>   
+                    {/* <Box sx={{ p: 2, flexGrow: 1}}>{totalPrice}</Box> */}
                   </Box>
                 {/* </div> */}
               </Container>
@@ -304,10 +291,10 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
             <MenuBook onClick={handleItemMenu} />
           </StyledActionButton> */}
           <StyledActionButton className={classes.removeButton}>
-            <Clear  onClick={handleItemDecrement}/>
+            <Clear onClick={handleItemDelete}/>
           </StyledActionButton>
           <StyledActionButton className={classes.addButton}>
-            <Done onClick={handleItemIncrement}/>
+            <Done onClick={handleItemDone}/>
           </StyledActionButton>
         </ButtonGroup>
       </ListItem>
