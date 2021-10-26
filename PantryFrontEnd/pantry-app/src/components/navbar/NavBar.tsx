@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Button,
   CircularProgress,
   List,
@@ -143,6 +144,16 @@ const NavBar: React.FC<NavbarProps> = ({
       onClose={() => setNavOpen(false)}
     >
       <List component="nav">
+        <li
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <Avatar src="/icon.png"></Avatar>
+        </li>
         {navItems.map((item, i) => {
           // if (
           //   navItems.length - 1 !== pageToIndex(item.link) &&

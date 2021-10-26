@@ -8,12 +8,14 @@ interface InventoryTabProps {
   activeTab: number;
   propEntries: Item[];
   index: number;
+  isFetching: boolean;
 }
 
 const InventoryTab: React.FC<InventoryTabProps> = ({
   activeTab,
   propEntries,
   index,
+  isFetching,
 }) => {
   window.scrollTo(0, 0);
   return (
@@ -27,7 +29,7 @@ const InventoryTab: React.FC<InventoryTabProps> = ({
             marginBottom: "2rem",
           }}
         >
-          {propEntries.length > 0 ? (
+          {!isFetching ? (
             propEntries.map((item) => {
               return (
                 <InventoryEntry
