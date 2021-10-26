@@ -2,10 +2,10 @@ const assets = [
   "/index.html",
   "/offline.html",
   "/offline-dino.png",
-  "/logo192.png",
-  "/logo512.png",
+  "/manifest-icon-192.maskable.png",
+  "/manifest-icon-512.maskable.png",
   "/icon.png",
-  "/icon.ico",
+  "/favicon.ico",
   "https://fonts.googleapis.com/css2?family=Cambay:wght@400;700&display=swap",
 ];
 /* eslint-disable no-restricted-globals */
@@ -13,9 +13,19 @@ const assets = [
 const cacheVer = "static-v3";
 
 self.addEventListener("install", (event) => {
-  console.log("Service worker installing…");
+  console.log("SW: Service worker installing…");
   // self.skipWaiting();
-  event.waitUntil(caches.open(cacheVer).then((cache) => cache.addAll(assets)));
+  event.waitUntil(
+    caches
+      .open(cacheVer)
+      .then((cache) =>
+        cache
+          .addAll(assets)
+          .catch((e) =>
+            console.log("SW: Some resoureces could not be fetch on the server!")
+          )
+      )
+  );
 });
 
 self.addEventListener("activate", (e) => {
@@ -37,11 +47,11 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   e.respondWith(
     (async () => {
-      console.log("Intercepted request", e);
+      console.log("SW: Intercepted request", e);
       const cacheHit = await caches
         .match(e)
         .catch((error) =>
-          console.error("Something went wrong while accessing cache! " + e)
+          console.error("SW: Something went wrong while accessing cache! " + e)
         );
 
       if (cacheHit) return cacheHit;
@@ -74,7 +84,7 @@ self.addEventListener("push", (e) => {
   let pushData = { title: "", body: "", expiry: "" };
   if (e.data) pushData = e.data.json();
   else {
-    console.log("Unexpected notification data! Aborting...");
+    console.log("SW: Unexpected notification data! Aborting...");
     return;
   }
 
