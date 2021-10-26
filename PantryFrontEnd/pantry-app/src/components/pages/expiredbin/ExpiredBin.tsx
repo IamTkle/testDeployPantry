@@ -78,6 +78,7 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.text.primary,
       opacity: 1,
     },
+
     disabledDec: {
       "&.Mui-disabled": {
         backgroundColor: theme.palette.text.secondary,

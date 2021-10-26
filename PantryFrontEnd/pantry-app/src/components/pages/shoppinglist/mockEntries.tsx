@@ -205,7 +205,14 @@
 //   ).getObj(),
 // ];
 
-export type ShoppingList = {
+export interface shoppingListAPIitem {
+  itemId: string;
+  count: number;
+  price: number;
+  name: string;
+};
+
+export type ShoppingListEntry = {
   rid: string;
   name: string;
   category: string;
@@ -215,11 +222,11 @@ export type ShoppingList = {
   img: string;
 };
 
-export const listInfo: ShoppingList[] = [
+export const listInfo: ShoppingListEntry[] = [
   {
     rid: "123456Q",
-    name: "Ground beef",
-    category: "Meat",
+    name: "Creme caramel",
+    category: "Bakery",
     intake: "500g",
     price: 12.50,
     quantity: 2,
@@ -227,16 +234,16 @@ export const listInfo: ShoppingList[] = [
   },
   {
     rid: "123456W",
-    name: "Bowser milk",
+    name: "Milk",
     category: "Dairy",
     intake: "10g",
     price: 5.00,
     quantity: 1,
-    img: "https://webknox.com/recipeImages/1515523-556x370.jpg",
+    img: "https://shop.coles.com.au/wcsstore/Coles-CAS/images/8/0/8/8083963.jpg",
   },
   {
     rid: "123456E",
-    name: "Kentucky Fried Ken",
+    name: "Chicken 65",
     category: "Meat",
     intake: "1Kg",
     price: 20,
@@ -245,3 +252,5 @@ export const listInfo: ShoppingList[] = [
   },
   
 ];
+
+export const DOMAIN = "https://pantties.azurewebsites.net";
