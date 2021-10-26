@@ -115,12 +115,12 @@ interface InventoryProps {
   setNavOpen: () => void;
 }
 
-interface APIShoppingListItem {
-  category: string;
-  itemId: string;
-  name: string;
-  quantity: string;
-}
+// interface APIShoppingListItem {
+//   category: string;
+//   itemId: string;
+//   name: string;
+//   quantity: string;
+// }
 
 const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
   const theme = useTheme();
@@ -251,6 +251,10 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
     []
   );
 
+  const handleManualAddClick = () => {
+    setAddDialogOpen(true);
+  };
+
   const getTabs = () => {
     return tabCategories.map((tab, i) => {
       return (
@@ -330,7 +334,7 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
           />
         </SwipeableViews>
       </Container>
-      <Dialog open={addDialogOpen} fullWidth maxWidth="md">
+      {/* <Dialog open={addDialogOpen} fullWidth maxWidth="md">
         <DialogContent>
           <TextField inputProps={{ list: "productslist" }} />
         </DialogContent>
@@ -344,21 +348,21 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
         size="large"
         color="secondary"
         classes={{ root: classes.fab }}
-        // onClick={}
+        onClick={handleManualAddClick}
       >
         <Add />
-      </Fab>
+      </Fab> */}
     </div>
   );
 };
 
-const areEqual: (
-  prevProps: Readonly<InventoryProps & { children?: ReactNode }>,
-  nextProps: Readonly<InventoryProps & { children?: ReactNode }>
-) => boolean = (prevProps, nextProps) => {
-  console.log("compared functions");
-  return true;
-};
+// const areEqual: (
+//   prevProps: Readonly<InventoryProps & { children?: ReactNode }>,
+//   nextProps: Readonly<InventoryProps & { children?: ReactNode }>
+// ) => boolean = (prevProps, nextProps) => {
+//   console.log("compared functions");
+//   return true;
+// };
 
 const sortByExpiry = (entries: Item[], desc: boolean) => {
   const sorted = entries.sort((entryA, entryB) => {
@@ -417,5 +421,5 @@ const sortByQuantity = (entries: Item[], desc: boolean) => {
   return sorted;
 };
 
-const MemoizedInventory = React.memo(Inventory, areEqual);
-export default MemoizedInventory;
+// const MemoizedInventory = React.memo(Inventory, areEqual);
+export default Inventory;
