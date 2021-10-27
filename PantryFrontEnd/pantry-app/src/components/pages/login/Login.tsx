@@ -3,10 +3,10 @@ import {
   Button,
   Checkbox,
   CircularProgress,
+  Container,
   FormControlLabel,
   Grid,
   Link,
-  Paper,
   TextField,
   Typography,
   useTheme,
@@ -27,14 +27,14 @@ enum LOGIN_FIELDS {
 }
 
 const Login: React.FC<loginProps> = ({ setLoggedIn }) => {
+  const theme = useTheme();
+
   const paperStyle = {
     padding: 20,
     height: "80vh",
-    width: 500,
     margin: "20px auto",
+    backgroundColor: theme.palette.background.default,
   };
-
-  const theme = useTheme();
 
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -107,7 +107,7 @@ const Login: React.FC<loginProps> = ({ setLoggedIn }) => {
 
   return (
     <Grid>
-      <Paper elevation={30} variant="outlined" style={paperStyle}>
+      <Container style={paperStyle} maxWidth="sm">
         {/* {message && <Snackbar open={true} autoHideDuration={6000} color="primary"><>message</></Snackbar> } */}
         <Grid item xs={12} style={{ textAlign: "center" }}>
           <h2> Login </h2>
@@ -124,6 +124,7 @@ const Login: React.FC<loginProps> = ({ setLoggedIn }) => {
               variant="outlined"
             />
           </div>
+          <br />
           <div>
             <TextField
               label="Password"
@@ -137,6 +138,7 @@ const Login: React.FC<loginProps> = ({ setLoggedIn }) => {
             />
           </div>
         </Box>
+        <br />
         <FormControlLabel
           control={<Checkbox name="checkedB" color="primary" />}
           label="Remember me"
@@ -147,7 +149,11 @@ const Login: React.FC<loginProps> = ({ setLoggedIn }) => {
           fullWidth
           variant="contained"
           onClick={handleLogin}
-          style={{ height: theme.spacing(5) }}
+          style={{
+            height: theme.spacing(5),
+            marginBottom: theme.spacing(5),
+            color: theme.palette.primary.light,
+          }}
         >
           {isLoggingIn ? (
             <CircularProgress
@@ -159,13 +165,16 @@ const Login: React.FC<loginProps> = ({ setLoggedIn }) => {
             "Login"
           )}
         </Button>
-        <Typography>
-          Don't have an account?
-          <Link href="#">Forgot Password?</Link>
+        <br />
+        <Typography variant="body2">
+          {"Forgot password? "}
+          <Link href="#">Reset Password</Link>
         </Typography>
+        <br />
+
         <Typography>
-          Don't have an account?
-          <Link component="button" variant="body1" onClick={handleRoute}>
+          {"Don't have an account? "}
+          <Link component="button" variant="body2" onClick={handleRoute}>
             Sign Up
           </Link>
         </Typography>
@@ -176,7 +185,7 @@ const Login: React.FC<loginProps> = ({ setLoggedIn }) => {
             </Redirect>
           )}
         </Switch>
-      </Paper>
+      </Container>
     </Grid>
   );
 };
