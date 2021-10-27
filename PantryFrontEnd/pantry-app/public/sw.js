@@ -82,11 +82,11 @@ self.addEventListener("push", (e) => {
   }
 
   let pushData = { title: "", body: "", expiry: "" };
-  if (e.data) pushData = e.data.json();
-  else {
-    console.log("SW: Unexpected notification data! Aborting...");
-    return;
-  }
+  if (e.data) pushData = { ...e.data.json() };
+  // else {
+  //   console.log("SW: Unexpected notification data! Aborting...");
+  //   return;
+  // }
 
   self.registration.showNotification(pushData.title, {
     body: pushData.body,
