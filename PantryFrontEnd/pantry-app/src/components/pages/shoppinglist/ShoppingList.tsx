@@ -107,6 +107,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     name: "Coles Australian Original Bread Crumb",
     quantity: "220g",
     category: "Bakery/Bread",
+    img: "https://shop.coles.com.au/wcsstore/Coles-CAS/images/4/3/2/4324897.jpg"
     },
     {
     itemId: "123456Q",
@@ -115,6 +116,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     name: "Coles Free Range Jumbo Eggs 12 pack",
     quantity: "800g",
     category: "Milk, Eggs, Other Dairy",
+    img: "https://shop.coles.com.au/wcsstore/Coles-CAS/images/9/4/5/9453478.jpg"
     },
     {
     itemId: "123456Q",
@@ -123,6 +125,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     name: "Campbells Bone Broth From Free Range Chicken",
     quantity: "500mL",
     category: "Canned and Jarred",
+    img: "https://shop.coles.com.au/wcsstore/Coles-CAS/images/3/2/2/3224751.jpg",
     },
     {
     itemId: "123456Q",
@@ -131,6 +134,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
     name: "Middle Bacon",
     quantity: "1kg",
     category: "Meat",
+    img: "https://shop.coles.com.au/wcsstore/Coles-CAS/images/1/0/2/1028220.jpg",
     },
   ]);
   
