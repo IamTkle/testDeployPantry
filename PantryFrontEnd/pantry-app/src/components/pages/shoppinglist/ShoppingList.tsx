@@ -98,7 +98,41 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   const handleSortDirectionChange = (sortType: number, desc: boolean) => {};
   const handleSortTypeChosen = (sortType: number, desc: boolean) => {};
 
-  const [listInfo, setListInfo] = React.useState<shoppingListAPIitem[]>([]);
+  //const [listInfo, setListInfo] = React.useState<shoppingListAPIitem[]>([]);
+  const [listInfo, setListInfo] = React.useState<shoppingListAPIitem[]>([
+    {
+    itemId: "123456Q",
+    count: 1, 
+    price: 1.75,
+    name: "Coles Australian Original Bread Crumb",
+    quantity: "220g",
+    category: "Bakery/Bread",
+    },
+    {
+    itemId: "123456Q",
+    count: 1, 
+    price: 5,
+    name: "Coles Free Range Jumbo Eggs 12 pack",
+    quantity: "800g",
+    category: "Milk, Eggs, Other Dairy",
+    },
+    {
+    itemId: "123456Q",
+    count: 1, 
+    price: 7,
+    name: "Campbells Bone Broth From Free Range Chicken",
+    quantity: "500mL",
+    category: "Canned and Jarred",
+    },
+    {
+    itemId: "123456Q",
+    count: 1, 
+    price: 9,
+    name: "Middle Bacon",
+    quantity: "1kg",
+    category: "Meat",
+    },
+  ]);
   
   const [activeTab, setActiveTab] = React.useState(0);
 
@@ -114,14 +148,6 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   //   [listInfo]
   // );
 
-  // React.useEffect(() => {
-  //   fetch(DOMAIN + "/api/GetShoppingItems", 
-  //   {method: "GET", credentials: "include", headers: {"Content-Type": "application/json"}} )
-  //   .then((response) => {return response.json()})
-  //   .then((result: shoppingListAPIitem[]) => {setListInfo(result); console.log(result)})
-  //   .catch((e) => console.error(e))
-  // }, []);
-
   React.useEffect(() => {
     fetch(DOMAIN + "/api/GetShoppingItems", {
       method: "GET",
@@ -131,7 +157,12 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
       }
     })
       .then((resp) => {return resp.json()})
-      .then((result: shoppingListAPIitem[]) => {setListInfo(result); console.log(result)})
+      .then((result:shoppingListAPIitem[]) => {
+        //setListInfo(result);
+        Object.keys(result).forEach((category => {
+
+        }))
+         console.log(result)})
       .catch((e) => console.error(e))
   },[]);
 
@@ -172,8 +203,6 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
   };
 
   const tabCategories = React.useMemo(getTabCategories, [listInfo]);
-
- 
 
   const getTabs = () => {
     console.log("tab categories checked");
@@ -235,10 +264,11 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
                item={listInfo}
                handleAdd={handleAdd}
               handleRemove={handleRemove}
-           />);
+           />
+          );
             }
              )
-           };
+           }
           
        </Container>
 
