@@ -212,6 +212,7 @@ export interface shoppingListAPIitem {
   name: string;
   quantity: string;
   category: string;
+  img: string;
 };
 
 export type ShoppingListEntry = {
@@ -224,15 +225,15 @@ export type ShoppingListEntry = {
   img: string;
 };
 
-export const shopProducts: shoppingListAPIitem[] = [
-  {
-    itemId: "123456Q",
-    count: 1, 
-    price: 12.50,
-    name: "Creme caramel",
-    quantity: "500g",
-    category: "Bakery",
-  },
+// export const shopProducts: shoppingListAPIitem[] = [
+//   {
+//     itemId: "123456Q",
+//     count: 1, 
+//     price: 12.50,
+//     name: "Creme caramel",
+//     quantity: "500g",
+//     category: "Bakery",
+//   },
   // {
   //   rid: "123456W",
   //   name: "Milk",
@@ -252,6 +253,6 @@ export const shopProducts: shoppingListAPIitem[] = [
   //   img: "https://webknox.com/recipeImages/1506697-556x370.jpg",
   // },
   
-];
+// ];
 
 export const DOMAIN = "https://pantties.azurewebsites.net";
