@@ -6,10 +6,9 @@ import ShoppingListEntry from "./ShoppingListEntry";
 interface ShoppingListTabProps {
   activeTab: number;
   index: number;
-  propEntries: shopListEntry[];
-  handleRemove: (shoppingList: shopListEntry) => void;
-  handleAdd: (shoppingList:shopListEntry) => void;
-  //type: "api";
+  // propEntries: shopListEntry[];
+  // handleRemove: (shoppingList: shopListEntry) => void;
+  // handleAdd: (shoppingList:shopListEntry) => void;
 }
 
 // const getKey = (name: string) => {
@@ -24,30 +23,29 @@ interface ShoppingListTabProps {
 const ShoppingListTab: React.FC<ShoppingListTabProps> = ({
   activeTab,
   index,
-  propEntries,
-  handleRemove,
-  handleAdd,
+  // propEntries,
+  // handleRemove,
+  // handleAdd,
 }) => {
   return (
     <>
-      {activeTab === index && (
+      {/* {activeTab === index && (
         <Container style={{ maxWidth: "none" }}>
           {propEntries.map((r, i) => {
             return (
-              <div></div>
-              // <ShoppingListEntry
-              //   key={r.rid}
-              //   i={i}
-              //   name={r.name}
-              //   category={r.category}
-              //   shoppingList={r}
-              //   handleRemove={handleRemove}
-              //   handleAdd={handleAdd}
-              // ></ShoppingListEntry>
+              <ShoppingListEntry
+                key={r.rid}
+                i={i}
+                name={r.name}
+                category={r.category}
+                shoppingList={r}
+                handleRemove={handleRemove}
+                handleAdd={handleAdd}
+              ></ShoppingListEntry>
             );
           })}
         </Container>
-      )}
+      )} */}
     </>
   );
 };
