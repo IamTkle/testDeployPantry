@@ -229,7 +229,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
 
        <Container style={{ paddingBottom: 16, maxWidth: "none" }}>
   
-           {/* {listInfo.map((listInfo,i) => { return(
+           {listInfo.map((listInfo,i) => { return(
              <ShoppingListEntry 
                i={i}
                item={listInfo}
@@ -238,7 +238,7 @@ const ShoppingList: React.FC<ShoppingListProps> = ({ setNavOpen }) => {
            />);
             }
              )
-           }; */}
+           };
           
        </Container>
 

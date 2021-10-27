@@ -219,7 +219,6 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                   justifyContent: "flex-start",
                }}>
                   
-                  {/* <div style={{ width: '100%'}}> */}
                     <Box
                     sx={{
                       fontSize: "20px",
@@ -273,9 +272,8 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
                     <Box sx={{ p: 2, flexGrow: 1}}>
                       {"$" + (count * item.price).toFixed(2)} 
                     </Box>   
-                    {/* <Box sx={{ p: 2, flexGrow: 1}}>{totalPrice}</Box> */}
+                    
                   </Box>
-                {/* </div> */}
               </Container>
             }
           />
