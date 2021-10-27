@@ -186,7 +186,7 @@ const ShoppingListEntry: React.FC<ShoppingListEntryProps> = ({
           <ListItemAvatar>
             <Avatar
               variant="rounded"
-              // src={item}
+              src={item.img}
               classes={{ root: classes.entryAvatar }}
             />
           </ListItemAvatar>
