@@ -81,16 +81,15 @@ self.addEventListener("push", (e) => {
     return;
   }
 
-  let pushData = { title: "", body: "", expiry: "" };
-  if (e.data) pushData = { ...e.data.json() };
+  // let pushData = { title: "", body: "", expiry: "" };
+  // if (e.data) pushData = { ...e.data.json() };
   // else {
   //   console.log("SW: Unexpected notification data! Aborting...");
   //   return;
   // }
 
-  self.registration.showNotification(pushData.title, {
-    body: pushData.body,
-    timestamp: new Date(pushData.expiry),
+  self.registration.showNotification("Expiry Notification", {
+    body: e.data.text(),
     icon: "manifest-icon-192.maskable.png",
   });
 });
