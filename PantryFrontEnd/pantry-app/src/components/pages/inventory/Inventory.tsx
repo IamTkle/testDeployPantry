@@ -183,6 +183,16 @@ const Inventory: React.FC<InventoryProps> = ({ setNavOpen }) => {
 
   const tabCategories = React.useMemo(getTabCategories, [entries]);
 
+  React.useEffect(() => {
+    fetch(DOMAIN + "/api/Test", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).catch((e) => console.error("Failed to call api! " + e));
+  }, []);
+
   const topEleRef = React.useRef<HTMLDivElement | null>(null);
   const handleTabChange = (e: React.ChangeEvent<{}>, newTab: number) => {
     setActiveTab(newTab);

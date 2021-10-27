@@ -224,34 +224,33 @@ export type ShoppingListEntry = {
   img: string;
 };
 
-export const listInfo: ShoppingListEntry[] = [
+export const shopProducts: shoppingListAPIitem[] = [
   {
-    rid: "123456Q",
-    name: "Creme caramel",
-    category: "Bakery",
-    intake: "500g",
+    itemId: "123456Q",
+    count: 1, 
     price: 12.50,
-    quantity: 2,
-    img: "https://spoonacular.com/recipeImages/73420-312x231.jpg",
+    name: "Creme caramel",
+    quantity: "500g",
+    category: "Bakery",
   },
-  {
-    rid: "123456W",
-    name: "Milk",
-    category: "Dairy",
-    intake: "10g",
-    price: 5.00,
-    quantity: 1,
-    img: "https://shop.coles.com.au/wcsstore/Coles-CAS/images/8/0/8/8083963.jpg",
-  },
-  {
-    rid: "123456E",
-    name: "Chicken 65",
-    category: "Dairy",
-    intake: "1Kg",
-    price: 20,
-    quantity: 3,
-    img: "https://webknox.com/recipeImages/1506697-556x370.jpg",
-  },
+  // {
+  //   rid: "123456W",
+  //   name: "Milk",
+  //   category: "Dairy",
+  //   intake: "10g",
+  //   price: 5.00,
+  //   quantity: 1,
+  //   img: "https://shop.coles.com.au/wcsstore/Coles-CAS/images/8/0/8/8083963.jpg",
+  // },
+  // {
+  //   rid: "123456E",
+  //   name: "Chicken 65",
+  //   category: "Dairy",
+  //   intake: "1Kg",
+  //   price: 20,
+  //   quantity: 3,
+  //   img: "https://webknox.com/recipeImages/1506697-556x370.jpg",
+  // },
   
 ];
 
