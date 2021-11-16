@@ -1,4 +1,3 @@
-# Capstone-2-Final-Product-Repository
-The repository where our final Curtin Uni Capstone 2 Computing Project dev work will be done 
+# Capstone-2-Test-Deployment-Repo
 
-test test
+Test Deployment of Handy Pantry - Household Foodwaste Reduction Progressive Web-App
